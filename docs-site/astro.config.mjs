@@ -28,7 +28,7 @@ export default defineConfig({
 						{ slug: "concepts/overview" },
 						{ slug: "concepts/directives" },
 						{ slug: "concepts/skills" },
-						{ slug: "concepts/agents" },
+						{ slug: "concepts/ai-agents" },
 						{ slug: "concepts/tool-servers" },
 						{ slug: "concepts/hooks" },
 						{ slug: "concepts/permissions" },
