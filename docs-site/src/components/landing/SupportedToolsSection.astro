@@ -1,0 +1,47 @@
+---
+const tools = [
+	{
+		name: "Claude Code",
+		files: ["CLAUDE.md", ".claude/settings.json", ".mcp.json"],
+	},
+	{
+		name: "Cursor",
+		files: [".cursor/rules/*.mdc", ".cursor/mcp.json", ".cursorignore"],
+	},
+	{
+		name: "Codex",
+		files: ["AGENTS.md", ".codex/config.toml"],
+	},
+	{
+		name: "GitHub Copilot",
+		files: [".github/copilot-instructions.md", ".github/agents/*.agent.md", ".vscode/mcp.json"],
+	},
+	{
+		name: "OpenCode",
+		files: [".opencode/instructions/*.md", ".opencode/agents/*.md", "opencode.json"],
+	},
+	{
+		name: "Antigravity",
+		files: [".agent/rules/*.md", ".agent/skills/*/SKILL.md", "mcp_config.json"],
+	},
+];
+---
+<section class="ld-section" id="tools">
+	<div class="ld-container">
+		<div class="ld-reveal" style="text-align:center;margin-bottom:3rem;">
+			<p class="ld-section-label">// Supported Tools</p>
+			<h2 class="ld-section-title">One source, multiple outputs</h2>
+			<p class="ld-section-desc" style="margin-inline:auto;">Each tool gets exactly the files it expects, generated from your single .ai/ directory.</p>
+		</div>
+		<div class="ld-tools-grid">
+			{tools.map((t, i) => (
+				<div class={`ld-card ld-tool-card ld-reveal ld-delay-${i + 1}`}>
+					<h3>{t.name}</h3>
+					<ul class="ld-tool-files">
+						{t.files.map(f => <li>{f}</li>)}
+					</ul>
+				</div>
+			))}
+		</div>
+	</div>
+</section>

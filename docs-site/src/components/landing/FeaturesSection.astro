@@ -1,0 +1,91 @@
+---
+const features = [
+	{
+		title: "Source of Truth",
+		desc: "Define directives, skills, agents, MCP servers, hooks, and permissions in one .ai/ directory.",
+		frames: [
+			"┌────────┐\n│ ◉ .ai/ │\n│ ◉ yaml │\n└────────┘",
+			"┌────────┐\n│ ◎ .ai/ │\n│ ◎ yaml │\n└────────┘",
+			"┌────────┐\n│ ○ .ai/ │\n│ ○ yaml │\n└────────┘",
+		],
+	},
+	{
+		title: "Multi-Tool Sync",
+		desc: "One command generates correct files for Claude Code, Cursor, Codex, Copilot, OpenCode, and Antigravity simultaneously.",
+		frames: [
+			"  .ai/  \n   │    \n ┌─┼─┐  \n ▼ ▼ ▼  ",
+			"  .ai/  \n   │    \n ┌─┼─┐  \n → → →  ",
+			"  .ai/  \n   ║    \n ╔═╬═╗  \n ▼ ▼ ▼  ",
+		],
+	},
+	{
+		title: "Conflict Detection",
+		desc: "Content hashing detects manually edited files. Never accidentally overwrite your changes.",
+		frames: [
+			"┌──┐ ┌──┐\n│░░│≠│▓▓│\n└──┘ └──┘\n  ⚠ diff ",
+			"┌──┐ ┌──┐\n│▒▒│≠│▓▓│\n└──┘ └──┘\n  ⚠ diff ",
+			"┌──┐ ┌──┐\n│▓▓│=│▓▓│\n└──┘ └──┘\n  ✓ sync ",
+		],
+	},
+	{
+		title: "Import Existing",
+		desc: "Already have configs? dotai import scans and converts Claude, Cursor, Codex, or Copilot configs into .ai/ format.",
+		frames: [
+			"CLAUDE.md\n   ↓    \n scanner \n   ↓    ",
+			" .cursor \n   ↓    \n scanner \n   ↓    ",
+			"AGENTS.md\n   ↓    \n scanner \n   ↓    ",
+		],
+	},
+	{
+		title: "Validation",
+		desc: "dotai check validates your config against the schema before syncing, catching errors early.",
+		frames: [
+			"[✓] yaml  \n[✓] refs  \n[✓] paths \n[✓] valid ",
+			"[~] yaml  \n[✓] refs  \n[~] paths \n[~] check ",
+			"[✓] yaml  \n[✓] refs  \n[✓] paths \n[✓] valid ",
+		],
+	},
+	{
+		title: "Extensible",
+		desc: "Markdown directives, skill folders, agent configs — add what you need, skip what you don't.",
+		frames: [
+			"+ skill/ \n+ agent  \n+ hook   \n= config ",
+			"+ dir/   \n+ mcp    \n+ perm   \n= config ",
+			"+ skill/ \n+ agent  \n+ hook   \n= config ",
+		],
+	},
+];
+---
+<section class="ld-section" id="features">
+	<div class="ld-container">
+		<div class="ld-reveal" style="text-align:center;margin-bottom:3rem;">
+			<p class="ld-section-label">// Features</p>
+			<h2 class="ld-section-title">Everything you need to manage AI configs</h2>
+		</div>
+		<div class="ld-features-grid">
+			{features.map((f, i) => (
+				<div class={`ld-card ld-feature-card ld-reveal ld-delay-${i < 5 ? i + 1 : 5}`}>
+					<pre class="ld-feature-icon" data-frames={JSON.stringify(f.frames)}>{f.frames[0]}</pre>
+					<h3>{f.title}</h3>
+					<p>{f.desc}</p>
+				</div>
+			))}
+		</div>
+	</div>
+</section>
+
+<script>
+	const icons = document.querySelectorAll<HTMLPreElement>('.ld-feature-icon[data-frames]');
+	if (icons.length) {
+		let tick = 0;
+		setInterval(() => {
+			tick++;
+			icons.forEach(el => {
+				const frames: string[] = JSON.parse(el.dataset.frames || '[]');
+				if (frames.length) {
+					el.textContent = frames[tick % frames.length];
+				}
+			});
+		}, 400);
+	}
+</script>

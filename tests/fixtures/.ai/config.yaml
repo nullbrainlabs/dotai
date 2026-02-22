@@ -1,0 +1,33 @@
+mcpServers:
+  github:
+    transport: stdio
+    command: npx
+    args: ["@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_TOKEN: "${GITHUB_TOKEN}"
+  remote-api:
+    transport: http
+    url: https://mcp.example.com/api
+
+permissions:
+  - tool: Bash
+    pattern: "npm *"
+    decision: allow
+  - tool: Read
+    decision: allow
+
+settings:
+  model: claude-sonnet-4-6
+  contextWindow: 200000
+
+hooks:
+  - event: preFileEdit
+    handler: eslint --fix
+  - event: postToolUse
+    matcher: Bash
+    handler: echo "Tool used"
+
+ignore:
+  - node_modules/**
+  - dist/**
+  - "*.log"

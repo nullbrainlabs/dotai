@@ -1,0 +1,210 @@
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { loadProjectConfig } from "../../src/config/loader.js";
+import { parseMarkdownWithFrontmatter } from "../../src/config/markdown-loader.js";
+import { emptyConfig, validateConfig } from "../../src/config/schema.js";
+import { loadSkills } from "../../src/config/skill-loader.js";
+
+const FIXTURES = join(import.meta.dirname, "../fixtures/.ai");
+
+describe("parseMarkdownWithFrontmatter", () => {
+	it("parses frontmatter and body", () => {
+		const result = parseMarkdownWithFrontmatter(`---
+scope: project
+alwaysApply: true
+---
+
+# Hello
+
+Body text here.`);
+
+		expect(result.frontmatter.scope).toBe("project");
+		expect(result.frontmatter.alwaysApply).toBe(true);
+		expect(result.body).toContain("# Hello");
+		expect(result.body).toContain("Body text here.");
+	});
+
+	it("handles no frontmatter", () => {
+		const result = parseMarkdownWithFrontmatter("# Just markdown\n\nNo frontmatter.");
+		expect(result.frontmatter).toEqual({});
+		expect(result.body).toContain("# Just markdown");
+	});
+
+	it("parses array values in frontmatter", () => {
+		const result = parseMarkdownWithFrontmatter(`---
+appliesTo: [*.ts, *.tsx]
+tools: ["Read", "Write"]
+---
+
+Body`);
+
+		expect(result.frontmatter.appliesTo).toEqual(["*.ts", "*.tsx"]);
+		expect(result.frontmatter.tools).toEqual(["Read", "Write"]);
+	});
+
+	it("parses numeric values", () => {
+		const result = parseMarkdownWithFrontmatter(`---
+count: 42
+ratio: 3.14
+---
+
+Body`);
+
+		expect(result.frontmatter.count).toBe(42);
+		expect(result.frontmatter.ratio).toBe(3.14);
+	});
+
+	it("parses boolean values", () => {
+		const result = parseMarkdownWithFrontmatter(`---
+enabled: true
+disabled: false
+---
+
+Body`);
+
+		expect(result.frontmatter.enabled).toBe(true);
+		expect(result.frontmatter.disabled).toBe(false);
+	});
+});
+
+describe("loadSkills", () => {
+	it("loads skills from fixture directory", async () => {
+		const skills = await loadSkills(join(FIXTURES, "skills"));
+		expect(skills).toHaveLength(1);
+		expect(skills[0].name).toBe("review");
+		expect(skills[0].content).toContain("# Code Review");
+		expect(skills[0].disableAutoInvocation).toBe(false);
+	});
+
+	it("returns empty array for missing directory", async () => {
+		const skills = await loadSkills("/nonexistent/path");
+		expect(skills).toEqual([]);
+	});
+});
+
+describe("loadProjectConfig", () => {
+	it("loads full config from fixtures", async () => {
+		const { config, errors } = await loadProjectConfig(FIXTURES);
+		expect(errors).toEqual([]);
+
+		// Tool servers
+		expect(config.toolServers).toHaveLength(2);
+		const github = config.toolServers.find((ts) => ts.name === "github");
+		expect(github).toBeDefined();
+		expect(github?.transport).toBe("stdio");
+		expect(github?.command).toBe("npx");
+		expect(github?.args).toEqual(["@modelcontextprotocol/server-github"]);
+
+		const remote = config.toolServers.find((ts) => ts.name === "remote-api");
+		expect(remote).toBeDefined();
+		expect(remote?.transport).toBe("http");
+		expect(remote?.url).toBe("https://mcp.example.com/api");
+
+		// Permissions
+		expect(config.permissions).toHaveLength(2);
+		expect(config.permissions[0].tool).toBe("Bash");
+		expect(config.permissions[0].pattern).toBe("npm *");
+		expect(config.permissions[0].decision).toBe("allow");
+
+		// Settings
+		expect(config.settings).toHaveLength(2);
+		expect(config.settings.find((s) => s.key === "model")?.value).toBe("claude-sonnet-4-6");
+
+		// Hooks
+		expect(config.hooks).toHaveLength(2);
+		expect(config.hooks[0].event).toBe("preFileEdit");
+
+		// Ignore patterns
+		expect(config.ignorePatterns).toHaveLength(3);
+		expect(config.ignorePatterns[0].pattern).toBe("node_modules/**");
+
+		// Directives
+		expect(config.directives).toHaveLength(2);
+		const codeStyle = config.directives.find((d) => d.description === "Code style rules");
+		expect(codeStyle).toBeDefined();
+		expect(codeStyle?.alwaysApply).toBe(true);
+		expect(codeStyle?.content).toContain("Use tabs for indentation");
+
+		const testing = config.directives.find((d) => d.description === "Testing conventions");
+		expect(testing).toBeDefined();
+		expect(testing?.alwaysApply).toBe(false);
+		expect(testing?.appliesTo).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
+
+		// Skills
+		expect(config.skills).toHaveLength(1);
+		expect(config.skills[0].name).toBe("review");
+
+		// Agents
+		expect(config.agents).toHaveLength(1);
+		expect(config.agents[0].name).toBe("plan-checker");
+		expect(config.agents[0].model).toBe("claude-sonnet-4-6");
+		expect(config.agents[0].readonly).toBe(true);
+		expect(config.agents[0].tools).toEqual(["Read", "Glob", "Grep"]);
+	});
+
+	it("returns empty config for missing directory", async () => {
+		const { config, errors } = await loadProjectConfig("/nonexistent/path");
+		expect(errors).toEqual([]);
+		expect(config).toEqual(emptyConfig());
+	});
+});
+
+describe("loadProjectConfig — outputDir", () => {
+	it("parses outputDir from directive frontmatter", async () => {
+		// Use inline parsing to verify the loader logic for outputDir
+		const result = parseMarkdownWithFrontmatter(`---
+description: Docs rules
+alwaysApply: true
+outputDir: docs-site
+---
+
+Use clear headings.`);
+
+		expect(result.frontmatter.outputDir).toBe("docs-site");
+	});
+});
+
+describe("validateConfig", () => {
+	it("validates a correct config", async () => {
+		const { config } = await loadProjectConfig(FIXTURES);
+		const result = validateConfig(config);
+		expect(result.valid).toBe(true);
+		expect(result.errors).toEqual([]);
+	});
+
+	it("reports empty directive content", () => {
+		const config = emptyConfig();
+		config.directives.push({
+			content: "",
+			scope: "project",
+			alwaysApply: true,
+		});
+		const result = validateConfig(config);
+		expect(result.valid).toBe(false);
+		expect(result.errors[0].message).toContain("empty content");
+	});
+
+	it("reports stdio server without command", () => {
+		const config = emptyConfig();
+		config.toolServers.push({
+			name: "test",
+			transport: "stdio",
+			scope: "project",
+		});
+		const result = validateConfig(config);
+		expect(result.valid).toBe(false);
+		expect(result.errors[0].message).toContain("no command");
+	});
+
+	it("reports http server without url", () => {
+		const config = emptyConfig();
+		config.toolServers.push({
+			name: "test",
+			transport: "http",
+			scope: "project",
+		});
+		const result = validateConfig(config);
+		expect(result.valid).toBe(false);
+		expect(result.errors[0].message).toContain("no url");
+	});
+});

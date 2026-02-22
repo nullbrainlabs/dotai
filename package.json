@@ -1,0 +1,71 @@
+{
+  "name": "@nullbrain/dotai",
+  "version": "0.1.0-alpha.1",
+  "description": "Configure once, generate for all AI coding tools",
+  "type": "module",
+  "bin": {
+    "dotai": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "build": "tsup",
+    "lint": "biome check src tests",
+    "lint:fix": "biome check --write src tests",
+    "format": "biome format --write src tests",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "tsx src/cli.ts",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "sync-docs": "bash scripts/sync-docs.sh",
+    "docs:dev": "pnpm -C docs-site dev",
+    "docs:build": "pnpm -C docs-site build",
+    "docs:preview": "pnpm -C docs-site preview"
+  },
+  "packageManager": "pnpm@10.12.4",
+  "workspaces": ["docs-site"],
+  "keywords": [
+    "ai",
+    "cli",
+    "claude",
+    "cursor",
+    "codex",
+    "copilot",
+    "config",
+    "developer-tools"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nullbrainlabs/dotai"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@types/node": "^25.3.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.0.1",
+    "commander": "^14.0.3",
+    "smol-toml": "^1.6.0",
+    "yaml": "^2.8.2"
+  }
+}

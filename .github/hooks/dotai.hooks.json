@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "postToolUse": [
+      {
+        "command": "if echo \"$TOOL_INPUT\" | grep -q '\"src/commands/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/reference/cli.md\"\nelif echo \"$TOOL_INPUT\" | grep -q '\"src/domain/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/architecture/domain-model.md\"\nelif echo \"$TOOL_INPUT\" | grep -q '\"src/config/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/reference/config-yaml.md\"\nelif echo \"$TOOL_INPUT\" | grep -q '\"src/emitters/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/architecture/cross-tool-mapping.md\"\nfi\n",
+        "matcher": "Edit"
+      },
+      {
+        "command": "if echo \"$TOOL_INPUT\" | grep -q '\"src/commands/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/reference/cli.md\"\nelif echo \"$TOOL_INPUT\" | grep -q '\"src/domain/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/architecture/domain-model.md\"\nelif echo \"$TOOL_INPUT\" | grep -q '\"src/config/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/reference/config-yaml.md\"\nelif echo \"$TOOL_INPUT\" | grep -q '\"src/emitters/'; then\n  echo \"📝 Docs reminder: update docs-site/src/content/docs/architecture/cross-tool-mapping.md\"\nfi\n",
+        "matcher": "Write"
+      }
+    ]
+  }
+}

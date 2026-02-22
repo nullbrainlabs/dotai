@@ -1,0 +1,47 @@
+---
+---
+<nav class="ld-nav" id="landing-nav">
+	<div class="ld-container">
+		<div class="ld-nav-inner">
+			<a href="/dotai/" class="ld-nav-logo">ai.</a>
+			<div class="ld-nav-links">
+				<a href="#features">Features</a>
+				<a href="#how-it-works">How It Works</a>
+				<a href="#tools">Supported Tools</a>
+				<a href="#developers">CLI</a>
+			</div>
+			<div class="ld-nav-cta">
+				<a href="/dotai/getting-started/quickstart" class="ld-btn ld-btn-primary" style="padding:0.5rem 1.25rem;font-size:0.85rem;">Get Started</a>
+			</div>
+			<button class="ld-nav-hamburger" id="nav-toggle" aria-label="Toggle menu">
+				<span></span><span></span><span></span>
+			</button>
+		</div>
+		<div class="ld-nav-mobile" id="nav-mobile">
+			<a href="#features">Features</a>
+			<a href="#how-it-works">How It Works</a>
+			<a href="#tools">Supported Tools</a>
+			<a href="#developers">CLI</a>
+			<a href="/dotai/getting-started/quickstart" class="ld-btn ld-btn-primary" style="margin-top:0.5rem;text-align:center;justify-content:center;">Get Started</a>
+		</div>
+	</div>
+</nav>
+
+<script>
+	const nav = document.getElementById('landing-nav');
+	const toggle = document.getElementById('nav-toggle');
+	const mobile = document.getElementById('nav-mobile');
+
+	window.addEventListener('scroll', () => {
+		nav?.classList.toggle('scrolled', window.scrollY > 20);
+	});
+
+	toggle?.addEventListener('click', () => {
+		mobile?.classList.toggle('open');
+	});
+
+	// Close mobile menu on link click
+	mobile?.querySelectorAll('a').forEach(a => {
+		a.addEventListener('click', () => mobile?.classList.remove('open'));
+	});
+</script>

@@ -1,0 +1,126 @@
+---
+const tabs = [
+	{
+		label: "config.yaml",
+		code: `<span class="kw">version</span>: <span class="num">1</span>
+<span class="kw">tools</span>:
+  - <span class="str">claude</span>
+  - <span class="str">cursor</span>
+  - <span class="str">codex</span>
+  - <span class="str">copilot</span>
+  - <span class="str">antigravity</span>
+
+<span class="kw">directives</span>:
+  - <span class="str">directives/*.md</span>
+
+<span class="kw">permissions</span>:
+  <span class="kw">allow</span>:
+    - <span class="str">Bash(npm test)</span>
+    - <span class="str">Bash(npm run build)</span>
+  <span class="kw">deny</span>:
+    - <span class="str">Bash(rm -rf *)</span>`,
+	},
+	{
+		label: "CLI",
+		code: `<span class="cmt"># Initialize a new .ai/ directory</span>
+$ <span class="kw">dotai</span> init
+
+<span class="cmt"># Sync configs to all tools</span>
+$ <span class="kw">dotai</span> sync
+
+<span class="cmt"># Check config validity</span>
+$ <span class="kw">dotai</span> check
+
+<span class="cmt"># View sync status</span>
+$ <span class="kw">dotai</span> status
+
+<span class="cmt"># Import existing configs</span>
+$ <span class="kw">dotai</span> import`,
+	},
+	{
+		label: "directive.md",
+		code: `<span class="cmt">---</span>
+<span class="kw">description</span>: <span class="str">Code style rules</span>
+<span class="kw">globs</span>: <span class="str">src/**/*.ts</span>
+<span class="cmt">---</span>
+
+<span class="kw"># TypeScript Style Guide</span>
+
+- Use strict mode
+- Prefer <span class="str">const</span> over <span class="str">let</span>
+- Use explicit return types
+- No <span class="str">any</span> — prefer <span class="str">unknown</span>
+- Tabs for indentation`,
+	},
+];
+
+const features = [
+	{ title: "YAML-first", desc: "Human-readable config, version-controllable" },
+	{ title: "Zero lock-in", desc: "Standard markdown + YAML, no proprietary formats" },
+	{ title: "Conflict-aware", desc: "Hash-based change detection, safe syncing" },
+	{ title: "Extensible", desc: "Skills, agents, hooks — add what you need" },
+];
+---
+<section class="ld-section" id="developers">
+	<div class="ld-container">
+		<div class="ld-dev-grid">
+			<div class="ld-reveal">
+				<p class="ld-section-label">// For Developers</p>
+				<h2 class="ld-section-title">Built for developers,<br>by developers.</h2>
+				<p class="ld-section-desc">A CLI tool that fits into your existing workflow. No cloud, no accounts — just your repo.</p>
+				<div class="ld-dev-features">
+					{features.map(f => (
+						<div class="ld-dev-feature">
+							<strong>{f.title}</strong>
+							<span>{f.desc}</span>
+						</div>
+					))}
+				</div>
+			</div>
+			<div class="ld-reveal ld-delay-1" style="position:sticky;top:6rem;">
+				<div class="ld-code-window" style="position:relative;">
+					<div class="ld-tabs" id="dev-tabs">
+						{tabs.map((t, i) => (
+							<button class={`ld-tab ${i === 0 ? 'active' : ''}`} data-tab={i}>{t.label}</button>
+						))}
+					</div>
+					{tabs.map((t, i) => (
+						<div class={`ld-tab-panel ${i === 0 ? 'active' : ''}`} data-panel={i}>
+							<div class="ld-code-body" set:html={t.code}></div>
+						</div>
+					))}
+					<button class="ld-copy-btn" id="dev-copy">Copy</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	const tabContainer = document.getElementById('dev-tabs');
+	const copyBtn = document.getElementById('dev-copy');
+
+	if (tabContainer) {
+		const tabs = tabContainer.querySelectorAll<HTMLButtonElement>('.ld-tab');
+		const panels = document.querySelectorAll<HTMLElement>('.ld-tab-panel');
+
+		tabs.forEach(tab => {
+			tab.addEventListener('click', () => {
+				const idx = tab.dataset.tab;
+				tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === idx));
+				panels.forEach(p => p.classList.toggle('active', p.dataset.panel === idx));
+			});
+		});
+	}
+
+	if (copyBtn) {
+		copyBtn.addEventListener('click', () => {
+			const activePanel = document.querySelector('.ld-tab-panel.active .ld-code-body');
+			if (activePanel) {
+				navigator.clipboard.writeText(activePanel.textContent || '');
+				copyBtn.textContent = '✓ Copied';
+				setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+			}
+		});
+	}
+</script>

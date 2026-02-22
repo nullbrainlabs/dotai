@@ -1,0 +1,194 @@
+/* Dark mode overrides */
+:root[data-theme="dark"] {
+	--sl-color-black: hsl(224, 15%, 4%);
+	--sl-color-gray-6: hsl(224, 14%, 9%);
+	--sl-color-gray-5: hsl(224, 10%, 15%);
+}
+
+/* ── Site title ── */
+
+:root[data-theme="dark"] .site-title {
+	color: white;
+}
+
+.site-title {
+	font-size: calc(var(--sl-text-h4) * 1.3);
+}
+
+/* ── Hero section ── */
+
+.hero-accent {
+	background: linear-gradient(135deg, hsl(200, 100%, 60%), hsl(260, 100%, 70%));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+[data-theme="light"] .hero-accent {
+	background: linear-gradient(135deg, hsl(220, 90%, 45%), hsl(260, 80%, 50%));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.page .hero > img,
+.page .hero > .hero-html {
+	filter: drop-shadow(0 0 3rem hsla(220, 100%, 60%, 0.2));
+}
+
+/* Hero title sizing */
+[data-page-title="ai"] .hero h1 {
+	font-size: clamp(2.5rem, 6vw, 4.5rem);
+	line-height: 1.1;
+	letter-spacing: -0.03em;
+}
+
+[data-page-title="ai"] .hero .tagline {
+	font-size: clamp(1rem, 2vw, 1.25rem);
+	max-width: 44ch;
+	opacity: 0.8;
+}
+
+/* Hero actions */
+[data-page-title="ai"] .hero .action a[data-variant="primary"] {
+	background: linear-gradient(135deg, hsl(220, 90%, 55%), hsl(260, 80%, 55%));
+	border: none;
+	padding: 0.75rem 2rem;
+	font-size: 1rem;
+	font-weight: 600;
+	border-radius: 9999px;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-page-title="ai"] .hero .action a[data-variant="primary"]:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 20px hsla(240, 80%, 60%, 0.35);
+}
+
+[data-page-title="ai"] .hero .action a[data-variant="minimal"] {
+	border-radius: 9999px;
+	padding: 0.75rem 2rem;
+	font-size: 1rem;
+}
+
+/* ── Code preview block ── */
+
+.hero-code-preview {
+	max-width: 28rem;
+	margin: 0 auto 4rem;
+	position: relative;
+}
+
+.hero-code-preview::before {
+	content: "";
+	position: absolute;
+	inset: -1px;
+	border-radius: 0.75rem;
+	padding: 1px;
+	background: linear-gradient(135deg, hsla(220, 80%, 60%, 0.3), hsla(260, 80%, 60%, 0.3));
+	-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+	mask-composite: exclude;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.hero-code-preview pre {
+	border-radius: 0.75rem !important;
+	font-size: 0.875rem;
+}
+
+/* ── Features section ── */
+
+.features-section {
+	max-width: 64rem;
+	margin: 0 auto 4rem;
+}
+
+.features-section h2 {
+	text-align: center;
+	font-size: 2rem;
+	margin-bottom: 2rem;
+	letter-spacing: -0.02em;
+}
+
+/* Card styling */
+.features-section .card,
+.tool-grid .card {
+	border: 1px solid hsla(224, 20%, 50%, 0.12);
+	border-radius: 0.75rem;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.features-section .card:hover,
+.tool-grid .card:hover {
+	border-color: hsla(220, 80%, 60%, 0.3);
+	box-shadow: 0 2px 16px hsla(220, 80%, 60%, 0.08);
+}
+
+/* ── Tool grid ── */
+
+.tool-grid {
+	max-width: 64rem;
+	margin: 0 auto 4rem;
+}
+
+.tool-grid h2 {
+	text-align: center;
+	font-size: 2rem;
+	margin-bottom: 2rem;
+	letter-spacing: -0.02em;
+}
+
+.tool-grid .card code {
+	font-size: 0.8rem;
+	opacity: 0.75;
+}
+
+/* ── CTA section ── */
+
+.cta-section {
+	text-align: center;
+	margin: 4rem auto;
+	padding: 3rem 2rem;
+	max-width: 40rem;
+	border-radius: 1rem;
+	background: linear-gradient(
+		135deg,
+		hsla(220, 80%, 60%, 0.06),
+		hsla(260, 80%, 60%, 0.06)
+	);
+	border: 1px solid hsla(224, 20%, 50%, 0.1);
+}
+
+.cta-section h3 {
+	font-size: 1.5rem;
+	margin-bottom: 1.5rem;
+	letter-spacing: -0.02em;
+}
+
+.cta-button {
+	display: inline-block;
+	background: linear-gradient(135deg, hsl(220, 90%, 55%), hsl(260, 80%, 55%));
+	color: white !important;
+	padding: 0.75rem 2rem;
+	font-size: 1rem;
+	font-weight: 600;
+	border-radius: 9999px;
+	text-decoration: none;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cta-button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 20px hsla(240, 80%, 60%, 0.35);
+	text-decoration: none;
+}
+
+/* ── Splash page general layout ── */
+
+[data-page-title="ai"] .sl-markdown-content {
+	max-width: 72rem;
+	margin-inline: auto;
+}

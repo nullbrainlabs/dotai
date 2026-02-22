@@ -1,0 +1,130 @@
+---
+const steps = [
+	{
+		num: "01",
+		title: "Define",
+		desc: "Write your AI config once in .ai/config.yaml with directives, skills, and agents.",
+		file: "config.yaml",
+		code: `<span class="kw">version</span>: <span class="num">1</span>
+<span class="kw">tools</span>:
+  - <span class="str">claude</span>
+  - <span class="str">cursor</span>
+  - <span class="str">codex</span>
+  - <span class="str">copilot</span>
+  - <span class="str">antigravity</span>
+
+<span class="kw">directives</span>:
+  - <span class="str">directives/*.md</span>
+
+<span class="kw">skills</span>:
+  - <span class="str">skills/*/SKILL.md</span>
+
+<span class="kw">mcp_servers</span>:
+  <span class="kw">github</span>:
+    <span class="kw">command</span>: <span class="str">npx @modelcontextprotocol/server-github</span>`,
+	},
+	{
+		num: "02",
+		title: "Sync",
+		desc: "Run dotai sync to generate tool-specific config files from your single source.",
+		file: "terminal",
+		code: `<span class="cmt">$ dotai sync</span>
+
+<span class="str">✓</span> Loaded .ai/config.yaml
+<span class="str">✓</span> Scanned 3 directives
+<span class="str">✓</span> Scanned 2 skills
+<span class="str">✓</span> Generated CLAUDE.md
+<span class="str">✓</span> Generated .claude/settings.json
+<span class="str">✓</span> Generated .mcp.json
+<span class="str">✓</span> Generated .cursor/rules/style.mdc
+<span class="str">✓</span> Generated AGENTS.md
+
+<span class="kw">Synced 8 files</span> in 42ms`,
+	},
+	{
+		num: "03",
+		title: "Ship",
+		desc: "Commit the generated files. Your whole team gets consistent AI tool configs.",
+		file: "terminal",
+		code: `<span class="cmt">$ git add -A</span>
+<span class="cmt">$ git commit -m "chore: sync ai configs"</span>
+
+<span class="str">[main a1b2c3d]</span> chore: sync ai configs
+ <span class="num">8</span> files changed, <span class="num">142</span> insertions(+)
+
+<span class="cmt">$ dotai status</span>
+<span class="str">✓</span> All files in sync
+<span class="str">✓</span> No conflicts detected
+<span class="kw">Everything up to date.</span>`,
+	},
+];
+---
+<section class="ld-section" id="how-it-works" style="background:oklch(0.06 0.015 260);">
+	<div class="ld-container">
+		<div class="ld-reveal" style="margin-bottom:3rem;">
+			<p class="ld-section-label">// How It Works</p>
+			<h2 class="ld-section-title">Three steps to unified configs</h2>
+		</div>
+		<div class="ld-how-grid">
+			<div class="ld-how-steps" id="how-steps">
+				{steps.map((s, i) => (
+					<div class={`ld-how-step ld-reveal ld-delay-${i + 1} ${i === 0 ? 'active' : ''}`} data-step={i}>
+						<span class="ld-how-step-num">{s.num}</span>
+						<h3>{s.title}</h3>
+						<p>{s.desc}</p>
+						<div class="ld-how-progress"><div class="ld-how-progress-bar"></div></div>
+					</div>
+				))}
+			</div>
+			<div class="ld-how-code ld-reveal ld-delay-2">
+				{steps.map((s, i) => (
+					<div class={`ld-code-window ld-step-code ${i === 0 ? 'active' : ''}`} data-code-step={i} style={i !== 0 ? 'display:none;' : ''}>
+						<div class="ld-code-header">
+							<span class="ld-code-dot"></span>
+							<span class="ld-code-dot"></span>
+							<span class="ld-code-dot"></span>
+							<span class="ld-code-filename">{s.file}</span>
+						</div>
+						<div class="ld-code-body" set:html={s.code}></div>
+					</div>
+				))}
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	const stepsEl = document.getElementById('how-steps');
+	if (stepsEl) {
+		const stepItems = stepsEl.querySelectorAll<HTMLElement>('.ld-how-step');
+		const codeBlocks = document.querySelectorAll<HTMLElement>('.ld-step-code');
+		let current = 0;
+		let timer: ReturnType<typeof setInterval>;
+
+		const activate = (idx: number) => {
+			stepItems.forEach((s, i) => {
+				s.classList.toggle('active', i === idx);
+			});
+			codeBlocks.forEach((c, i) => {
+				c.style.display = i === idx ? '' : 'none';
+			});
+			current = idx;
+		};
+
+		const startCycle = () => {
+			clearInterval(timer);
+			timer = setInterval(() => {
+				activate((current + 1) % stepItems.length);
+			}, 5000);
+		};
+
+		stepItems.forEach((s, i) => {
+			s.addEventListener('click', () => {
+				activate(i);
+				startCycle();
+			});
+		});
+
+		startCycle();
+	}
+</script>

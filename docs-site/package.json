@@ -1,0 +1,15 @@
+{
+  "name": "dotai-docs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.17.3",
+    "@astrojs/starlight": "^0.37.6"
+  }
+}

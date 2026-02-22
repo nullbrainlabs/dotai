@@ -1,0 +1,31 @@
+mcpServers: {}
+permissions: []
+settings: {}
+hooks:
+  - event: postToolUse
+    handler: >
+      INPUT=$(cat)
+
+      FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+
+      case "$FILE_PATH" in
+        */src/commands/*) echo "📝 Docs reminder: update docs-site/src/content/docs/reference/cli.md" ;;
+        */src/domain/*) echo "📝 Docs reminder: update docs-site/src/content/docs/architecture/domain-model.md" ;;
+        */src/config/*) echo "📝 Docs reminder: update docs-site/src/content/docs/reference/config-yaml.md" ;;
+        */src/emitters/*) echo "📝 Docs reminder: update docs-site/src/content/docs/architecture/cross-tool-mapping.md" ;;
+      esac
+    matcher: Edit
+  - event: postToolUse
+    handler: >
+      INPUT=$(cat)
+
+      FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+
+      case "$FILE_PATH" in
+        */src/commands/*) echo "📝 Docs reminder: update docs-site/src/content/docs/reference/cli.md" ;;
+        */src/domain/*) echo "📝 Docs reminder: update docs-site/src/content/docs/architecture/domain-model.md" ;;
+        */src/config/*) echo "📝 Docs reminder: update docs-site/src/content/docs/reference/config-yaml.md" ;;
+        */src/emitters/*) echo "📝 Docs reminder: update docs-site/src/content/docs/architecture/cross-tool-mapping.md" ;;
+      esac
+    matcher: Write
+ignore: []
