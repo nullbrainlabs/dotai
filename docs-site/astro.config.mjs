@@ -2,8 +2,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
 export default defineConfig({
-	site: "https://nullbrainlabs.github.io",
-	base: "/dotai",
+	site: "https://aidot.nullbrain.com",
 	integrations: [
 		starlight({
 			title: "ai.",
