@@ -55,23 +55,21 @@ The `ask` decision is the default behavior for most tools when no matching permi
 
 dotai translates permissions into each tool's native access control format. Coverage and granularity vary significantly across tools.
 
-| Aspect | Claude Code | Cursor | Codex | OpenCode | Copilot | Antigravity |
-|---|---|---|---|---|---|---|
-| Granularity | Per-tool + argument patterns | Per-tool-type + patterns | Global policy only | Per-tool + argument patterns | None | None |
-| Decisions | allow/deny/ask | allow/deny | suggest/auto-edit/full-auto | allow/deny/ask | N/A | N/A |
-| Tool targeting | `Bash(npm run *)` | `Shell(cmd)` | N/A | nested patterns | N/A | N/A |
-| Sandbox | N/A | N/A | off/read-only/full | N/A | N/A | N/A |
+| Aspect | Claude Code | Cursor | Codex | Copilot |
+|---|---|---|---|---|
+| Granularity | Per-tool + argument patterns | Per-tool-type + patterns | Global policy only | None |
+| Decisions | allow/deny/ask | allow/deny | suggest/auto-edit/full-auto | N/A |
+| Tool targeting | `Bash(npm run *)` | `Shell(cmd)` | N/A | N/A |
+| Sandbox | N/A | N/A | off/read-only/full | N/A |
 
 ### Translation Rules
 
 - **Cursor** — Does not support the `ask` decision. Rules with `decision: ask` are translated to `deny` so that the agent stops rather than proceeding silently.
 - **Codex** — Does not support per-tool permission rules. Fine-grained rules are coerced to the most restrictive matching global policy. A single `deny` rule for any tool forces Codex into `suggest` mode for the entire session.
-- **OpenCode** — Supports per-tool permission rules with nested argument patterns, mapping closely to the dotai model.
 - **Claude Code** — Full support for per-tool rules, argument patterns, and all three decision types.
 
 ### Known Limitations
 
 - **Copilot** — Does not support file-based permission configuration. All permission rules are skipped with a warning during `ai sync`.
-- **Antigravity** — Does not support permission rules. All permission rules are skipped with a warning during `ai sync`.
 - **Codex** — Only supports a global automation policy (`suggest`, `auto-edit`, `full-auto`). Per-tool and per-pattern granularity is lost.
 - **Cursor** — Does not support the `ask` decision. `ask` rules are emitted as `deny` to preserve safety.

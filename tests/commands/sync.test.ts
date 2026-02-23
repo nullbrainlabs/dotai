@@ -44,16 +44,6 @@ describe("runSync", () => {
 		expect(existsSync(join(TMP_DIR, "AGENTS.md"))).toBe(true);
 	});
 
-	it("generates OpenCode files", async () => {
-		await runSync(TMP_DIR, { ...defaults, targets: ["opencode"] });
-
-		expect(existsSync(join(TMP_DIR, "opencode.json"))).toBe(true);
-		const content = await readFile(join(TMP_DIR, "opencode.json"), "utf-8");
-		const parsed = JSON.parse(content);
-		expect(parsed.instructions).toBeDefined();
-		expect(Array.isArray(parsed.instructions)).toBe(true);
-	});
-
 	it("dry run does not write files", async () => {
 		if (existsSync(join(TMP_DIR, "CLAUDE.md"))) {
 			rmSync(join(TMP_DIR, "CLAUDE.md"));
@@ -195,13 +185,11 @@ describe("deriveGitignorePatterns", () => {
 			{ path: "CLAUDE.md", content: "" },
 			{ path: "AGENTS.md", content: "" },
 			{ path: ".mcp.json", content: "" },
-			{ path: "opencode.json", content: "" },
 		];
 		const patterns = deriveGitignorePatterns(files);
 		expect(patterns).toContain("CLAUDE.md");
 		expect(patterns).toContain("AGENTS.md");
 		expect(patterns).toContain(".mcp.json");
-		expect(patterns).toContain("opencode.json");
 	});
 
 	it("produces exact match for outputDir-prefixed root files", () => {

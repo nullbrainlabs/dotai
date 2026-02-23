@@ -2,7 +2,7 @@
 
 Configure once, generate for all AI coding tools.
 
-`dotai` reads a single `.ai/` config directory and emits native configuration files for Claude Code, Cursor, Codex, OpenCode, GitHub Copilot, and Antigravity.
+`dotai` reads a single `.ai/` config directory and emits native configuration files for Claude Code, Cursor, Codex, and GitHub Copilot.
 
 > **Alpha** — this tool is under active development. Expect breaking changes.
 
@@ -54,9 +54,7 @@ Then `dotai sync` generates the native config files each tool expects:
 | Claude Code | `CLAUDE.md`, `.claude/`, `.mcp.json` |
 | Cursor | `.cursor/`, `.cursorrules` |
 | Codex | `AGENTS.md`, `.codex/` |
-| OpenCode | `AGENTS.md`, `opencode.json` |
 | GitHub Copilot | `.github/copilot-instructions.md`, `.copilot/` |
-| Antigravity | `ANTIGRAVITY.md` |
 
 ## Import existing config
 

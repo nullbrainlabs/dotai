@@ -2,7 +2,7 @@ import { readdir, stat } from "node:fs/promises";
 import { join, relative } from "node:path";
 
 /** Source tool that originally created a config file. */
-export type SourceTool = "claude" | "cursor" | "codex" | "opencode";
+export type SourceTool = "claude" | "cursor" | "codex";
 
 /** Kind of config entity the file maps to. */
 export type DetectedKind =
@@ -134,23 +134,6 @@ export async function scanForConfigs(projectDir: string): Promise<DetectedFile[]
 
 	const agentsMd = join(projectDir, "AGENTS.md");
 	if (await exists(agentsMd)) add(agentsMd, "codex", "directives", "AGENTS.md (directives)");
-
-	// OpenCode files
-	const opencodeJson = join(projectDir, "opencode.json");
-	if (await exists(opencodeJson))
-		add(opencodeJson, "opencode", "settings", "opencode.json (config)");
-
-	const opencodeAgentsDir = join(projectDir, ".opencode", "agents");
-	for (const f of await listMdFiles(opencodeAgentsDir)) {
-		const p = join(opencodeAgentsDir, f);
-		add(p, "opencode", "agents", `.opencode/agents/${f} (agent)`);
-	}
-
-	const opencodeSkillsDir = join(projectDir, ".opencode", "skills");
-	for (const s of await listSkillDirs(opencodeSkillsDir)) {
-		const p = join(opencodeSkillsDir, s, "SKILL.md");
-		add(p, "opencode", "skills", `.opencode/skills/${s}/SKILL.md (skill)`);
-	}
 
 	return detected;
 }

@@ -25,12 +25,8 @@ export const hooksEmitter: Emitter = {
 				return emitCursor(config.hooks, config.ignorePatterns);
 			case "codex":
 				return emitCodex(config.hooks, config.ignorePatterns);
-			case "opencode":
-				return emitOpenCode(config.hooks, config.ignorePatterns);
 			case "copilot":
 				return emitCopilot(config.hooks, config.ignorePatterns);
-			case "antigravity":
-				return emitAntigravity(config.hooks, config.ignorePatterns);
 		}
 	},
 };
@@ -126,26 +122,6 @@ function emitCodex(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult {
 	return { files, warnings };
 }
 
-/** OpenCode: ignore → watcher.ignore in opencode.json, hooks not supported */
-function emitOpenCode(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult {
-	const files: EmittedFile[] = [];
-	const warnings: string[] = [];
-
-	if (ignorePatterns.length > 0) {
-		const ignore = ignorePatterns.map((p) => p.pattern);
-		files.push({
-			path: "opencode.json",
-			content: `${JSON.stringify({ watcher: { ignore } }, null, 2)}\n`,
-		});
-	}
-
-	if (hooks.length > 0) {
-		warnings.push("OpenCode does not support lifecycle hooks — hook configuration is skipped.");
-	}
-
-	return { files, warnings };
-}
-
 /** Events supported by Copilot hooks. */
 const COPILOT_HOOK_EVENTS = new Set([
 	"preToolUse",
@@ -191,21 +167,4 @@ function emitCopilot(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult
 	}
 
 	return { files, warnings };
-}
-
-/** Antigravity: no hooks or ignore pattern support */
-function emitAntigravity(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult {
-	const warnings: string[] = [];
-
-	if (hooks.length > 0) {
-		warnings.push("Antigravity does not support hooks — hook configuration is skipped.");
-	}
-
-	if (ignorePatterns.length > 0) {
-		warnings.push(
-			"Antigravity does not support file-based ignore patterns — ignore configuration is skipped.",
-		);
-	}
-
-	return { files: [], warnings };
 }

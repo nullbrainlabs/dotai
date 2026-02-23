@@ -21,7 +21,7 @@ description: Definitions of terms used in the dotai project.
 
 **Glob** — A file path pattern using wildcard syntax (e.g., `*.tsx`, `src/**/*.test.ts`). Used in directive `appliesTo`, permission `pattern`, and ignore patterns.
 
-**Hook** — An event handler fired at specific agent lifecycle points. Supported by Claude Code (full), GitHub Copilot (most events), and Cursor (partial). Not supported by Codex or OpenCode. Defined in `.ai/config.yaml`. See [Hooks](/concepts/hooks).
+**Hook** — An event handler fired at specific agent lifecycle points. Supported by Claude Code (full), GitHub Copilot (most events), and Cursor (partial). Not supported by Codex. Defined in `.ai/config.yaml`. See [Hooks](/concepts/hooks).
 
 **IgnorePattern** — A gitignore-style pattern excluding files from the agent's context and indexing. Restricted to project and user scope. See [Ignore Patterns](/concepts/ignore-patterns).
 
@@ -29,7 +29,7 @@ description: Definitions of terms used in the dotai project.
 
 **Matcher** — A filter on a Hook: tool name for tool-use hooks, glob pattern for file-edit hooks.
 
-**MCP (Model Context Protocol)** — An open protocol for connecting AI agents to external tool/data providers. All six target tools support MCP. See [Tool Servers](/concepts/tool-servers).
+**MCP (Model Context Protocol)** — An open protocol for connecting AI agents to external tool/data providers. All four target tools support MCP. See [Tool Servers](/concepts/tool-servers).
 
 **Permission** — An access control rule: tool name + optional argument pattern + decision (allow/deny/ask). Stored at finest granularity, projected to coarser models during generation. See [Permissions](/concepts/permissions).
 

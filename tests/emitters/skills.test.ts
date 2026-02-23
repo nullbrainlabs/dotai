@@ -60,21 +60,6 @@ describe("skillsEmitter", () => {
 		expect(result.files[0].path).toBe(".github/skills/lint/SKILL.md");
 	});
 
-	it("emits skill files for Antigravity", () => {
-		const config = emptyConfig();
-		config.skills.push({
-			name: "review",
-			description: "Code review",
-			content: "# Review\n\nReview the code.",
-			disableAutoInvocation: false,
-		});
-
-		const result = skillsEmitter.emit(config, "antigravity");
-		expect(result.files).toHaveLength(1);
-		expect(result.files[0].path).toBe(".agent/skills/review/SKILL.md");
-		expect(result.files[0].content).toContain("# Review");
-	});
-
 	it("returns empty for no skills", () => {
 		const config = emptyConfig();
 		const result = skillsEmitter.emit(config, "claude");

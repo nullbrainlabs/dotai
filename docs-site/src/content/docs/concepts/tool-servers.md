@@ -3,7 +3,7 @@ title: Tool Servers
 description: External tool and data providers connected via MCP.
 ---
 
-Tool servers connect AI agents to external capabilities — filesystems, databases, APIs, and custom tools — via the Model Context Protocol (MCP). MCP support is universal across all six tools that dotai targets. Translation from `.ai/config.yaml` to each tool's native format is mechanical and lossless.
+Tool servers connect AI agents to external capabilities — filesystems, databases, APIs, and custom tools — via the Model Context Protocol (MCP). MCP support is universal across all four tools that dotai targets. Translation from `.ai/config.yaml` to each tool's native format is mechanical and lossless.
 
 ## TypeScript Interface
 
@@ -78,14 +78,13 @@ servers:
 
 ## Cross-Tool Support
 
-| Aspect | Claude Code | Cursor | Codex | OpenCode | Copilot | Antigravity |
-|--------|-------------|--------|-------|----------|---------|-------------|
-| Config file | `.mcp.json` | `.cursor/mcp.json` | `.codex/config.toml` | `opencode.json` | `.vscode/mcp.json` | `mcp_config.json` |
-| Format | JSON | JSON | TOML | JSON | JSON | JSON |
-| Top-level key | `mcpServers` | `mcpServers` | `[mcp_servers.<name>]` | `mcp` | `mcpServers` | `mcpServers` |
-| Tool filtering | `enabledTools` / `disabledTools` | `enabledTools` / `disabledTools` | `enabled_tools` / `disabled_tools` | Not supported | Not supported | Not supported |
+| Aspect | Claude Code | Cursor | Codex | Copilot |
+|--------|-------------|--------|-------|---------|
+| Config file | `.mcp.json` | `.cursor/mcp.json` | `.codex/config.toml` | `.vscode/mcp.json` |
+| Format | JSON | JSON | TOML | JSON |
+| Top-level key | `mcpServers` | `mcpServers` | `[mcp_servers.<name>]` | `mcpServers` |
+| Tool filtering | `enabledTools` / `disabledTools` | `enabledTools` / `disabledTools` | `enabled_tools` / `disabled_tools` | Not supported |
 
 ## Known Limitations
 
-- **OpenCode**: HTTP and SSE transports are mapped to a generic `"remote"` transport type. The distinction between streaming and non-streaming is not preserved in OpenCode's config format.
-- **OpenCode, Copilot, Antigravity**: Tool filtering (`enabledTools` / `disabledTools`) is not supported. These fields are silently dropped when emitting to those targets. All tools from the server are exposed.
+- **Copilot**: Tool filtering (`enabledTools` / `disabledTools`) is not supported. These fields are silently dropped when emitting to Copilot. All tools from the server are exposed.

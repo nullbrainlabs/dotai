@@ -94,9 +94,9 @@ Append a timestamped entry to a local log file whenever any tool is used:
 
 Hook support is the most divergent aspect of dotai's output. Three tools have no support at all; the remaining three have partial or full support.
 
-| Aspect | Claude Code | Cursor | Codex | OpenCode | Copilot | Antigravity |
-|--------|-------------|--------|-------|----------|---------|-------------|
-| Support | Full | Partial | None | None | Partial | None |
+| Aspect | Claude Code | Cursor | Codex | Copilot |
+|--------|-------------|--------|-------|---------|
+| Support | Full | Partial | None | Partial |
 
 ### Per-Event Support Matrix
 
@@ -120,6 +120,6 @@ Hook support is the most divergent aspect of dotai's output. Three tools have no
 
 ## Known Limitations
 
-- **Codex, OpenCode, Antigravity**: No hook support. All hooks are silently dropped when emitting to these targets. If your workflow depends on hooks, these tools will not fire them.
+- **Codex**: No hook support. All hooks are silently dropped when emitting to Codex. If your workflow depends on hooks, Codex will not fire them.
 - **Cursor**: Only file-edit events (`preFileEdit`, `postFileEdit`) are emitted. Tool events, session events, and agent lifecycle events are dropped.
 - **Copilot**: File-edit hooks (`preFileEdit`, `postFileEdit`) are not supported. The remaining 8 events are emitted to `.github/hooks/dotai.hooks.json`.

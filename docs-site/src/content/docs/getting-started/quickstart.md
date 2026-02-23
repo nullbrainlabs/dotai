@@ -49,8 +49,6 @@ This produces the right files for each tool:
 | Cursor | `.cursor/rules/*.mdc`, `.cursorignore` |
 | Codex | `AGENTS.md`, `.codex/config.toml` |
 | GitHub Copilot | `.github/copilot-instructions.md`, `.github/agents/*.agent.md`, `.vscode/mcp.json` |
-| OpenCode | `.opencode/instructions/*.md`, `.opencode/agents/*.md`, `opencode.json` |
-| Antigravity | `.agent/rules/*.md`, `.agent/skills/*/SKILL.md`, `mcp_config.json` |
 
 ## Check Status
 

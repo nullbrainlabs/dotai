@@ -6,9 +6,7 @@ const SKILLS_DIRS: Record<TargetTool, string> = {
 	claude: ".claude/skills",
 	cursor: ".cursor/skills",
 	codex: ".codex/skills",
-	opencode: ".opencode/skills",
 	copilot: ".github/skills",
-	antigravity: ".agent/skills",
 };
 
 /** Emits skill files for all target tools. Near-identical format across all 3. */

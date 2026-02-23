@@ -5,7 +5,6 @@ import { emptyConfig, mergeConfigs } from "../config/schema.js";
 import { parseClaude } from "./parsers/claude.js";
 import { parseCodex } from "./parsers/codex.js";
 import { parseCursor } from "./parsers/cursor.js";
-import { parseOpenCode } from "./parsers/opencode.js";
 import type { DetectedFile, SourceTool } from "./scanner.js";
 import { scanForConfigs } from "./scanner.js";
 import { writeProjectConfig } from "./writer.js";
@@ -63,10 +62,6 @@ export async function runImport(projectDir: string, options: ImportOptions): Pro
 		const partial = await parseCodex(projectDir, bySource.codex);
 		importedConfig = mergeConfigs(importedConfig, toFull(partial));
 	}
-	if (bySource.opencode.length > 0) {
-		const partial = await parseOpenCode(projectDir, bySource.opencode);
-		importedConfig = mergeConfigs(importedConfig, toFull(partial));
-	}
 
 	// Deduplicate MCP servers by name (first wins due to parse order)
 	importedConfig.toolServers = deduplicateByName(importedConfig.toolServers);
@@ -98,7 +93,6 @@ function groupBySource(files: DetectedFile[]): Record<SourceTool, DetectedFile[]
 		claude: [],
 		cursor: [],
 		codex: [],
-		opencode: [],
 	};
 	for (const f of files) {
 		result[f.source].push(f);

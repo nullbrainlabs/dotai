@@ -252,6 +252,7 @@
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: var(--ld-primary);
+	letter-spacing: -0.08em;
 }
 
 .ld-nav-links {
@@ -340,12 +341,12 @@
 /* ── Hero ── */
 .ld-hero {
 	position: relative;
-	min-height: 100vh;
+	min-height: 80vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	text-align: center;
-	padding-top: 5rem;
+	padding-top: 7rem;
 	overflow: hidden;
 }
 
@@ -365,10 +366,64 @@
 
 .ld-hero .subtitle {
 	color: var(--ld-muted);
-	font-size: clamp(1rem, 2vw, 1.25rem);
-	max-width: 36ch;
+	font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+	max-width: 56ch;
 	margin: 0 auto 2.5rem;
 	line-height: 1.6;
+}
+
+.ld-install-cmd {
+	display: inline-flex;
+	align-items: center;
+	gap: 1rem;
+	background: oklch(0.14 0.015 260);
+	border: 1px solid var(--ld-border);
+	border-radius: 0.625rem;
+	padding: 0.75rem 1rem 0.75rem 1.25rem;
+	margin-bottom: 2rem;
+	font-family: var(--ld-font-mono);
+	font-size: 1rem;
+	color: var(--ld-muted);
+	user-select: all;
+}
+
+.ld-install-cmd code {
+	color: var(--ld-fg);
+	letter-spacing: 0.01em;
+}
+
+.ld-install-prompt {
+	color: var(--ld-muted);
+	margin-right: 0.5rem;
+}
+
+.ld-install-copy {
+	display: grid;
+	place-items: center;
+	background: none;
+	border: none;
+	color: var(--ld-muted);
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 0.25rem;
+	transition: color 0.2s ease;
+}
+
+.ld-install-copy:hover {
+	color: var(--ld-fg);
+}
+
+.ld-install-copy .ld-check-icon {
+	display: none;
+}
+
+.ld-install-copy.copied .ld-copy-icon {
+	display: none;
+}
+
+.ld-install-copy.copied .ld-check-icon {
+	display: block;
+	color: var(--ld-green);
 }
 
 .ld-hero-actions {
@@ -379,41 +434,66 @@
 	margin-bottom: 4rem;
 }
 
-.ld-hero-stats {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 1rem;
-	max-width: 36rem;
-	margin: 0 auto;
-}
-
-@media (min-width: 640px) {
-	.ld-hero-stats {
-		grid-template-columns: repeat(3, 1fr);
-	}
-}
-
-.ld-hero-stat {
-	background: var(--ld-card);
-	border: 1px solid var(--ld-border);
-	border-radius: var(--ld-radius);
-	padding: 1.25rem 1rem;
+.ld-hero-logos {
 	text-align: center;
+	margin-top: 2rem;
 }
 
-.ld-hero-stat .value {
+.ld-hero-logos-label {
 	font-family: var(--ld-font-heading);
-	font-size: 1.5rem;
-	font-weight: 700;
-	color: var(--ld-primary);
+	font-size: 0.85rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--ld-muted);
 	display: block;
+	margin-bottom: 1.5rem;
 }
 
-.ld-hero-stat .label {
-	font-size: 0.8rem;
+.ld-hero-logos-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 2rem 3rem;
+}
+
+.ld-hero-logo {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
 	color: var(--ld-muted);
-	margin-top: 0.25rem;
-	display: block;
+	transition: color 0.2s ease;
+}
+
+.ld-hero-logo:hover {
+	color: var(--ld-fg);
+}
+
+.ld-hero-logo svg {
+	width: 2.25rem;
+	height: 2.25rem;
+	opacity: 0.5;
+	transition: opacity 0.2s ease;
+}
+
+.ld-hero-logo:hover svg {
+	opacity: 1;
+}
+
+.ld-hero-logo span {
+	font-family: var(--ld-font-heading);
+	font-size: 0.75rem;
+	letter-spacing: 0.02em;
+}
+
+.ld-hero-logo-combine span {
+	display: none;
+}
+
+.ld-hero-logo-combine svg {
+	width: auto;
+	height: 2rem;
 }
 
 /* ── Features ── */

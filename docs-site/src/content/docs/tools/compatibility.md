@@ -7,19 +7,19 @@ Not all tools support all features. This page shows what's supported where, and 
 
 ## Feature Support Matrix
 
-| Feature | Claude Code | Cursor | Codex | OpenCode | Copilot | Antigravity |
-|---------|:-----------:|:------:|:-----:|:--------:|:-------:|:-----------:|
-| Conditional directives | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ |
-| Intelligent selection | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ |
-| Skills | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Sub-agents | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
-| MCP servers | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Lifecycle hooks | ✓ | Partial | ✗ | ✗ | ✓ | ✗ |
-| Per-tool permissions | ✓ | ✓ | ✗ | ✓ | ✗ | ✗ |
-| Ask decision | ✓ | ✗ | ✗ | ✓ | ✗ | ✗ |
-| Sandbox mode | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ |
-| Enterprise scope | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| User scope | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| Feature | Claude Code | Cursor | Codex | Copilot |
+|---------|:-----------:|:------:|:-----:|:-------:|
+| Conditional directives | ✓ | ✓ | ✗ | ✓ |
+| Intelligent selection | ✓ | ✓ | ✗ | ✗ |
+| Skills | ✓ | ✓ | ✓ | ✓ |
+| Sub-agents | ✓ | ✓ | ✓ | ✓ |
+| MCP servers | ✓ | ✓ | ✓ | ✓ |
+| Lifecycle hooks | ✓ | Partial | ✗ | ✓ |
+| Per-tool permissions | ✓ | ✓ | ✗ | ✗ |
+| Ask decision | ✓ | ✗ | ✗ | ✗ |
+| Sandbox mode | ✗ | ✗ | ✓ | ✗ |
+| Enterprise scope | ✓ | ✗ | ✗ | ✗ |
+| User scope | ✓ | ✗ | ✗ | ✗ |
 
 ## Lossy Translations
 
@@ -27,17 +27,16 @@ When dotai emits configuration for a tool that doesn't support a given feature, 
 
 | What's lost | Affected tool | Workaround |
 |-------------|--------------|------------|
-| Conditional directive activation | Codex, OpenCode | All directives always apply |
+| Conditional directive activation | Codex | All directives always apply |
 | `ask` permission decision | Cursor | Downgraded to `deny` |
 | Per-tool permission rules | Codex, Copilot | Collapsed to global policy / not supported |
-| Lifecycle hooks | Codex, OpenCode, Antigravity | Not supported |
+| Lifecycle hooks | Codex | Not supported |
 | File-edit hooks | Copilot | Not supported |
-| File-based agent config | Antigravity | Agents are session-based |
 | Agent model override | Copilot | Not supported in file config |
-| MCP tool filtering | OpenCode, Copilot, Antigravity | Not supported |
-| File-based permissions | Copilot, Antigravity | Not supported |
-| File-based settings | Copilot, Antigravity | Not supported |
-| Ignore patterns | Copilot, Antigravity | Not supported |
+| MCP tool filtering | Copilot | Not supported |
+| File-based permissions | Copilot | Not supported |
+| File-based settings | Copilot | Not supported |
+| Ignore patterns | Copilot | Not supported |
 
 ## Scope Limitations
 
@@ -46,8 +45,6 @@ When dotai emits configuration for a tool that doesn't support a given feature, 
 | Claude Code | Enterprise, project, user |
 | Cursor | Project only |
 | Codex | Project only |
-| OpenCode | Project only |
 | GitHub Copilot | Project only |
-| Antigravity | Project only |
 
 Entities from enterprise and user scope are merged into project-scoped output with precedence respected for tools that only support project scope.

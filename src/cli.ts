@@ -28,10 +28,7 @@ program
 	.command("init")
 	.description("Scaffold a new .ai/ directory with guided setup")
 	.option("--template <name>", `Template (${TEMPLATE_NAMES.join(", ")})`)
-	.option(
-		"-t, --target <tools...>",
-		"Target tools (claude, cursor, codex, opencode, copilot, antigravity)",
-	)
+	.option("-t, --target <tools...>", "Target tools (claude, cursor, codex, copilot)")
 	.option("--skip-import", "Skip auto-detection of existing configs", false)
 	.option("--sync", "Run sync after init", false)
 	.action(
@@ -49,7 +46,7 @@ program
 program
 	.command("import")
 	.description("Import existing AI tool configs into .ai/ format")
-	.option("--source <tool>", "Filter to specific source (claude, cursor, codex, opencode, copilot)")
+	.option("--source <tool>", "Filter to specific source (claude, cursor, codex, copilot)")
 	.action(async (opts: { source?: string }) => {
 		await runImportCommand(process.cwd(), {
 			source: opts.source as SourceTool | undefined,
@@ -70,11 +67,7 @@ program
 program
 	.command("sync")
 	.description("Generate tool-specific config files from .ai/")
-	.option(
-		"-t, --target <tool>",
-		"Target tool (claude, cursor, codex, opencode, copilot, all)",
-		"all",
-	)
+	.option("-t, --target <tool>", "Target tool (claude, cursor, codex, copilot, all)", "all")
 	.option("--dry-run", "Show what would be written without writing", false)
 	.option("-s, --scope <scope>", "Config scope (user, project)", "project")
 	.option("--force", "Overwrite conflicting files", false)

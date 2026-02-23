@@ -62,19 +62,6 @@ describe("permissionsEmitter", () => {
 		});
 	});
 
-	describe("Antigravity", () => {
-		it("returns empty files with permission warning", () => {
-			const result = permissionsEmitter.emit(makeConfig(), "antigravity");
-			expect(result.files).toHaveLength(0);
-			expect(result.warnings.some((w) => w.includes("permission"))).toBe(true);
-		});
-
-		it("returns empty files with settings warning", () => {
-			const result = permissionsEmitter.emit(makeConfig(), "antigravity");
-			expect(result.warnings.some((w) => w.includes("settings"))).toBe(true);
-		});
-	});
-
 	it("returns empty for no permissions or settings", () => {
 		const config = emptyConfig();
 		const result = permissionsEmitter.emit(config, "claude");

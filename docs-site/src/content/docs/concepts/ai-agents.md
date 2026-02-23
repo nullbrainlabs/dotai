@@ -91,21 +91,19 @@ This structure serves both human readers and the agents that will be reading it.
 
 ## Cross-Tool Support
 
-| Aspect | Claude Code | Cursor | Codex | OpenCode | Copilot | Antigravity |
-|--------|-------------|--------|-------|----------|---------|-------------|
-| Location | `.claude/agents/*.md` | `.cursor/agents/*.md` | `.codex/config.toml` | `.opencode/agents/*.md` | `.github/agents/*.agent.md` | Not supported |
-| Format | MD + frontmatter | MD + frontmatter | TOML config | MD + YAML frontmatter | MD + YAML frontmatter | N/A |
-| Model override | `model` frontmatter | `model` frontmatter | `model` TOML key | `model` frontmatter | Not supported (warning) | N/A |
-| Read-only | `readonly` frontmatter | `readonly` frontmatter | Not supported | `tools.write`/`bash: false` | `tools: [read, search]` | N/A |
-| Tool restrictions | `tools` array | `tools` array | Limited | Limited (write/bash toggles) | `tools` array (mapped aliases) | N/A |
+| Aspect | Claude Code | Cursor | Codex | Copilot |
+|--------|-------------|--------|-------|---------|
+| Location | `.claude/agents/*.md` | `.cursor/agents/*.md` | `.codex/config.toml` | `.github/agents/*.agent.md` |
+| Format | MD + frontmatter | MD + frontmatter | TOML config | MD + YAML frontmatter |
+| Model override | `model` frontmatter | `model` frontmatter | `model` TOML key | Not supported (warning) |
+| Read-only | `readonly` frontmatter | `readonly` frontmatter | Not supported | `tools: [read, search]` |
+| Tool restrictions | `tools` array | `tools` array | Limited | `tools` array (mapped aliases) |
 
 **Notes:**
 
 - **Copilot** maps tool names to its own alias scheme. `Read` becomes `read`, `Write` and `Edit` both become `edit`, and so on. dotai performs this translation automatically.
-- **Antigravity** agents are session-based, not file-based. There is no persistent agent definition — each conversation session is its own ephemeral agent context. dotai cannot emit agents for Antigravity.
 
 ## Known Limitations
 
-- **Antigravity**: Agent definitions are silently skipped. There is no file-based agent system to target.
 - **Codex**: No `readonly` equivalent. Read-only agents are emitted without the restriction; the agent will have write access.
 - **Copilot**: No model override support. If a `model` field is set, dotai emits a warning and drops the field from the Copilot output.

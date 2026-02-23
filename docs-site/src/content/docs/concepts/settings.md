@@ -55,4 +55,3 @@ Unknown keys are passed through to the target tool's configuration without valid
 ## Known Limitations
 
 - **Copilot** — Does not support file-based settings configuration. All settings are skipped with a warning during `ai sync`.
-- **Antigravity** — Does not support file-based settings configuration. All settings are skipped with a warning during `ai sync`.

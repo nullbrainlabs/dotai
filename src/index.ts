@@ -96,7 +96,6 @@ export {
 	parseClaude,
 	parseCodex,
 	parseCursor,
-	parseOpenCode,
 	runImport,
 	scanForConfigs,
 	writeProjectConfig,

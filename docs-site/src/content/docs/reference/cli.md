@@ -30,7 +30,7 @@ dotai sync [options]
 |--------|-------------|
 | `--force` | Overwrite files even if manually edited (conflicts detected) |
 | `--dry-run` | Show what would be generated without writing files |
-| `--target <tool>` | Only generate for a specific tool (claude-code, cursor, codex, copilot, opencode, antigravity) |
+| `--target <tool>` | Only generate for a specific tool (claude-code, cursor, codex, copilot) |
 
 Reads `.ai/` config, applies scope precedence, and writes output files for each target tool. Tracks content hashes in `.ai/.state.json` for conflict detection.
 
@@ -73,6 +73,6 @@ dotai import [options]
 
 | Option | Description |
 |--------|-------------|
-| `--from <tool>` | Import from a specific tool (claude-code, cursor, codex, copilot, opencode) |
+| `--from <tool>` | Import from a specific tool (claude-code, cursor, codex, copilot) |
 
 Auto-detects existing configurations and converts them to `.ai/` entities. See [Importing Existing Configs](/getting-started/importing) for details.

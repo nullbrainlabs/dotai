@@ -110,38 +110,6 @@ describe("scanForConfigs", () => {
 		expect(found?.kind).toBe("directives");
 	});
 
-	it("detects opencode.json as opencode/settings", async () => {
-		writeFileSync(join(TMP_DIR, "opencode.json"), "{}");
-		const result = await scanForConfigs(TMP_DIR);
-		const found = result.find((f) => f.relativePath === "opencode.json");
-		expect(found).toBeDefined();
-		expect(found?.source).toBe("opencode");
-		expect(found?.kind).toBe("settings");
-	});
-
-	it("detects .opencode/agents/*.md as opencode/agents", async () => {
-		mkdirSync(join(TMP_DIR, ".opencode", "agents"), { recursive: true });
-		writeFileSync(
-			join(TMP_DIR, ".opencode", "agents", "reviewer.md"),
-			"---\nmode: subagent\n---\nReview code.",
-		);
-		const result = await scanForConfigs(TMP_DIR);
-		const found = result.find((f) => f.relativePath === ".opencode/agents/reviewer.md");
-		expect(found).toBeDefined();
-		expect(found?.source).toBe("opencode");
-		expect(found?.kind).toBe("agents");
-	});
-
-	it("detects .opencode/skills/*/SKILL.md as opencode/skills", async () => {
-		mkdirSync(join(TMP_DIR, ".opencode", "skills", "deploy"), { recursive: true });
-		writeFileSync(join(TMP_DIR, ".opencode", "skills", "deploy", "SKILL.md"), "# Deploy");
-		const result = await scanForConfigs(TMP_DIR);
-		const found = result.find((f) => f.relativePath === ".opencode/skills/deploy/SKILL.md");
-		expect(found).toBeDefined();
-		expect(found?.source).toBe("opencode");
-		expect(found?.kind).toBe("skills");
-	});
-
 	it("detects multiple sources at once", async () => {
 		writeFileSync(join(TMP_DIR, "CLAUDE.md"), "# Rules");
 		mkdirSync(join(TMP_DIR, ".cursor", "rules"), { recursive: true });

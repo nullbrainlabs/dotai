@@ -80,19 +80,6 @@ describe("mcpEmitter", () => {
 		});
 	});
 
-	describe("Antigravity", () => {
-		it("emits mcp_config.json", () => {
-			const result = mcpEmitter.emit(makeConfig(), "antigravity");
-			expect(result.files).toHaveLength(1);
-			expect(result.files[0].path).toBe("mcp_config.json");
-
-			const parsed = JSON.parse(result.files[0].content);
-			expect(parsed.mcpServers.github.command).toBe("npx");
-			expect(parsed.mcpServers.github.args).toEqual(["@modelcontextprotocol/server-github"]);
-			expect(parsed.mcpServers.remote.url).toBe("https://mcp.example.com");
-		});
-	});
-
 	it("returns empty for no servers", () => {
 		const config = emptyConfig();
 		const result = mcpEmitter.emit(config, "claude");

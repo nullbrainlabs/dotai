@@ -3,7 +3,7 @@ title: Overview
 description: The 8 entity types that form dotai's unified configuration model.
 ---
 
-dotai maps the configuration surfaces of six AI coding tools — Claude Code, Cursor, Codex, OpenCode, Copilot, and Antigravity — into 8 entity types. Once you author config in `.ai/`, the `sync` command translates it into each tool's native format. You never touch tool-specific files directly.
+dotai maps the configuration surfaces of four AI coding tools — Claude Code, Cursor, Codex, and Copilot — into 8 entity types. Once you author config in `.ai/`, the `sync` command translates it into each tool's native format. You never touch tool-specific files directly.
 
 ## Entity Types
 

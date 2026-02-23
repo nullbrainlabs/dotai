@@ -75,22 +75,20 @@ Each test should assert one thing. Prefer `toEqual` over `toBe` for objects.
 
 dotai translates directives into each tool's native format. The exact output depends on `alwaysApply` and `appliesTo`.
 
-| Behavior | Claude Code | Cursor | Codex | OpenCode | Copilot | Antigravity |
-|---|---|---|---|---|---|---|
-| `alwaysApply: true` | `CLAUDE.md` | `.cursor/rules/*.mdc` | `AGENTS.md` | `.opencode/instructions/*.md` | `.github/copilot-instructions.md` | `.agent/rules/*.md` |
-| `alwaysApply: false` | `.claude/rules/*.md` | `.cursor/rules/*.mdc` | `AGENTS.md` | `.opencode/instructions/*.md` | `.github/instructions/*.instructions.md` | `.agent/rules/*.md` |
-| `appliesTo` globs | Frontmatter | `globs` field | Ignored | Ignored | `applyTo` frontmatter | `globs` array |
+| Behavior | Claude Code | Cursor | Codex | Copilot |
+|---|---|---|---|---|
+| `alwaysApply: true` | `CLAUDE.md` | `.cursor/rules/*.mdc` | `AGENTS.md` | `.github/copilot-instructions.md` |
+| `alwaysApply: false` | `.claude/rules/*.md` | `.cursor/rules/*.mdc` | `AGENTS.md` | `.github/instructions/*.instructions.md` |
+| `appliesTo` globs | Frontmatter | `globs` field | Ignored | `applyTo` frontmatter |
 
 :::caution
-Codex and OpenCode do not support conditional directive activation. Directives with `alwaysApply: false` or `appliesTo` set will still be emitted to those tools, but the conditional logic is lost — the directive is always included.
+Codex does not support conditional directive activation. Directives with `alwaysApply: false` or `appliesTo` set will still be emitted to Codex, but the conditional logic is lost — the directive is always included.
 :::
 
 ### Known Limitations
 
 - **Codex** — Does not parse `appliesTo`. All directives are appended to `AGENTS.md` regardless of scope or conditionality. Conditional semantics are silently dropped.
-- **OpenCode** — Does not support file-pattern activation. Directives are written to `.opencode/instructions/` but are always active.
 - **Cursor** — Supports glob patterns via the `globs` field in `.mdc` frontmatter. Conditional directives translate faithfully.
-- **Antigravity** — Supports glob patterns via a `globs` array in rule frontmatter. Conditional directives translate faithfully.
 
 ## Best Practices
 

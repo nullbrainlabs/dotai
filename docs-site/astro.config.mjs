@@ -5,7 +5,7 @@ export default defineConfig({
 	site: "https://aidot.nullbrain.com",
 	integrations: [
 		starlight({
-			title: "ai.",
+			title: ".ai",
 			customCss: ["./src/styles/custom.css"],
 			components: {
 				PageTitle: "./src/components/PageTitle.astro",
@@ -44,8 +44,6 @@ export default defineConfig({
 						{ slug: "tools/cursor" },
 						{ slug: "tools/codex" },
 						{ slug: "tools/copilot" },
-						{ slug: "tools/opencode" },
-						{ slug: "tools/antigravity" },
 					],
 				},
 				{

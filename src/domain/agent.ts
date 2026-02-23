@@ -19,18 +19,4 @@ export interface Agent {
 	instructions: string;
 	/** Allowed tool names. Undefined means all tools allowed. */
 	tools?: string[];
-	/** Agent mode (OpenCode). */
-	mode?: "primary" | "subagent" | "all";
-	/** Sampling temperature (OpenCode). */
-	temperature?: number;
-	/** Top-p sampling (OpenCode). */
-	topP?: number;
-	/** Max steps per invocation (OpenCode). */
-	steps?: number;
-	/** Display color in TUI (OpenCode). */
-	color?: string;
-	/** Hidden from agent picker (OpenCode). */
-	hidden?: boolean;
-	/** Disabled agent (OpenCode). */
-	disabled?: boolean;
 }

@@ -12,12 +12,8 @@ export const agentsEmitter: Emitter = {
 				return emitCursorAgents(config.agents);
 			case "codex":
 				return emitCodexAgents(config.agents);
-			case "opencode":
-				return emitOpenCodeAgents(config.agents);
 			case "copilot":
 				return emitCopilotAgents(config.agents);
-			case "antigravity":
-				return emitAntigravityAgents(config.agents);
 		}
 	},
 };
@@ -138,46 +134,4 @@ function emitCopilotAgents(agents: Agent[]): EmitResult {
 	}
 
 	return { files, warnings };
-}
-
-/** OpenCode: .opencode/agents/<name>.md with YAML frontmatter */
-function emitOpenCodeAgents(agents: Agent[]): EmitResult {
-	const files: EmittedFile[] = [];
-	for (const agent of agents) {
-		const frontmatter: string[] = [];
-		if (agent.description) frontmatter.push(`description: ${agent.description}`);
-		if (agent.mode) frontmatter.push(`mode: ${agent.mode}`);
-		if (agent.model) frontmatter.push(`model: ${agent.model}`);
-		if (agent.temperature !== undefined) frontmatter.push(`temperature: ${agent.temperature}`);
-		if (agent.topP !== undefined) frontmatter.push(`top_p: ${agent.topP}`);
-		if (agent.steps !== undefined) frontmatter.push(`steps: ${agent.steps}`);
-		if (agent.color) frontmatter.push(`color: ${agent.color}`);
-		if (agent.hidden) frontmatter.push(`hidden: true`);
-		if (agent.disabled) frontmatter.push(`disable: true`);
-		if (agent.readonly) {
-			frontmatter.push(`tools:`);
-			frontmatter.push(`  write: false`);
-			frontmatter.push(`  bash: false`);
-		}
-
-		const header = frontmatter.length > 0 ? `---\n${frontmatter.join("\n")}\n---\n\n` : "";
-		files.push({
-			path: `.opencode/agents/${agent.name}.md`,
-			content: `${header}${agent.instructions}\n`,
-		});
-	}
-	return { files, warnings: [] };
-}
-
-/** Antigravity: no file-based agent configuration */
-function emitAntigravityAgents(agents: Agent[]): EmitResult {
-	const warnings: string[] = [];
-
-	if (agents.length > 0) {
-		warnings.push(
-			"Antigravity does not support file-based agent configuration — agents are skipped.",
-		);
-	}
-
-	return { files: [], warnings };
 }

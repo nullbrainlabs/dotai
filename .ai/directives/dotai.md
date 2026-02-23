@@ -95,7 +95,7 @@ pnpm dev          # tsx src/cli.ts
 ## Dependencies
 
 - **yaml** — YAML parsing for config.yaml
-- **smol-toml** — TOML generation for Codex/OpenCode
+- **smol-toml** — TOML generation for Codex
 - **commander** — CLI framework
 - **@clack/prompts** — interactive terminal prompts
 
@@ -103,4 +103,4 @@ pnpm dev          # tsx src/cli.ts
 
 - Input: `.ai/` directory with `config.yaml`, `directives/*.md`, `skills/*/SKILL.md`, `agents/*.md`
 - User scope: `~/.ai/` as base, project `.ai/` overrides
-- Outputs: Claude Code, Cursor, Codex, OpenCode, GitHub Copilot, Antigravity
+- Outputs: Claude Code, Cursor, Codex, GitHub Copilot

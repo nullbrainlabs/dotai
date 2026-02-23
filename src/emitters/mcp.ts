@@ -12,12 +12,8 @@ export const mcpEmitter: Emitter = {
 				return emitCursorMcp(config.toolServers);
 			case "codex":
 				return emitCodexMcp(config.toolServers);
-			case "opencode":
-				return emitOpenCodeMcp(config.toolServers);
 			case "copilot":
 				return emitCopilotMcp(config.toolServers);
-			case "antigravity":
-				return emitAntigravityMcp(config.toolServers);
 		}
 	},
 };
@@ -158,74 +154,6 @@ function buildTomlSection(server: ToolServer): string {
 	}
 
 	return lines.join("\n");
-}
-
-/** OpenCode: opencode.json with `{ "mcp": { ... } }` */
-function emitOpenCodeMcp(servers: ToolServer[]): EmitResult {
-	const files: EmittedFile[] = [];
-	const warnings: string[] = [];
-
-	if (servers.length === 0) return { files, warnings };
-
-	const mcp: Record<string, unknown> = {};
-	for (const server of servers) {
-		const entry: Record<string, unknown> = {};
-
-		if (server.transport === "stdio") {
-			entry.type = "stdio";
-			entry.command = server.command;
-			if (server.args?.length) entry.args = server.args;
-		} else {
-			// OpenCode uses "remote" for http/sse
-			entry.type = "remote";
-			entry.url = server.url;
-		}
-
-		if (server.env && Object.keys(server.env).length > 0) {
-			entry.env = server.env;
-		}
-
-		mcp[server.name] = entry;
-	}
-
-	files.push({
-		path: "opencode.json",
-		content: `${JSON.stringify({ mcp }, null, 2)}\n`,
-	});
-
-	if (servers.some((s) => s.enabledTools?.length || s.disabledTools?.length)) {
-		warnings.push(
-			"OpenCode does not support enabledTools/disabledTools filtering for MCP servers.",
-		);
-	}
-
-	return { files, warnings };
-}
-
-/** Antigravity: mcp_config.json (same mcpServers JSON format) */
-function emitAntigravityMcp(servers: ToolServer[]): EmitResult {
-	const files: EmittedFile[] = [];
-	const warnings: string[] = [];
-
-	if (servers.length === 0) return { files, warnings };
-
-	const mcpServers: Record<string, unknown> = {};
-	for (const server of servers) {
-		mcpServers[server.name] = buildMcpEntry(server);
-	}
-
-	files.push({
-		path: "mcp_config.json",
-		content: `${JSON.stringify({ mcpServers }, null, 2)}\n`,
-	});
-
-	if (servers.some((s) => s.enabledTools?.length || s.disabledTools?.length)) {
-		warnings.push(
-			"Antigravity does not support enabledTools/disabledTools filtering for MCP servers.",
-		);
-	}
-
-	return { files, warnings };
 }
 
 function tomlString(s: string): string {

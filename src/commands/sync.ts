@@ -32,9 +32,7 @@ const USER_OUTPUT_DIRS: Record<TargetTool, string> = {
 	claude: join(homedir(), ".claude"),
 	cursor: join(homedir(), ".cursor"),
 	codex: join(homedir(), ".codex"),
-	opencode: join(homedir(), ".config", "opencode"),
 	copilot: join(homedir(), ".copilot"),
-	antigravity: join(homedir(), ".agent"),
 };
 
 const EMITTERS: Emitter[] = [
@@ -190,9 +188,7 @@ const TARGET_LABELS: Record<TargetTool, string> = {
 	claude: "Claude Code",
 	cursor: "Cursor",
 	codex: "Codex",
-	opencode: "OpenCode",
 	copilot: "GitHub Copilot",
-	antigravity: "Antigravity",
 };
 
 interface EntityCount {
@@ -301,11 +297,6 @@ function resolveOutputPath(
 		if (relativePath.startsWith(prefix)) {
 			return join(USER_OUTPUT_DIRS.copilot, relativePath);
 		}
-	}
-
-	// Antigravity uses .agent/ prefix → map to user antigravity dir
-	if (relativePath.startsWith(".agent/")) {
-		return join(USER_OUTPUT_DIRS.antigravity, relativePath.slice(".agent/".length));
 	}
 
 	// Root-level files (CLAUDE.md, AGENTS.md, .mcp.json) go to home dir in user scope

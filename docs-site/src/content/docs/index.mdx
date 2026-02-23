@@ -6,7 +6,7 @@ hero:
   title: |
     One config.
     <span class="hero-accent">Every AI tool.</span>
-  tagline: Write your rules, skills, and agents once — generate correct configs for Claude Code, Cursor, Codex, GitHub Copilot, OpenCode, and Antigravity automatically.
+  tagline: Write your rules, skills, and agents once — generate correct configs for Claude Code, Cursor, Codex, and GitHub Copilot automatically.
   actions:
     - text: Get Started
       link: /getting-started/introduction
@@ -45,7 +45,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     Define directives, skills, agents, MCP servers, hooks, and permissions in one `.ai/` directory. No more scattered config files.
   </Card>
   <Card title="Multi-tool output" icon="puzzle">
-    One `dotai sync` generates correct files for Claude Code, Cursor, Codex, GitHub Copilot, OpenCode, and Antigravity.
+    One `dotai sync` generates correct files for Claude Code, Cursor, Codex, and GitHub Copilot.
   </Card>
   <Card title="Conflict-aware" icon="warning">
     Content hashing detects when generated files have been manually edited. Never accidentally overwrite your changes.
@@ -73,12 +73,6 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   </Card>
   <Card title="GitHub Copilot" icon="github">
     `.github/copilot-instructions.md` · `.github/agents/*.agent.md` · `.vscode/mcp.json`
-  </Card>
-  <Card title="OpenCode" icon="seti:config">
-    `.opencode/instructions/*.md` · `.opencode/agents/*.md` · `opencode.json`
-  </Card>
-  <Card title="Antigravity" icon="seti:config">
-    `.agent/rules/*.md` · `.agent/skills/` · `mcp_config.json`
   </Card>
 </CardGrid>
 

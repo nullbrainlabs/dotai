@@ -3,7 +3,7 @@ title: Skills
 description: Reusable knowledge packages invoked by name across all AI tools.
 ---
 
-Skills are portable, named knowledge packages that teach an AI agent how to perform a specific task. They are the most convergent concept in dotai: every supported tool uses an identical on-disk format, and no translation is required. A skill you author once works without modification in Claude Code, Cursor, Codex, OpenCode, Copilot, and Antigravity.
+Skills are portable, named knowledge packages that teach an AI agent how to perform a specific task. They are the most convergent concept in dotai: every supported tool uses an identical on-disk format, and no translation is required. A skill you author once works without modification in Claude Code, Cursor, Codex, and Copilot.
 
 ### TypeScript Interface
 
@@ -85,9 +85,7 @@ Skills have no translation loss. Every tool reads them from the same path using 
 | Claude Code | `.claude/skills/<name>/SKILL.md` | Identical |
 | Cursor | `.cursor/skills/<name>/SKILL.md` | Identical |
 | Codex | `.codex/skills/<name>/SKILL.md` | Identical |
-| OpenCode | `.opencode/skills/<name>/SKILL.md` | Identical |
 | Copilot | `.github/skills/<name>/SKILL.md` | Identical |
-| Antigravity | `.agent/skills/<name>/SKILL.md` | Identical |
 
 Skills are the strongest interoperability story in dotai. There is no translation layer, no field mapping, no dropped semantics. The same `SKILL.md` file is copied verbatim to every tool's output directory.
 

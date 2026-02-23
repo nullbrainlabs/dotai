@@ -108,40 +108,6 @@ describe("directivesEmitter", () => {
 		});
 	});
 
-	describe("Antigravity", () => {
-		it("emits .agent/rules/ with YAML frontmatter for each directive", () => {
-			const result = directivesEmitter.emit(makeConfig(), "antigravity");
-			expect(result.files).toHaveLength(2);
-
-			const style = result.files.find((f) => f.path.includes("code-style"));
-			expect(style).toBeDefined();
-			expect(style?.path).toBe(".agent/rules/code-style.md");
-			expect(style?.content).toContain("alwaysApply: true");
-			expect(style?.content).toContain("Use tabs for indentation.");
-
-			const testing = result.files.find((f) => f.path.includes("testing"));
-			expect(testing).toBeDefined();
-			expect(testing?.path).toBe(".agent/rules/testing-rules.md");
-			expect(testing?.content).toContain("globs:");
-			expect(testing?.content).toContain('"**/*.test.ts"');
-		});
-
-		it("uses alwaysApply: false for manual mode directives", () => {
-			const config = emptyConfig();
-			config.directives.push({
-				content: "Be concise.",
-				scope: "project",
-				alwaysApply: false,
-				description: "Style guide",
-			});
-
-			const result = directivesEmitter.emit(config, "antigravity");
-			expect(result.files).toHaveLength(1);
-			expect(result.files[0].content).toContain("alwaysApply: false");
-			expect(result.files[0].content).toContain("description: Style guide");
-		});
-	});
-
 	it("returns empty for no directives", () => {
 		const config = emptyConfig();
 		const result = directivesEmitter.emit(config, "claude");
@@ -220,21 +186,6 @@ describe("directivesEmitter", () => {
 			);
 			expect(docsCopilot).toBeDefined();
 			expect(docsCopilot?.content).toContain("Docs directive.");
-		});
-
-		it("emits Antigravity directives to outputDir/.agent/rules/", () => {
-			const result = directivesEmitter.emit(makeOutputDirConfig(), "antigravity");
-			const docsFiles = result.files.filter((f) => f.path.startsWith("docs-site/"));
-			expect(docsFiles).toHaveLength(2);
-			expect(docsFiles[0].path).toMatch(/^docs-site\/\.agent\/rules\/.*\.md$/);
-		});
-
-		it("emits OpenCode directives to outputDir/.opencode/", () => {
-			const result = directivesEmitter.emit(makeOutputDirConfig(), "opencode");
-			const docsJson = result.files.find((f) => f.path === "docs-site/opencode.json");
-			expect(docsJson).toBeDefined();
-			const parsed = JSON.parse(docsJson?.content ?? "");
-			expect(parsed.instructions[0]).toMatch(/^docs-site\//);
 		});
 
 		it("directive without outputDir still emits to root (backward compat)", () => {

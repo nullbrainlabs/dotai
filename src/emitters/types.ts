@@ -5,9 +5,7 @@ export const TargetTool = {
 	Claude: "claude",
 	Cursor: "cursor",
 	Codex: "codex",
-	OpenCode: "opencode",
 	Copilot: "copilot",
-	Antigravity: "antigravity",
 } as const;
 
 export type TargetTool = (typeof TargetTool)[keyof typeof TargetTool];
@@ -17,9 +15,7 @@ export const ALL_TARGETS: readonly TargetTool[] = [
 	TargetTool.Claude,
 	TargetTool.Cursor,
 	TargetTool.Codex,
-	TargetTool.OpenCode,
 	TargetTool.Copilot,
-	TargetTool.Antigravity,
 ];
 
 /** A file written by an emitter. */

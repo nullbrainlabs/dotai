@@ -152,19 +152,6 @@ describe("hooksEmitter", () => {
 		});
 	});
 
-	describe("Antigravity", () => {
-		it("warns about hooks not being supported", () => {
-			const result = hooksEmitter.emit(makeConfig(), "antigravity");
-			expect(result.files).toHaveLength(0);
-			expect(result.warnings.some((w) => w.includes("hooks"))).toBe(true);
-		});
-
-		it("warns about ignore patterns not being supported", () => {
-			const result = hooksEmitter.emit(makeConfig(), "antigravity");
-			expect(result.warnings.some((w) => w.includes("ignore patterns"))).toBe(true);
-		});
-	});
-
 	it("returns empty for no hooks or ignore patterns", () => {
 		const config = emptyConfig();
 		const result = hooksEmitter.emit(config, "claude");

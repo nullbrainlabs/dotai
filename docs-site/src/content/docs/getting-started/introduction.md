@@ -3,7 +3,7 @@ title: Introduction
 description: What is dotai and why does it exist.
 ---
 
-dotai is a CLI tool that generates correct configuration files for six AI coding tools from a single `.ai/` directory. Write your rules, skills, and agents once — dotai produces the right files for Claude Code, Cursor, Codex, GitHub Copilot, OpenCode, and Antigravity automatically.
+dotai is a CLI tool that generates correct configuration files for four AI coding tools from a single `.ai/` directory. Write your rules, skills, and agents once — dotai produces the right files for Claude Code, Cursor, Codex, and GitHub Copilot automatically.
 
 ## The Problem
 
@@ -15,8 +15,6 @@ Every AI coding tool has its own configuration format:
 | Cursor | `.cursor/rules/*.mdc`, `.cursor/mcp.json`, `.cursorignore` |
 | Codex | `AGENTS.md`, `.codex/config.toml` |
 | GitHub Copilot | `.github/copilot-instructions.md`, `.github/agents/*.agent.md`, `.vscode/mcp.json` |
-| OpenCode | `.opencode/instructions/*.md`, `.opencode/agents/*.md`, `opencode.json` |
-| Antigravity | `.agent/rules/*.md`, `.agent/skills/*/SKILL.md`, `mcp_config.json` |
 
 When a team uses multiple tools — or different team members prefer different editors — the same rules must be maintained in multiple formats. Config drift is inevitable.
 
@@ -45,8 +43,6 @@ Run `dotai sync` and the CLI reads your `.ai/` directory, applies scope preceden
                               →  Cursor files
                               →  Codex files
                               →  Copilot files
-                              →  OpenCode files
-                              →  Antigravity files
 ```
 
 1. **Define** your configuration in `.ai/` using 8 entity types: directives, skills, agents, tool servers, hooks, permissions, settings, and ignore patterns.

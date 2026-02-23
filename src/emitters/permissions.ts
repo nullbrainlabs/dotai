@@ -13,12 +13,8 @@ export const permissionsEmitter: Emitter = {
 				return emitCursor(config.permissions, config.settings);
 			case "codex":
 				return emitCodex(config.permissions, config.settings);
-			case "opencode":
-				return emitOpenCode(config.permissions, config.settings);
 			case "copilot":
 				return emitCopilot(config.permissions, config.settings);
-			case "antigravity":
-				return emitAntigravity(config.permissions, config.settings);
 		}
 	},
 };
@@ -146,47 +142,6 @@ function emitCodex(permissions: Permission[], settings: Setting[]): EmitResult {
 	return { files, warnings };
 }
 
-/** OpenCode: opencode.json with permission key. All 3 decisions supported. */
-function emitOpenCode(permissions: Permission[], settings: Setting[]): EmitResult {
-	const files: EmittedFile[] = [];
-	const warnings: string[] = [];
-
-	if (permissions.length === 0 && settings.length === 0) return { files, warnings };
-
-	const config: Record<string, unknown> = {};
-
-	if (permissions.length > 0) {
-		const permission: Record<string, unknown> = {};
-
-		for (const perm of permissions) {
-			if (perm.pattern) {
-				// Tool with pattern → nested object: { "bash": { "<pattern>": "<decision>" } }
-				const toolKey = perm.tool.toLowerCase();
-				if (!permission[toolKey] || typeof permission[toolKey] !== "object") {
-					permission[toolKey] = {};
-				}
-				(permission[toolKey] as Record<string, string>)[perm.pattern] = perm.decision;
-			} else {
-				// Tool without pattern → flat: { "<tool>": "<decision>" }
-				permission[perm.tool.toLowerCase()] = perm.decision;
-			}
-		}
-
-		config.permission = permission;
-	}
-
-	for (const setting of settings) {
-		config[setting.key] = setting.value;
-	}
-
-	files.push({
-		path: "opencode.json",
-		content: `${JSON.stringify(config, null, 2)}\n`,
-	});
-
-	return { files, warnings };
-}
-
 /** Copilot: no file-based permission or settings support */
 function emitCopilot(permissions: Permission[], settings: Setting[]): EmitResult {
 	const warnings: string[] = [];
@@ -200,25 +155,6 @@ function emitCopilot(permissions: Permission[], settings: Setting[]): EmitResult
 	if (settings.length > 0) {
 		warnings.push(
 			"Copilot does not support file-based settings configuration — settings are skipped.",
-		);
-	}
-
-	return { files: [], warnings };
-}
-
-/** Antigravity: no file-based permission or settings support */
-function emitAntigravity(permissions: Permission[], settings: Setting[]): EmitResult {
-	const warnings: string[] = [];
-
-	if (permissions.length > 0) {
-		warnings.push(
-			"Antigravity does not support file-based permission configuration — permissions are skipped.",
-		);
-	}
-
-	if (settings.length > 0) {
-		warnings.push(
-			"Antigravity does not support file-based settings configuration — settings are skipped.",
 		);
 	}
 

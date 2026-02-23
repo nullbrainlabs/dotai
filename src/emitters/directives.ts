@@ -12,12 +12,8 @@ export const directivesEmitter: Emitter = {
 				return emitCursor(config.directives);
 			case "codex":
 				return emitCodex(config.directives);
-			case "opencode":
-				return emitOpenCode(config.directives);
 			case "copilot":
 				return emitCopilot(config.directives);
-			case "antigravity":
-				return emitAntigravity(config.directives);
 		}
 	},
 };
@@ -145,47 +141,6 @@ function emitCodex(directives: Directive[]): EmitResult {
 }
 
 /**
- * OpenCode:
- * Each directive → <outputDir>/.opencode/instructions/<name>.md,
- * paths listed in <outputDir>/opencode.json per outputDir group.
- */
-function emitOpenCode(directives: Directive[]): EmitResult {
-	const files: EmittedFile[] = [];
-	const warnings: string[] = [];
-
-	if (directives.length === 0) return { files, warnings };
-
-	for (const [outputDir, group] of groupByOutputDir(directives)) {
-		const paths: string[] = [];
-		for (const directive of group) {
-			const name = slugify(directive.description || "rule");
-			let content = directive.content;
-
-			if (directive.appliesTo?.length) {
-				content = `<!-- applies to: ${directive.appliesTo.join(", ")} -->\n\n${content}`;
-			}
-
-			const relPath = prefixPath(`.opencode/instructions/${name}.md`, outputDir);
-			files.push({ path: relPath, content: `${content}\n` });
-			paths.push(relPath);
-		}
-
-		files.push({
-			path: prefixPath("opencode.json", outputDir),
-			content: `${JSON.stringify({ instructions: paths }, null, 2)}\n`,
-		});
-	}
-
-	if (directives.some((d) => d.appliesTo?.length)) {
-		warnings.push(
-			"OpenCode does not support file-scoped directives — appliesTo patterns are included as comments but not enforced.",
-		);
-	}
-
-	return { files, warnings };
-}
-
-/**
  * Copilot:
  * - alwaysApply + no appliesTo → <outputDir>/.github/copilot-instructions.md (grouped by outputDir)
  * - Has appliesTo → <outputDir>/.github/instructions/<slug>.instructions.md with applyTo frontmatter
@@ -219,52 +174,6 @@ function emitCopilot(directives: Directive[]): EmitResult {
 		files.push({
 			path: prefixPath(`.github/instructions/${name}.instructions.md`, directive.outputDir),
 			content: `${content}\n`,
-		});
-	}
-
-	return { files, warnings };
-}
-
-/**
- * Antigravity:
- * Each directive → <outputDir>/.agent/rules/<slug>.md with YAML frontmatter.
- * Activation modes: alwaysApply, globs, description (model decision), manual.
- */
-function emitAntigravity(directives: Directive[]): EmitResult {
-	const files: EmittedFile[] = [];
-	const warnings: string[] = [];
-
-	for (const directive of directives) {
-		const name = slugify(directive.description || "rule");
-		const frontmatter: string[] = [];
-
-		if (directive.description) {
-			frontmatter.push(`description: ${directive.description}`);
-		}
-
-		if (directive.alwaysApply && directive.appliesTo?.length) {
-			// Glob activation mode
-			frontmatter.push(`globs:`);
-			for (const glob of directive.appliesTo) {
-				frontmatter.push(`  - "${glob}"`);
-			}
-		} else if (directive.alwaysApply) {
-			frontmatter.push(`alwaysApply: true`);
-		} else if (!directive.appliesTo?.length) {
-			// Manual/@mention mode — just set alwaysApply false
-			frontmatter.push(`alwaysApply: false`);
-		} else {
-			// Has appliesTo but not alwaysApply — use globs
-			frontmatter.push(`globs:`);
-			for (const glob of directive.appliesTo) {
-				frontmatter.push(`  - "${glob}"`);
-			}
-		}
-
-		const header = `---\n${frontmatter.join("\n")}\n---`;
-		files.push({
-			path: prefixPath(`.agent/rules/${name}.md`, directive.outputDir),
-			content: `${header}\n\n${directive.content}\n`,
 		});
 	}
 

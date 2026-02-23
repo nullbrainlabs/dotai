@@ -64,10 +64,8 @@ Valid target values:
 | `cursor` | Cursor |
 | `codex` | Codex |
 | `copilot` | GitHub Copilot |
-| `opencode` | OpenCode |
-| `antigravity` | Antigravity |
 
-If `targets` is omitted, dotai generates for all six tools.
+If `targets` is omitted, dotai generates for all four tools.
 
 ## Servers
 

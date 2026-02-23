@@ -36,10 +36,10 @@ ignore:
 
 Each tool has its own native mechanism for file exclusion. dotai translates ignore patterns into whichever format the target tool uses.
 
-| Aspect | Claude Code | Cursor | Codex | OpenCode | Copilot | Antigravity |
-|---|---|---|---|---|---|---|
-| Config | `.claude/settings.json` (deny Read/Edit) | `.cursorignore` | `.codex/config.toml` (`protected_paths`) | `opencode.json` (`watcher.ignore`) | Not supported | Not supported |
-| Format | Permission deny rules | Gitignore-style file | TOML array | JSON array | N/A | N/A |
+| Aspect | Claude Code | Cursor | Codex | Copilot |
+|---|---|---|---|---|
+| Config | `.claude/settings.json` (deny Read/Edit) | `.cursorignore` | `.codex/config.toml` (`protected_paths`) | Not supported |
+| Format | Permission deny rules | Gitignore-style file | TOML array | N/A |
 
 Claude Code does not have a native ignore file, so dotai emits ignore patterns as `deny` permission rules targeting the `Read` and `Edit` tools. The effect is equivalent — the agent cannot read or edit matched paths — but the mechanism differs from the other tools.
 
@@ -58,4 +58,3 @@ Keeping ignored paths lean maximizes the portion of the context window available
 ## Known Limitations
 
 - **Copilot** — Does not support ignore pattern configuration via files. All ignore patterns are skipped with a warning during `ai sync`.
-- **Antigravity** — Does not support ignore pattern configuration via files. All ignore patterns are skipped with a warning during `ai sync`.

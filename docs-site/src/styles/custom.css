@@ -13,6 +13,7 @@
 
 .site-title {
 	font-size: calc(var(--sl-text-h4) * 1.3);
+	letter-spacing: -0.08em;
 }
 
 /* ── Hero section ── */

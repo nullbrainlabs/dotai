@@ -85,21 +85,6 @@ describe("agentsEmitter", () => {
 		});
 	});
 
-	describe("Antigravity", () => {
-		it("returns empty files with warning", () => {
-			const result = agentsEmitter.emit(makeConfig(), "antigravity");
-			expect(result.files).toHaveLength(0);
-			expect(result.warnings.some((w) => w.includes("agent"))).toBe(true);
-		});
-
-		it("returns no warnings for empty agents", () => {
-			const config = emptyConfig();
-			const result = agentsEmitter.emit(config, "antigravity");
-			expect(result.files).toHaveLength(0);
-			expect(result.warnings).toHaveLength(0);
-		});
-	});
-
 	it("returns empty for no agents", () => {
 		const config = emptyConfig();
 		const result = agentsEmitter.emit(config, "claude");

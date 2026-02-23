@@ -248,7 +248,7 @@ Assist with deployment tasks.
 	it("state file is written after sync", async () => {
 		const state = JSON.parse(await readFile(join(PROJECT, ".ai/.state.json"), "utf-8"));
 		expect(state.lastSync).toBeDefined();
-		expect(Object.keys(state.files).length).toBe(31);
+		expect(Object.keys(state.files).length).toBe(22);
 		expect(state.files["CLAUDE.md"]).toBeDefined();
 		expect(state.files["AGENTS.md"]).toBeDefined();
 		expect(state.files[".mcp.json"]).toBeDefined();
