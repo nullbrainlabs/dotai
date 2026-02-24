@@ -108,12 +108,33 @@ export function validateConfig(config: ProjectConfig): ValidationResult {
 		}
 	}
 
+	const validPermissionModes = ["default", "acceptEdits", "dontAsk", "bypassPermissions", "plan"];
+	const validMemoryScopes = ["user", "project", "local"];
+
 	for (const a of config.agents) {
 		if (!a.name.trim()) {
 			errors.push({ file: "agents", message: "Agent has empty name" });
 		}
 		if (!a.instructions.trim()) {
 			errors.push({ file: `agents/${a.name}`, message: "Agent has empty instructions" });
+		}
+		if (a.permissionMode && !validPermissionModes.includes(a.permissionMode)) {
+			errors.push({
+				file: `agents/${a.name}`,
+				message: `Invalid permissionMode "${a.permissionMode}" — must be one of: ${validPermissionModes.join(", ")}`,
+			});
+		}
+		if (a.memory && !validMemoryScopes.includes(a.memory)) {
+			errors.push({
+				file: `agents/${a.name}`,
+				message: `Invalid memory "${a.memory}" — must be one of: ${validMemoryScopes.join(", ")}`,
+			});
+		}
+		if (a.maxTurns !== undefined && (!Number.isInteger(a.maxTurns) || a.maxTurns <= 0)) {
+			errors.push({
+				file: `agents/${a.name}`,
+				message: `maxTurns must be a positive integer, got ${a.maxTurns}`,
+			});
 		}
 	}
 

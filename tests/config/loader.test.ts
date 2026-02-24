@@ -32,7 +32,7 @@ Body text here.`);
 
 	it("parses array values in frontmatter", () => {
 		const result = parseMarkdownWithFrontmatter(`---
-appliesTo: [*.ts, *.tsx]
+appliesTo: ["*.ts", "*.tsx"]
 tools: ["Read", "Write"]
 ---
 
@@ -64,6 +64,32 @@ Body`);
 
 		expect(result.frontmatter.enabled).toBe(true);
 		expect(result.frontmatter.disabled).toBe(false);
+	});
+
+	it("parses nested YAML structures", () => {
+		const result = parseMarkdownWithFrontmatter(`---
+name: agent
+hooks:
+  preToolCall:
+    command: echo hello
+    timeout: 5000
+mcpServers:
+  github:
+    command: npx
+    args:
+      - "@mcp/github"
+---
+
+Body`);
+
+		const hooks = result.frontmatter.hooks as Record<string, unknown>;
+		expect(hooks).toBeDefined();
+		expect((hooks.preToolCall as Record<string, unknown>).command).toBe("echo hello");
+		expect((hooks.preToolCall as Record<string, unknown>).timeout).toBe(5000);
+
+		const servers = result.frontmatter.mcpServers as Record<string, unknown>;
+		expect(servers).toBeDefined();
+		expect((servers.github as Record<string, unknown>).command).toBe("npx");
 	});
 });
 
@@ -206,5 +232,44 @@ describe("validateConfig", () => {
 		const result = validateConfig(config);
 		expect(result.valid).toBe(false);
 		expect(result.errors[0].message).toContain("no url");
+	});
+
+	it("reports invalid permissionMode", () => {
+		const config = emptyConfig();
+		config.agents.push({
+			name: "bad",
+			description: "",
+			instructions: "Do stuff.",
+			permissionMode: "invalid" as never,
+		});
+		const result = validateConfig(config);
+		expect(result.valid).toBe(false);
+		expect(result.errors[0].message).toContain("Invalid permissionMode");
+	});
+
+	it("reports invalid memory scope", () => {
+		const config = emptyConfig();
+		config.agents.push({
+			name: "bad",
+			description: "",
+			instructions: "Do stuff.",
+			memory: "global" as never,
+		});
+		const result = validateConfig(config);
+		expect(result.valid).toBe(false);
+		expect(result.errors[0].message).toContain("Invalid memory");
+	});
+
+	it("reports non-positive maxTurns", () => {
+		const config = emptyConfig();
+		config.agents.push({
+			name: "bad",
+			description: "",
+			instructions: "Do stuff.",
+			maxTurns: 0,
+		});
+		const result = validateConfig(config);
+		expect(result.valid).toBe(false);
+		expect(result.errors[0].message).toContain("maxTurns must be a positive integer");
 	});
 });

@@ -280,6 +280,29 @@ async function loadAgents(
 				model: typeof frontmatter.model === "string" ? frontmatter.model : undefined,
 				readonly: frontmatter.readonly === true ? true : undefined,
 				tools: Array.isArray(frontmatter.tools) ? frontmatter.tools.map(String) : undefined,
+				disallowedTools: Array.isArray(frontmatter.disallowedTools)
+					? frontmatter.disallowedTools.map(String)
+					: undefined,
+				permissionMode:
+					typeof frontmatter.permissionMode === "string"
+						? (frontmatter.permissionMode as Agent["permissionMode"])
+						: undefined,
+				maxTurns: typeof frontmatter.maxTurns === "number" ? frontmatter.maxTurns : undefined,
+				skills: Array.isArray(frontmatter.skills) ? frontmatter.skills.map(String) : undefined,
+				memory:
+					typeof frontmatter.memory === "string"
+						? (frontmatter.memory as Agent["memory"])
+						: undefined,
+				background: frontmatter.background === true ? true : undefined,
+				isolation: frontmatter.isolation === "worktree" ? "worktree" : undefined,
+				hooks:
+					typeof frontmatter.hooks === "object" && frontmatter.hooks !== null
+						? (frontmatter.hooks as Record<string, unknown>)
+						: undefined,
+				mcpServers:
+					typeof frontmatter.mcpServers === "object" && frontmatter.mcpServers !== null
+						? (frontmatter.mcpServers as Record<string, unknown>)
+						: undefined,
 			};
 			config.agents.push(agent);
 		} catch (e) {

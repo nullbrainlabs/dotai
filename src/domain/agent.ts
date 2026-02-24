@@ -19,4 +19,22 @@ export interface Agent {
 	instructions: string;
 	/** Allowed tool names. Undefined means all tools allowed. */
 	tools?: string[];
+	/** Disallowed tool names. */
+	disallowedTools?: string[];
+	/** Permission mode for the agent. */
+	permissionMode?: "default" | "acceptEdits" | "dontAsk" | "bypassPermissions" | "plan";
+	/** Maximum number of agentic turns. */
+	maxTurns?: number;
+	/** Skills available to the agent. */
+	skills?: string[];
+	/** Memory scope for the agent. */
+	memory?: "user" | "project" | "local";
+	/** Whether the agent runs in the background. */
+	background?: boolean;
+	/** Isolation mode. */
+	isolation?: "worktree";
+	/** Hook definitions (opaque nested YAML, passed through). */
+	hooks?: Record<string, unknown>;
+	/** MCP server definitions (opaque nested YAML, passed through). */
+	mcpServers?: Record<string, unknown>;
 }

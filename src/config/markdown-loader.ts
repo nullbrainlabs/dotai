@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { parse as parseYaml } from "yaml";
 
 /** Parsed result of a markdown file with YAML frontmatter. */
 export interface ParsedMarkdown {
@@ -12,8 +13,7 @@ export interface ParsedMarkdown {
  * Parse a markdown string with optional YAML frontmatter.
  *
  * Frontmatter is delimited by `---` at the start of the file.
- * Uses a simple parser to avoid pulling in a full YAML library for frontmatter
- * (the main config.yaml uses the `yaml` package).
+ * Uses the `yaml` library for full YAML support including nested structures.
  */
 export function parseMarkdownWithFrontmatter(raw: string): ParsedMarkdown {
 	const trimmed = raw.trimStart();
@@ -26,49 +26,14 @@ export function parseMarkdownWithFrontmatter(raw: string): ParsedMarkdown {
 		return { frontmatter: {}, body: raw.trim() };
 	}
 
-	const frontmatterBlock = trimmed.slice(3, endIndex).trim();
+	const frontmatterBlock = trimmed.slice(3, endIndex);
 	const body = trimmed.slice(endIndex + 3).trim();
 
-	const frontmatter: Record<string, unknown> = {};
-	for (const line of frontmatterBlock.split("\n")) {
-		const colonIdx = line.indexOf(":");
-		if (colonIdx === -1) continue;
-
-		const key = line.slice(0, colonIdx).trim();
-		const rawValue = line.slice(colonIdx + 1).trim();
-		frontmatter[key] = parseFrontmatterValue(rawValue);
-	}
+	const parsed = parseYaml(frontmatterBlock);
+	const frontmatter: Record<string, unknown> =
+		typeof parsed === "object" && parsed !== null ? parsed : {};
 
 	return { frontmatter, body };
-}
-
-/** Parse a simple frontmatter value (booleans, numbers, arrays, strings). */
-function parseFrontmatterValue(raw: string): unknown {
-	if (raw === "true") return true;
-	if (raw === "false") return false;
-	if (raw === "") return "";
-	if (/^-?\d+(\.\d+)?$/.test(raw)) return Number(raw);
-
-	// Simple inline array: [a, b, c]
-	if (raw.startsWith("[") && raw.endsWith("]")) {
-		const inner = raw.slice(1, -1).trim();
-		if (!inner) return [];
-		return inner.split(",").map((s) => {
-			const v = s.trim();
-			// Strip quotes
-			if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
-				return v.slice(1, -1);
-			}
-			return v;
-		});
-	}
-
-	// Strip quotes from string values
-	if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
-		return raw.slice(1, -1);
-	}
-
-	return raw;
 }
 
 /** Load and parse a markdown file with frontmatter from disk. */
