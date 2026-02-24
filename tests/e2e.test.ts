@@ -1,7 +1,8 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { runAdd } from "../src/commands/add.js";
 import { runCheck } from "../src/commands/check.js";
 import { runInit } from "../src/commands/init.js";
 import { runStatus } from "../src/commands/status.js";
@@ -221,6 +222,14 @@ Assist with deployment tasks.
 		expect(cursorAgent).toContain("readonly: true");
 		expect(cursorAgent).toContain("tools: [Read, Glob, Grep]");
 
+		const cursorSkill = await readFile(join(PROJECT, ".cursor/skills/deploy/SKILL.md"), "utf-8");
+		expect(cursorSkill).toContain("# Deploy");
+
+		const cursorCli = JSON.parse(await readFile(join(PROJECT, ".cursor/cli.json"), "utf-8"));
+		expect(cursorCli.permissions.allow).toContain("Bash(npm *)");
+		expect(cursorCli.permissions.deny).toContain("Write(dist/**)");
+		expect(cursorCli.model).toBe("claude-sonnet-4-6");
+
 		const cursorIgnore = await readFile(join(PROJECT, ".cursorignore"), "utf-8");
 		expect(cursorIgnore).toContain("node_modules/**");
 		expect(cursorIgnore).toContain(".env");
@@ -238,6 +247,7 @@ Assist with deployment tasks.
 		expect(codexToml).toContain("[mcp_servers.postgres]");
 		expect(codexToml).toContain("approval_policy");
 		expect(codexToml).toContain('protected_paths = ["node_modules/**"');
+		expect(codexToml).toContain('model = "claude-sonnet-4-6"');
 
 		const codexSkill = await readFile(join(PROJECT, ".codex/skills/deploy/SKILL.md"), "utf-8");
 		expect(codexSkill).toContain("# Deploy");
@@ -334,5 +344,284 @@ description: Security rules
 		// CLAUDE.md should now include security rules
 		const claudeMd = await readFile(join(PROJECT, "CLAUDE.md"), "utf-8");
 		expect(claudeMd).toContain("Never commit secrets");
+	});
+
+	// ── Step 12: Copilot output verification ────────────────────────
+
+	it("sync writes correct Copilot output files", async () => {
+		// Copilot instructions (alwaysApply directives)
+		const copilotInstructions = await readFile(
+			join(PROJECT, ".github/copilot-instructions.md"),
+			"utf-8",
+		);
+		expect(copilotInstructions).toContain("Use TypeScript strict mode");
+		expect(copilotInstructions).toContain("Never commit secrets");
+
+		// Copilot scoped directive
+		const copilotTesting = await readFile(
+			join(PROJECT, ".github/instructions/testing-rules.instructions.md"),
+			"utf-8",
+		);
+		expect(copilotTesting).toContain("applyTo:");
+		expect(copilotTesting).toContain("Write descriptive test names");
+
+		// Copilot agent
+		const copilotAgent = await readFile(join(PROJECT, ".github/agents/reviewer.agent.md"), "utf-8");
+		expect(copilotAgent).toContain("description: Reviews code changes");
+		expect(copilotAgent).toContain("tools:");
+		// readonly agent should map to read/search tools
+		expect(copilotAgent).toContain("read");
+		expect(copilotAgent).toContain("search");
+
+		// Copilot MCP (.vscode/mcp.json)
+		const vscodeMcp = JSON.parse(await readFile(join(PROJECT, ".vscode/mcp.json"), "utf-8"));
+		expect(vscodeMcp.mcpServers.github.command).toBe("npx");
+		expect(vscodeMcp.mcpServers.github.type).toBe("stdio");
+
+		// Copilot hooks
+		const copilotHooks = JSON.parse(
+			await readFile(join(PROJECT, ".github/hooks/dotai.hooks.json"), "utf-8"),
+		);
+		expect(copilotHooks.hooks.postToolUse).toBeDefined();
+		expect(copilotHooks.hooks.postToolUse[0].command).toBe("eslint --fix");
+
+		// Copilot skill
+		const copilotSkill = await readFile(join(PROJECT, ".github/skills/deploy/SKILL.md"), "utf-8");
+		expect(copilotSkill).toContain("# Deploy");
+	});
+
+	// ── Step 13: gitignore auto-update ──────────────────────────────
+
+	it("gitignore contains dotai output patterns", async () => {
+		const gitignore = await readFile(join(PROJECT, ".gitignore"), "utf-8");
+		expect(gitignore).toContain("# dotai outputs");
+		expect(gitignore).toContain(".ai/.state.json");
+		expect(gitignore).toContain(".claude/");
+		expect(gitignore).toContain(".cursor/");
+		expect(gitignore).toContain(".codex/");
+		expect(gitignore).toContain(".github/");
+		expect(gitignore).toContain(".vscode/");
+		expect(gitignore).toContain("CLAUDE.md");
+		expect(gitignore).toContain("AGENTS.md");
+		expect(gitignore).toContain(".mcp.json");
+		expect(gitignore).toContain(".cursorignore");
+	});
+
+	// ── Step 14: outputDir nesting ──────────────────────────────────
+
+	it("outputDir nests generated files in subdirectory", async () => {
+		await writeFile(
+			join(PROJECT, ".ai/directives/docs.md"),
+			`---
+alwaysApply: true
+outputDir: docs-site
+description: Documentation rules
+---
+
+Keep documentation current with code changes.
+`,
+			"utf-8",
+		);
+
+		await runSync(PROJECT, { ...defaults, force: true });
+
+		// Claude nested output
+		const docsClaudeMd = await readFile(join(PROJECT, "docs-site/CLAUDE.md"), "utf-8");
+		expect(docsClaudeMd).toContain("Keep documentation current");
+
+		// Codex nested output
+		const docsAgentsMd = await readFile(join(PROJECT, "docs-site/AGENTS.md"), "utf-8");
+		expect(docsAgentsMd).toContain("Keep documentation current");
+
+		// Cursor nested output
+		const docsCursorRule = await readFile(
+			join(PROJECT, "docs-site/.cursor/rules/documentation-rules.mdc"),
+			"utf-8",
+		);
+		expect(docsCursorRule).toContain("alwaysApply: true");
+		expect(docsCursorRule).toContain("Keep documentation current");
+
+		// Copilot nested output
+		const docsCopilot = await readFile(
+			join(PROJECT, "docs-site/.github/copilot-instructions.md"),
+			"utf-8",
+		);
+		expect(docsCopilot).toContain("Keep documentation current");
+
+		// Gitignore should include nested patterns
+		const gitignore = await readFile(join(PROJECT, ".gitignore"), "utf-8");
+		expect(gitignore).toContain("docs-site/CLAUDE.md");
+		expect(gitignore).toContain("docs-site/AGENTS.md");
+	});
+
+	// ── Step 15: orphaned file detection ────────────────────────────
+
+	it("removing a directive causes orphaned files", async () => {
+		// Sync fresh to establish state
+		await runSync(PROJECT, { ...defaults, force: true });
+
+		const stateBefore = JSON.parse(await readFile(join(PROJECT, ".ai/.state.json"), "utf-8"));
+		expect(stateBefore.files[".claude/rules/testing-rules.md"]).toBeDefined();
+
+		// Remove the testing directive
+		await rm(join(PROJECT, ".ai/directives/testing.md"));
+
+		// Re-sync — orphaned files should still exist on disk but not be regenerated
+		await runSync(PROJECT, { ...defaults, force: true });
+
+		const stateAfter = JSON.parse(await readFile(join(PROJECT, ".ai/.state.json"), "utf-8"));
+
+		// Orphaned files should be removed from state (not generated anymore)
+		expect(stateAfter.files[".claude/rules/testing-rules.md"]).toBeUndefined();
+		expect(stateAfter.files[".cursor/rules/testing-rules.mdc"]).toBeUndefined();
+		expect(stateAfter.files[".github/instructions/testing-rules.instructions.md"]).toBeUndefined();
+
+		// But they still exist on disk (sync doesn't delete orphans)
+		expect(existsSync(join(PROJECT, ".claude/rules/testing-rules.md"))).toBe(true);
+	});
+
+	// ── Step 16: add command — directive ────────────────────────────
+
+	it("add directive creates .ai/directives/<name>.md", async () => {
+		await runAdd(PROJECT, "directive", "api-guidelines");
+
+		const filePath = join(PROJECT, ".ai/directives/api-guidelines.md");
+		expect(existsSync(filePath)).toBe(true);
+
+		const content = await readFile(filePath, "utf-8");
+		expect(content).toContain("scope: project");
+		expect(content).toContain("alwaysApply: true");
+		expect(content).toContain("description: api-guidelines");
+	});
+
+	// ── Step 17: add command — agent ────────────────────────────────
+
+	it("add agent creates .ai/agents/<name>.md", async () => {
+		await runAdd(PROJECT, "agent", "debugger");
+
+		const filePath = join(PROJECT, ".ai/agents/debugger.md");
+		expect(existsSync(filePath)).toBe(true);
+
+		const content = await readFile(filePath, "utf-8");
+		expect(content).toContain("description: debugger agent");
+	});
+
+	// ── Step 18: add command — skill ────────────────────────────────
+
+	it("add skill creates .ai/skills/<name>/SKILL.md", async () => {
+		await runAdd(PROJECT, "skill", "testing");
+
+		const filePath = join(PROJECT, ".ai/skills/testing/SKILL.md");
+		expect(existsSync(filePath)).toBe(true);
+
+		const content = await readFile(filePath, "utf-8");
+		expect(content).toContain("description: testing skill");
+	});
+
+	// ── Step 19: add command — MCP stdio ────────────────────────────
+
+	it("add mcp with --command appends stdio server to config.yaml", async () => {
+		await runAdd(PROJECT, "mcp", "lint-server", { command: "npx @lint/mcp-server" });
+
+		const config = await readFile(join(PROJECT, ".ai/config.yaml"), "utf-8");
+		expect(config).toContain("lint-server");
+
+		// Sync and verify it appears in output
+		await runSync(PROJECT, { ...defaults, force: true });
+
+		const mcpJson = JSON.parse(await readFile(join(PROJECT, ".mcp.json"), "utf-8"));
+		expect(mcpJson.mcpServers["lint-server"]).toBeDefined();
+		expect(mcpJson.mcpServers["lint-server"].command).toBe("npx");
+		expect(mcpJson.mcpServers["lint-server"].args).toContain("@lint/mcp-server");
+	});
+
+	// ── Step 20: add command — MCP http ─────────────────────────────
+
+	it("add mcp with --url appends http server to config.yaml", async () => {
+		await runAdd(PROJECT, "mcp", "analytics", { url: "http://localhost:4000/mcp" });
+
+		const config = await readFile(join(PROJECT, ".ai/config.yaml"), "utf-8");
+		expect(config).toContain("analytics");
+
+		await runSync(PROJECT, { ...defaults, force: true });
+
+		const mcpJson = JSON.parse(await readFile(join(PROJECT, ".mcp.json"), "utf-8"));
+		expect(mcpJson.mcpServers.analytics).toBeDefined();
+		expect(mcpJson.mcpServers.analytics.url).toBe("http://localhost:4000/mcp");
+	});
+
+	// ── Step 21: add command — duplicate errors in non-TTY ─────────
+
+	it("add directive errors when file already exists (non-TTY)", async () => {
+		const orig = process.exitCode;
+		await runAdd(PROJECT, "directive", "api-guidelines");
+		expect(process.exitCode).toBe(1);
+		process.exitCode = orig;
+	});
+
+	// ── Step 22: init templates ─────────────────────────────────────
+
+	it.each([
+		"blank",
+		"web",
+		"python",
+		"monorepo",
+	] as const)("init --template %s scaffolds correctly", async (template) => {
+		const templateDir = join(import.meta.dirname, `fixtures/tmp-e2e-${template}`);
+		if (existsSync(templateDir)) rmSync(templateDir, { recursive: true });
+		mkdirSync(templateDir, { recursive: true });
+
+		try {
+			await runInit(templateDir, { template, skipImport: true });
+
+			expect(existsSync(join(templateDir, ".ai/config.yaml"))).toBe(true);
+
+			if (template === "blank") {
+				// Blank has config only, no directive files
+				const directives = join(templateDir, ".ai/directives");
+				if (existsSync(directives)) {
+					const { readdirSync } = await import("node:fs");
+					expect(readdirSync(directives).filter((f) => f.endsWith(".md"))).toHaveLength(0);
+				}
+			}
+			if (template === "web") {
+				expect(existsSync(join(templateDir, ".ai/directives/typescript-conventions.md"))).toBe(
+					true,
+				);
+				expect(existsSync(join(templateDir, ".ai/directives/testing.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/directives/security.md"))).toBe(true);
+			}
+			if (template === "python") {
+				expect(existsSync(join(templateDir, ".ai/directives/python-conventions.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/directives/docstrings.md"))).toBe(true);
+			}
+			if (template === "monorepo") {
+				expect(existsSync(join(templateDir, ".ai/directives/monorepo-conventions.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/agents/reviewer.md"))).toBe(true);
+			}
+		} finally {
+			rmSync(templateDir, { recursive: true, force: true });
+		}
+	});
+
+	// ── Step 23: re-init when .ai/ exists ───────────────────────────
+
+	it("re-init overwrites existing .ai/ in non-TTY mode", async () => {
+		const reinitDir = join(import.meta.dirname, "fixtures/tmp-e2e-reinit");
+		if (existsSync(reinitDir)) rmSync(reinitDir, { recursive: true });
+		mkdirSync(reinitDir, { recursive: true });
+
+		try {
+			// First init
+			await runInit(reinitDir, { template: "minimal", skipImport: true });
+			expect(existsSync(join(reinitDir, ".ai/directives/conventions.md"))).toBe(true);
+
+			// Re-init with different template — non-TTY should proceed
+			await runInit(reinitDir, { template: "web", skipImport: true });
+			expect(existsSync(join(reinitDir, ".ai/config.yaml"))).toBe(true);
+			expect(existsSync(join(reinitDir, ".ai/directives/typescript-conventions.md"))).toBe(true);
+		} finally {
+			rmSync(reinitDir, { recursive: true, force: true });
+		}
 	});
 });
