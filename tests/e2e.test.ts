@@ -230,14 +230,18 @@ Assist with deployment tasks.
 		expect(agentsMd).toContain("# Project Instructions");
 		expect(agentsMd).toContain("Use TypeScript strict mode");
 		expect(agentsMd).toContain("Applies to: **/*.test.ts");
-		expect(agentsMd).toContain("## Agent: reviewer");
-		expect(agentsMd).toContain("Tools: Read, Glob, Grep");
 
 		const codexToml = await readFile(join(PROJECT, ".codex/config.toml"), "utf-8");
 		expect(codexToml).toContain("[mcp_servers.github]");
 		expect(codexToml).toContain("[mcp_servers.postgres]");
 		expect(codexToml).toContain("approval_policy");
 		expect(codexToml).toContain('protected_paths = ["node_modules/**"');
+		expect(codexToml).toContain("[agents.reviewer]");
+		expect(codexToml).toContain('config_file = "agents/reviewer.toml"');
+
+		const codexAgent = await readFile(join(PROJECT, ".codex/agents/reviewer.toml"), "utf-8");
+		expect(codexAgent).toContain('model = "claude-sonnet-4-6"');
+		expect(codexAgent).toContain('sandbox_mode = "read-only"');
 
 		const codexSkill = await readFile(join(PROJECT, ".codex/skills/deploy/SKILL.md"), "utf-8");
 		expect(codexSkill).toContain("# Deploy");
@@ -248,7 +252,7 @@ Assist with deployment tasks.
 	it("state file is written after sync", async () => {
 		const state = JSON.parse(await readFile(join(PROJECT, ".ai/.state.json"), "utf-8"));
 		expect(state.lastSync).toBeDefined();
-		expect(Object.keys(state.files).length).toBe(22);
+		expect(Object.keys(state.files).length).toBe(23);
 		expect(state.files["CLAUDE.md"]).toBeDefined();
 		expect(state.files["AGENTS.md"]).toBeDefined();
 		expect(state.files[".mcp.json"]).toBeDefined();

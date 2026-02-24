@@ -1,6 +1,7 @@
 import { stringify as stringifyYaml } from "yaml";
 import type { ProjectConfig } from "../config/schema.js";
 import type { Agent } from "../domain/agent.js";
+import { tomlMultilineString, tomlString } from "./toml-utils.js";
 import type { EmitResult, EmittedFile, Emitter, TargetTool } from "./types.js";
 
 /** Emits agent definition files. */
@@ -111,32 +112,79 @@ function emitCursorAgents(agents: Agent[]): EmitResult {
 	return { files, warnings: [] };
 }
 
-/** Codex: agent sections appended to AGENTS.md */
+/** Fields not supported by Codex agent config. */
+const CODEX_UNSUPPORTED_AGENT_FIELDS = [
+	"tools",
+	"disallowedTools",
+	"permissionMode",
+	"maxTurns",
+	"skills",
+	"memory",
+	"background",
+	"isolation",
+	"hooks",
+	"mcpServers",
+] as const;
+
+/** Codex: [agents.<name>] in .codex/config.toml + per-agent .codex/agents/<name>.toml */
 function emitCodexAgents(agents: Agent[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
 
 	if (agents.length === 0) return { files, warnings };
 
-	const sections = agents.map((a) => {
-		const meta: string[] = [];
-		if (a.model) meta.push(`Model: ${a.model}`);
-		if (a.readonly) meta.push("Read-only access");
-		if (a.tools?.length) meta.push(`Tools: ${a.tools.join(", ")}`);
-		const metaBlock = meta.length > 0 ? `\n\n> ${meta.join(" | ")}` : "";
-		return `## Agent: ${a.name}\n\n${a.description ? `${a.description}\n\n` : ""}${a.instructions}${metaBlock}`;
-	});
+	// Build config.toml sections for agent roles
+	const configSections: string[] = [];
+
+	for (const agent of agents) {
+		// config.toml: agent role entry
+		const roleLines: string[] = [`[agents.${agent.name}]`];
+		if (agent.description) {
+			roleLines.push(`description = ${tomlString(agent.description)}`);
+		}
+		roleLines.push(`config_file = ${tomlString(`agents/${agent.name}.toml`)}`);
+		configSections.push(roleLines.join("\n"));
+
+		// Per-agent config file
+		const agentLines: string[] = [];
+		if (agent.model) {
+			agentLines.push(`model = ${tomlString(agent.model)}`);
+		}
+		if (agent.modelReasoningEffort) {
+			agentLines.push(`model_reasoning_effort = ${tomlString(agent.modelReasoningEffort)}`);
+		}
+		if (agent.readonly) {
+			agentLines.push(`sandbox_mode = "read-only"`);
+		}
+		if (agent.instructions.trim()) {
+			agentLines.push(`developer_instructions = ${tomlMultilineString(agent.instructions)}`);
+		}
+
+		files.push({
+			path: `.codex/agents/${agent.name}.toml`,
+			content: `${agentLines.join("\n")}\n`,
+		});
+
+		// Warn about unsupported fields
+		for (const field of CODEX_UNSUPPORTED_AGENT_FIELDS) {
+			const value = agent[field];
+			if (value !== undefined && value !== null) {
+				const hasContent = Array.isArray(value)
+					? value.length > 0
+					: typeof value === "object"
+						? Object.keys(value).length > 0
+						: true;
+				if (hasContent) {
+					warnings.push(`Codex does not support "${field}" on agent "${agent.name}" — ignored.`);
+				}
+			}
+		}
+	}
 
 	files.push({
-		path: "AGENTS.md",
-		content: `# Agents\n\n${sections.join("\n\n---\n\n")}\n`,
+		path: ".codex/config.toml",
+		content: `${configSections.join("\n\n")}\n`,
 	});
-
-	if (agents.some((a) => a.tools?.length)) {
-		warnings.push(
-			"Codex does not support per-agent tool restrictions — tools listed as notes only.",
-		);
-	}
 
 	return { files, warnings };
 }

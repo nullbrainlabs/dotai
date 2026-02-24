@@ -13,6 +13,8 @@ export interface Agent {
 	description: string;
 	/** Model override (e.g. "claude-sonnet-4-6"). */
 	model?: string;
+	/** Model reasoning effort level. */
+	modelReasoningEffort?: "low" | "medium" | "high";
 	/** When true, restrict to read-only file access. */
 	readonly?: boolean;
 	/** System prompt / behavioral guidance (markdown). */

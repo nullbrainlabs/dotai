@@ -278,6 +278,11 @@ async function loadAgents(
 				description: typeof frontmatter.description === "string" ? frontmatter.description : "",
 				instructions: body,
 				model: typeof frontmatter.model === "string" ? frontmatter.model : undefined,
+				modelReasoningEffort:
+					typeof frontmatter.modelReasoningEffort === "string" &&
+					["low", "medium", "high"].includes(frontmatter.modelReasoningEffort)
+						? (frontmatter.modelReasoningEffort as Agent["modelReasoningEffort"])
+						: undefined,
 				readonly: frontmatter.readonly === true ? true : undefined,
 				tools: Array.isArray(frontmatter.tools) ? frontmatter.tools.map(String) : undefined,
 				disallowedTools: Array.isArray(frontmatter.disallowedTools)
