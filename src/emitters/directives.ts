@@ -40,15 +40,60 @@ function groupByOutputDir(directives: Directive[]): Map<string | undefined, Dire
 
 /**
  * Claude Code:
- * - alwaysApply directives → <outputDir>/CLAUDE.md (concatenated, grouped by outputDir)
- * - scoped/conditional directives → <outputDir>/.claude/rules/<name>.md
+ * - enterprise/user scope → skipped with warnings
+ * - local scope → <outputDir>/CLAUDE.local.md (concatenated, grouped by outputDir)
+ * - project + alwaysApply (no appliesTo) → <outputDir>/CLAUDE.md (concatenated, grouped by outputDir)
+ * - project + appliesTo → <outputDir>/.claude/rules/<name>.md with YAML paths: frontmatter
+ * - project + alwaysApply:false without appliesTo → .claude/rules/ with warning (no effect)
  */
 function emitClaude(directives: Directive[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
 
-	const alwaysApply = directives.filter((d) => d.alwaysApply && !d.appliesTo?.length);
-	const scoped = directives.filter((d) => !d.alwaysApply || d.appliesTo?.length);
+	// 1. Filter by scope — skip enterprise + user with warnings
+	const enterpriseCount = directives.filter((d) => d.scope === "enterprise").length;
+	if (enterpriseCount > 0) {
+		warnings.push(
+			`Skipping ${enterpriseCount} enterprise-scope directive(s) — no Claude Code target path for enterprise scope.`,
+		);
+	}
+
+	const userCount = directives.filter((d) => d.scope === "user").length;
+	if (userCount > 0) {
+		warnings.push(
+			`Skipping ${userCount} user-scope directive(s) — use "dotai sync --scope user" to emit these.`,
+		);
+	}
+
+	const remaining = directives.filter((d) => d.scope !== "enterprise" && d.scope !== "user");
+
+	// 2. Local-scope → collect into CLAUDE.local.md per outputDir
+	const localDirectives = remaining.filter((d) => d.scope === "local");
+	if (localDirectives.some((d) => d.appliesTo?.length)) {
+		warnings.push(
+			"Local-scope directives with appliesTo will be placed in CLAUDE.local.md — Claude Code does not support scoped local rules.",
+		);
+	}
+	for (const [outputDir, group] of groupByOutputDir(localDirectives)) {
+		const sections = group.map((d) => d.content);
+		files.push({
+			path: prefixPath("CLAUDE.local.md", outputDir),
+			content: `${sections.join("\n\n---\n\n")}\n`,
+		});
+	}
+
+	// 3. Project-scope directives
+	const projectDirectives = remaining.filter((d) => d.scope === "project");
+	const alwaysApply = projectDirectives.filter((d) => d.alwaysApply && !d.appliesTo?.length);
+	const scoped = projectDirectives.filter((d) => d.appliesTo?.length);
+	const noEffect = projectDirectives.filter((d) => !d.alwaysApply && !d.appliesTo?.length);
+
+	// 4. Warn on alwaysApply: false without appliesTo
+	if (noEffect.length > 0) {
+		warnings.push(
+			`${noEffect.length} directive(s) have alwaysApply: false without appliesTo — Claude Code loads all rules unconditionally. Add appliesTo patterns or set alwaysApply: true.`,
+		);
+	}
 
 	// Group alwaysApply directives by outputDir → one CLAUDE.md per group
 	for (const [outputDir, group] of groupByOutputDir(alwaysApply)) {
@@ -59,19 +104,25 @@ function emitClaude(directives: Directive[]): EmitResult {
 		});
 	}
 
+	// Scoped directives → .claude/rules/<name>.md with YAML paths: frontmatter
 	for (const directive of scoped) {
 		const name = slugify(directive.description || "rule");
-		let content = directive.content;
-
-		// Claude Code rules don't support frontmatter, so embed scope info as comments
-		if (directive.appliesTo?.length) {
-			const globs = directive.appliesTo.join(", ");
-			content = `<!-- applies to: ${globs} -->\n\n${content}`;
-		}
+		const paths = directive.appliesTo?.map((p) => `  - "${p}"`).join("\n");
+		const frontmatter = `---\npaths:\n${paths}\n---`;
+		const content = `${frontmatter}\n\n${directive.content}`;
 
 		files.push({
 			path: prefixPath(`.claude/rules/${name}.md`, directive.outputDir),
 			content: `${content}\n`,
+		});
+	}
+
+	// noEffect directives still go to .claude/rules/ (they just load unconditionally)
+	for (const directive of noEffect) {
+		const name = slugify(directive.description || "rule");
+		files.push({
+			path: prefixPath(`.claude/rules/${name}.md`, directive.outputDir),
+			content: `${directive.content}\n`,
 		});
 	}
 

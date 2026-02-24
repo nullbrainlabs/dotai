@@ -174,7 +174,7 @@ Assist with deployment tasks.
 		expect(claudeMd).toContain("Use TypeScript strict mode");
 
 		const claudeRules = await readFile(join(PROJECT, ".claude/rules/testing-rules.md"), "utf-8");
-		expect(claudeRules).toContain("applies to: **/*.test.ts");
+		expect(claudeRules).toContain('  - "**/*.test.ts"');
 		expect(claudeRules).toContain("Write descriptive test names");
 
 		const mcpJson = JSON.parse(await readFile(join(PROJECT, ".mcp.json"), "utf-8"));
