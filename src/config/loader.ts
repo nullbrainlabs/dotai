@@ -246,6 +246,7 @@ async function loadDirectives(
 						? frontmatter.description
 						: file.replace(/\.md$/, ""),
 				outputDir: typeof frontmatter.outputDir === "string" ? frontmatter.outputDir : undefined,
+				override: frontmatter.override === true ? true : undefined,
 			};
 			config.directives.push(directive);
 		} catch (e) {

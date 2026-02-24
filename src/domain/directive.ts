@@ -19,4 +19,6 @@ export interface Directive {
 	description?: string;
 	/** Optional subdirectory for the emitted file (e.g. "docs-site" → docs-site/CLAUDE.md). */
 	outputDir?: string;
+	/** When true, emit to AGENTS.override.md instead of AGENTS.md (Codex only). */
+	override?: boolean;
 }

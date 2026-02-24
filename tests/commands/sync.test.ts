@@ -1,10 +1,16 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { runInit } from "../../src/commands/init.js";
 import type { SyncOptions } from "../../src/commands/sync.js";
-import { deriveGitignorePatterns, runSync, updateGitignore } from "../../src/commands/sync.js";
+import {
+	deriveGitignorePatterns,
+	resolveOutputPath,
+	runSync,
+	updateGitignore,
+} from "../../src/commands/sync.js";
 import type { EmittedFile } from "../../src/emitters/types.js";
 
 const TMP_DIR = join(import.meta.dirname, "../fixtures/tmp-sync");
@@ -311,5 +317,30 @@ describe("updateGitignore", () => {
 		const headers = content.match(/# dotai outputs/g) ?? [];
 		expect(headers).toHaveLength(1);
 		expect(content).toContain("AGENTS.md");
+	});
+});
+
+describe("resolveOutputPath", () => {
+	const projectDir = "/tmp/test-project";
+	const home = homedir();
+
+	it("routes AGENTS.md to ~/.codex/AGENTS.md in user scope", () => {
+		const result = resolveOutputPath("AGENTS.md", true, projectDir, ["codex"]);
+		expect(result).toBe(join(home, ".codex", "AGENTS.md"));
+	});
+
+	it("routes AGENTS.override.md to ~/.codex/AGENTS.override.md in user scope", () => {
+		const result = resolveOutputPath("AGENTS.override.md", true, projectDir, ["codex"]);
+		expect(result).toBe(join(home, ".codex", "AGENTS.override.md"));
+	});
+
+	it("routes CLAUDE.md to ~/CLAUDE.md in user scope (unchanged)", () => {
+		const result = resolveOutputPath("CLAUDE.md", true, projectDir, ["claude"]);
+		expect(result).toBe(join(home, "CLAUDE.md"));
+	});
+
+	it("routes files to project dir in project scope", () => {
+		const result = resolveOutputPath("AGENTS.md", false, projectDir, ["codex"]);
+		expect(result).toBe(join(projectDir, "AGENTS.md"));
 	});
 });
