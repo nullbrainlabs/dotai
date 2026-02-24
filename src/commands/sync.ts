@@ -273,7 +273,7 @@ function printSyncSummary(
  * In user scope, files targeting tool-specific dirs go to ~/.<tool>/...
  * In project scope, files are relative to the project root.
  */
-function resolveOutputPath(
+export function resolveOutputPath(
 	relativePath: string,
 	isUserScope: boolean,
 	projectDir: string,
@@ -299,7 +299,12 @@ function resolveOutputPath(
 		}
 	}
 
-	// Root-level files (CLAUDE.md, AGENTS.md, .mcp.json) go to home dir in user scope
+	// AGENTS files go to ~/.codex/ in user scope
+	if (relativePath === "AGENTS.md" || relativePath === "AGENTS.override.md") {
+		return join(USER_OUTPUT_DIRS.codex, relativePath);
+	}
+
+	// Root-level files (CLAUDE.md, .mcp.json) go to home dir in user scope
 	return join(homedir(), relativePath);
 }
 
