@@ -218,9 +218,10 @@ Assist with deployment tasks.
 		expect(cursorMcp.mcpServers.github.command).toBe("npx");
 
 		const cursorAgent = await readFile(join(PROJECT, ".cursor/agents/reviewer.md"), "utf-8");
+		expect(cursorAgent).toContain("name: reviewer");
 		expect(cursorAgent).toContain("model: claude-sonnet-4-6");
 		expect(cursorAgent).toContain("readonly: true");
-		expect(cursorAgent).toContain("tools: [Read, Glob, Grep]");
+		expect(cursorAgent).not.toContain("tools:");
 
 		const cursorSkill = await readFile(join(PROJECT, ".cursor/skills/deploy/SKILL.md"), "utf-8");
 		expect(cursorSkill).toContain("# Deploy");
