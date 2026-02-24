@@ -1,5 +1,6 @@
 import type { ProjectConfig } from "../config/schema.js";
 import type { ToolServer } from "../domain/tool-server.js";
+import { tomlString } from "./toml-utils.js";
 import type { EmitResult, EmittedFile, Emitter, TargetTool } from "./types.js";
 
 /** Emits MCP server configuration files. */
@@ -154,8 +155,4 @@ function buildTomlSection(server: ToolServer): string {
 	}
 
 	return lines.join("\n");
-}
-
-function tomlString(s: string): string {
-	return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }

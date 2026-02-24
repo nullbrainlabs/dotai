@@ -130,6 +130,13 @@ export function validateConfig(config: ProjectConfig): ValidationResult {
 				message: `Invalid memory "${a.memory}" — must be one of: ${validMemoryScopes.join(", ")}`,
 			});
 		}
+		const validReasoningEfforts = ["low", "medium", "high"];
+		if (a.modelReasoningEffort && !validReasoningEfforts.includes(a.modelReasoningEffort)) {
+			errors.push({
+				file: `agents/${a.name}`,
+				message: `Invalid modelReasoningEffort "${a.modelReasoningEffort}" — must be one of: ${validReasoningEfforts.join(", ")}`,
+			});
+		}
 		if (a.maxTurns !== undefined && (!Number.isInteger(a.maxTurns) || a.maxTurns <= 0)) {
 			errors.push({
 				file: `agents/${a.name}`,
