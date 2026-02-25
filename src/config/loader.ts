@@ -240,6 +240,7 @@ function parseHook(
 		statusMessage: typeof obj.statusMessage === "string" ? obj.statusMessage : undefined,
 		once: obj.once === true ? true : undefined,
 		async: obj.async === true ? true : undefined,
+		model: typeof obj.model === "string" ? obj.model : undefined,
 	};
 }
 

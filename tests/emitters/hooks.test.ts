@@ -168,6 +168,50 @@ describe("hooksEmitter", () => {
 			expect(handler.async).toBe(true);
 		});
 
+		it("emits model field on prompt/agent hooks", () => {
+			const config = emptyConfig();
+			config.hooks.push({
+				event: "preToolUse",
+				handler: "Check safety",
+				type: "prompt",
+				model: "haiku",
+				scope: "project",
+			});
+			config.hooks.push({
+				event: "postToolUse",
+				handler: "Verify output",
+				type: "agent",
+				model: "sonnet",
+				scope: "project",
+			});
+			const result = hooksEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.hooks.PreToolUse[0].hooks[0]).toEqual({
+				type: "prompt",
+				prompt: "Check safety",
+				model: "haiku",
+			});
+			expect(parsed.hooks.PostToolUse[0].hooks[0]).toEqual({
+				type: "agent",
+				prompt: "Verify output",
+				model: "sonnet",
+			});
+		});
+
+		it("omits model field on command hooks", () => {
+			const config = emptyConfig();
+			config.hooks.push({
+				event: "preToolUse",
+				handler: "echo test",
+				type: "command",
+				model: "haiku",
+				scope: "project",
+			});
+			const result = hooksEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.hooks.PreToolUse[0].hooks[0].model).toBeUndefined();
+		});
+
 		it("warns and skips unsupported events", () => {
 			const result = hooksEmitter.emit(makeConfig(), "claude");
 			expect(result.warnings.some((w) => w.includes("preFileEdit"))).toBe(true);

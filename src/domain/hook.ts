@@ -58,4 +58,6 @@ export interface Hook {
 	once?: boolean;
 	/** When true, hook runs asynchronously (command type only). */
 	async?: boolean;
+	/** Model override for prompt/agent hook evaluation. */
+	model?: string;
 }

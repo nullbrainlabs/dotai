@@ -39,7 +39,7 @@ function buildSkillContent(skill: Skill): string {
 	if (skill.argumentHint) frontmatterLines.push(`argument-hint: ${skill.argumentHint}`);
 	if (skill.userInvocable === false) frontmatterLines.push("user-invocable: false");
 	if (skill.allowedTools?.length) {
-		frontmatterLines.push(`allowed-tools: [${skill.allowedTools.join(", ")}]`);
+		frontmatterLines.push(`allowed-tools: ${skill.allowedTools.join(", ")}`);
 	}
 	if (skill.model) frontmatterLines.push(`model: ${skill.model}`);
 	if (skill.context) frontmatterLines.push(`context: ${skill.context}`);

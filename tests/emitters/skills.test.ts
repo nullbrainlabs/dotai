@@ -117,7 +117,7 @@ describe("skillsEmitter", () => {
 		});
 
 		const result = skillsEmitter.emit(config, "claude");
-		expect(result.files[0].content).toContain("allowed-tools: [Read, Grep]");
+		expect(result.files[0].content).toContain("allowed-tools: Read, Grep");
 	});
 
 	it("emits model in frontmatter", () => {
