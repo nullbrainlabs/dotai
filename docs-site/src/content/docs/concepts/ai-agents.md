@@ -5,16 +5,26 @@ description: Specialized sub-agents with isolated context and tool restrictions.
 
 Agents are task-driven, not capability-driven. Unlike a general-purpose assistant, each agent activates at a specific point in the workflow — after code changes, before a commit, or when a slash command triggers it. They operate with their own instructions, optional model override, and constrained tool access.
 
-## TypeScript Interface
+## TypeScript interface
 
 ```typescript
 interface Agent {
   name: string;
   description: string;
   model?: string;
+  modelReasoningEffort?: "low" | "medium" | "high";
   readonly?: boolean;
   instructions: string;
   tools?: string[];
+  disallowedTools?: string[];
+  permissionMode?: "default" | "acceptEdits" | "dontAsk" | "bypassPermissions" | "plan";
+  maxTurns?: number;
+  skills?: string[];
+  memory?: "user" | "project" | "local";
+  background?: boolean;
+  isolation?: "worktree";
+  hooks?: Record<string, unknown>;
+  mcpServers?: Record<string, unknown>;
 }
 ```
 
@@ -29,19 +39,29 @@ Agents are defined in `.ai/agents/*.md`. Each file is a Markdown document with a
   cleanup-analyzer.md
 ```
 
-### Frontmatter Fields
+### Frontmatter fields
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `model` | string | Tool default | Model to use for this agent (e.g. `claude-sonnet-4-20250514`) |
+| `model` | string | Tool default | Model to use (e.g. `claude-sonnet-4-6`, `opus`, `haiku`) |
+| `modelReasoningEffort` | `"low" \| "medium" \| "high"` | — | Reasoning effort level for the model |
 | `readonly` | boolean | `false` | If true, the agent can only read files — no writes or edits |
 | `tools` | string[] | All tools | Allowlist of tool names the agent may use |
+| `disallowedTools` | string[] | — | Denylist of tool names the agent may not use |
+| `permissionMode` | string | `"default"` | Permission behavior: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+| `maxTurns` | number | — | Maximum number of agentic turns before stopping |
+| `skills` | string[] | — | Skills available to the agent (by name) |
+| `memory` | `"user" \| "project" \| "local"` | — | Memory scope for the agent |
+| `background` | boolean | `false` | Run the agent in the background |
+| `isolation` | `"worktree"` | — | Run the agent in an isolated git worktree |
+| `hooks` | object | — | Inline [hook](/concepts/hooks) definitions (nested YAML, passed through) |
+| `mcpServers` | object | — | Inline [MCP server](/concepts/tool-servers) definitions (nested YAML, passed through) |
 
-### Example Agent File
+### Example agent file
 
 ```markdown
 ---
-model: claude-sonnet-4-20250514
+model: claude-sonnet-4-6
 readonly: true
 tools:
   - Read
@@ -49,7 +69,7 @@ tools:
   - Grep
 ---
 
-# Docs Reviewer
+# Docs reviewer
 
 Review documentation for accuracy against the current codebase.
 
@@ -60,17 +80,97 @@ Review documentation for accuracy against the current codebase.
 4. Report discrepancies
 ```
 
-## Agent Structure Pattern
+### Permission modes
+
+The `permissionMode` field controls how the agent handles permission checks:
+
+| Mode | Behavior |
+|------|----------|
+| `default` | Normal permission prompts — asks user to approve tool use |
+| `acceptEdits` | Auto-approve file edits, prompt for other operations |
+| `dontAsk` | Skip operations that would require permission instead of prompting |
+| `bypassPermissions` | Run without any permission checks (use with caution) |
+| `plan` | Plan-only mode — the agent proposes changes but does not execute them |
+
+```yaml
+---
+permissionMode: plan
+model: opus
+maxTurns: 50
+---
+
+# Architecture planner
+
+Design implementation plans without executing any changes.
+```
+
+### Skills integration
+
+Reference skills by name to make them available to the agent:
+
+```yaml
+---
+skills:
+  - deploy
+  - write-migration
+  - review-pr
+---
+
+# Release manager
+
+Coordinate releases using the deploy and migration skills.
+```
+
+### Background and isolation
+
+Agents can run in the background and/or in isolated worktrees:
+
+```yaml
+---
+background: true
+isolation: worktree
+model: haiku
+---
+
+# Background linter
+
+Continuously check code quality in the background without interfering with the main session.
+```
+
+### Inline hooks and MCP servers
+
+Agents can define their own hooks and MCP servers that apply only when the agent is active:
+
+```yaml
+---
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      hooks:
+        - type: prompt
+          prompt: "Validate this command is safe for the docs environment."
+mcpServers:
+  docs-search:
+    command: npx
+    args: ["-y", "@docs/mcp-search"]
+---
+
+# Docs builder
+
+Build and validate the documentation site.
+```
+
+## Agent structure pattern
 
 Well-structured agents follow a consistent layout. This is Pattern 2 from the [Configuration Patterns](../architecture/patterns) guide — task-specialized sub-agents with a standard internal structure.
 
 ```markdown
-# Agent Name
+# Agent name
 
 ## Purpose
 One sentence describing what this agent does.
 
-## When to Use
+## When to use
 Specific triggers — what condition or event should cause the primary agent to delegate to this one.
 
 ## Process
@@ -83,27 +183,38 @@ Numbered steps the agent follows.
 ### DO NOT:
 - Specific anti-patterns
 
-## Output Format
+## Output format
 Exact structure the agent should return.
 ```
 
-This structure serves both human readers and the agents that will be reading it. The `When to Use` section is especially important — it tells the primary agent when to delegate, which is what makes agents task-driven rather than capability-driven.
+This structure serves both human readers and the agents that will be reading it. The `When to use` section is especially important — it tells the primary agent when to delegate, which is what makes agents task-driven rather than capability-driven.
 
-## Cross-Tool Support
+## Cross-tool support
 
 | Aspect | Claude Code | Cursor | Codex | Copilot |
 |--------|-------------|--------|-------|---------|
 | Location | `.claude/agents/*.md` | `.cursor/agents/*.md` | `.codex/config.toml` | `.github/agents/*.agent.md` |
 | Format | MD + frontmatter | MD + frontmatter | TOML config | MD + YAML frontmatter |
 | Model override | `model` frontmatter | `model` frontmatter | `model` TOML key | Not supported (warning) |
-| Read-only | `readonly` frontmatter | `readonly` frontmatter | Not supported | `tools: [read, search]` |
-| Tool restrictions | `tools` array | `tools` array | Limited | `tools` array (mapped aliases) |
+| Read-only | `disallowedTools` | `readonly` frontmatter | `sandbox_mode` | `tools: [read, search]` |
+| Tool restrictions | `tools` / `disallowedTools` | Not supported | Limited | `tools` array (mapped aliases) |
+| Permission mode | `permissionMode` | Not supported | Not supported | Not supported |
+| Max turns | `maxTurns` | Not supported | Not supported | Not supported |
+| Skills | `skills` | Not supported | Not supported | Not supported |
+| Memory | `memory` | Not supported | Not supported | Not supported |
+| Background | `background` | `is_background` | Not supported | Not supported |
+| Isolation | `isolation` | Not supported | Not supported | Not supported |
+| Inline hooks | `hooks` | Not supported | Not supported | Not supported |
+| Inline MCP | `mcpServers` | Not supported | Not supported | Not supported |
 
 **Notes:**
 
+- **Claude Code** supports all agent fields. It has the richest agent configuration surface.
+- **Cursor** supports `name`, `description`, `model`, `readonly`, and `background` (as `is_background`). All other fields emit warnings.
 - **Copilot** maps tool names to its own alias scheme. `Read` becomes `read`, `Write` and `Edit` both become `edit`, and so on. dotai performs this translation automatically.
 
-## Known Limitations
+## Known limitations
 
-- **Codex**: No `readonly` equivalent. Read-only agents are emitted without the restriction; the agent will have write access.
+- **Codex**: No `readonly` equivalent. Read-only agents are emitted with `sandbox_mode = "read-only"`. Fields like `tools`, `disallowedTools`, `permissionMode`, `maxTurns`, `skills`, `memory`, `background`, `isolation`, `hooks`, and `mcpServers` are not supported.
 - **Copilot**: No model override support. If a `model` field is set, dotai emits a warning and drops the field from the Copilot output.
+- **Cursor**: Does not support `tools`, `disallowedTools`, `permissionMode`, `maxTurns`, `skills`, `memory`, `isolation`, `hooks`, `mcpServers`, or `modelReasoningEffort`. These fields are ignored with warnings.

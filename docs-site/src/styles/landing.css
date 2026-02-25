@@ -1,22 +1,82 @@
 /* ── Design Tokens ── */
 :root {
 	--ld-bg: oklch(0.08 0.015 260);
+	--ld-bg-deep: oklch(0.06 0.015 260);
 	--ld-fg: oklch(0.95 0.01 240);
-	--ld-primary: oklch(0.7 0.18 170);
-	--ld-primary-dim: oklch(0.5 0.12 170);
+	--ld-primary: hsl(215, 90%, 55%);
+	--ld-primary-dim: hsl(215, 70%, 40%);
 	--ld-card: oklch(0.12 0.02 260);
 	--ld-card-hover: oklch(0.14 0.02 260);
 	--ld-border: oklch(0.25 0.02 260);
 	--ld-muted: oklch(0.5 0.02 240);
 	--ld-secondary: oklch(0.18 0.02 260);
-	--ld-green: oklch(0.72 0.17 155);
+	--ld-green: hsl(215, 90%, 55%);
 	--ld-purple: oklch(0.65 0.18 300);
 	--ld-yellow: oklch(0.8 0.15 85);
+	--ld-grid-line: oklch(0.7 0.18 170 / 0.08);
+	--ld-accent-glow: oklch(0.7 0.18 170 / 0.35);
+	--ld-accent-border: oklch(0.7 0.18 170 / 0.5);
+	--ld-accent-border-dim: oklch(0.7 0.18 170 / 0.3);
+	--ld-nav-scrolled-bg: oklch(0.08 0.015 260 / 0.92);
+	--ld-install-border: hsla(215, 90%, 55%, 0.3);
+	--ld-install-shadow1: hsla(215, 90%, 55%, 0.15);
+	--ld-install-shadow2: hsla(215, 90%, 55%, 0.08);
 	--ld-radius: 0.75rem;
 	--ld-max-w: 72rem;
 	--ld-font-heading: "Geist Mono", ui-monospace, monospace;
 	--ld-font-mono: "JetBrains Mono", ui-monospace, monospace;
 	--ld-font-body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* ── Light mode tokens ── */
+:root[data-theme="light"] {
+	--ld-bg: oklch(0.985 0.005 260);
+	--ld-bg-deep: oklch(0.96 0.008 260);
+	--ld-fg: oklch(0.15 0.02 260);
+	--ld-primary: hsl(215, 80%, 48%);
+	--ld-primary-dim: hsl(215, 60%, 38%);
+	--ld-card: oklch(0.97 0.005 260);
+	--ld-card-hover: oklch(0.95 0.008 260);
+	--ld-border: oklch(0.85 0.01 260);
+	--ld-muted: oklch(0.45 0.02 260);
+	--ld-secondary: oklch(0.93 0.008 260);
+	--ld-green: hsl(215, 80%, 48%);
+	--ld-purple: oklch(0.5 0.18 300);
+	--ld-yellow: oklch(0.55 0.15 85);
+	--ld-grid-line: oklch(0.5 0.12 215 / 0.12);
+	--ld-accent-glow: oklch(0.5 0.18 170 / 0.2);
+	--ld-accent-border: hsl(215, 80%, 48% / 0.5);
+	--ld-accent-border-dim: hsl(215, 80%, 48% / 0.25);
+	--ld-nav-scrolled-bg: oklch(0.985 0.005 260 / 0.92);
+	--ld-install-border: hsla(215, 80%, 48%, 0.3);
+	--ld-install-shadow1: hsla(215, 80%, 48%, 0.1);
+	--ld-install-shadow2: hsla(215, 80%, 48%, 0.05);
+}
+
+@media (prefers-color-scheme: light) {
+	:root:not([data-theme="dark"]) {
+		--ld-bg: oklch(0.985 0.005 260);
+		--ld-bg-deep: oklch(0.96 0.008 260);
+		--ld-fg: oklch(0.15 0.02 260);
+		--ld-primary: hsl(215, 80%, 48%);
+		--ld-primary-dim: hsl(215, 60%, 38%);
+		--ld-card: oklch(0.97 0.005 260);
+		--ld-card-hover: oklch(0.95 0.008 260);
+		--ld-border: oklch(0.85 0.01 260);
+		--ld-muted: oklch(0.45 0.02 260);
+		--ld-secondary: oklch(0.93 0.008 260);
+		--ld-green: hsl(215, 80%, 48%);
+		--ld-purple: oklch(0.5 0.18 300);
+		--ld-yellow: oklch(0.55 0.15 85);
+		--ld-grid-line: oklch(0.5 0.12 215 / 0.12);
+		--ld-accent-glow: oklch(0.5 0.18 170 / 0.2);
+		--ld-accent-border: hsl(215, 80%, 48% / 0.5);
+		--ld-accent-border-dim: hsl(215, 80%, 48% / 0.25);
+		--ld-nav-scrolled-bg: oklch(0.985 0.005 260 / 0.92);
+		--ld-install-border: hsla(215, 80%, 48%, 0.3);
+		--ld-install-shadow1: hsla(215, 80%, 48%, 0.1);
+		--ld-install-shadow2: hsla(215, 80%, 48%, 0.05);
+	}
 }
 
 /* ── Reset & Base ── */
@@ -89,10 +149,7 @@
 }
 
 .ld-text-gradient {
-	background: linear-gradient(135deg, var(--ld-primary), oklch(0.7 0.15 200));
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-	background-clip: text;
+	color: var(--ld-fg);
 }
 
 /* ── Grid pattern overlay ── */
@@ -100,10 +157,12 @@
 	position: absolute;
 	inset: 0;
 	background-image:
-		linear-gradient(oklch(0.7 0.18 170 / 0.03) 1px, transparent 1px),
-		linear-gradient(90deg, oklch(0.7 0.18 170 / 0.03) 1px, transparent 1px);
+		linear-gradient(var(--ld-grid-line) 1px, transparent 1px),
+		linear-gradient(90deg, var(--ld-grid-line) 1px, transparent 1px);
 	background-size: 60px 60px;
 	pointer-events: none;
+	-webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+	mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
 }
 
 /* ── Card shadow ── */
@@ -115,10 +174,44 @@
 }
 
 .ld-card:hover {
-	border-color: oklch(0.7 0.18 170 / 0.5);
-	box-shadow:
-		0 0 0 1px oklch(0.7 0.18 170 / 0.04),
-		0 4px 16px oklch(0.7 0.18 170 / 0.06);
+	border-color: transparent;
+}
+
+.ld-features-grid .ld-feature-card:nth-child(1):hover {
+	background-image: linear-gradient(var(--ld-card), var(--ld-card)), linear-gradient(135deg, hsl(25, 95%, 58%), hsl(320, 85%, 58%));
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	box-shadow: 0 4px 20px hsl(25, 95%, 58% / 0.1);
+}
+.ld-features-grid .ld-feature-card:nth-child(2):hover {
+	background-image: linear-gradient(var(--ld-card), var(--ld-card)), linear-gradient(135deg, hsl(195, 90%, 50%), hsl(215, 90%, 60%));
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	box-shadow: 0 4px 20px hsla(195, 90%, 50%, 0.1);
+}
+.ld-features-grid .ld-feature-card:nth-child(3):hover {
+	background-image: linear-gradient(var(--ld-card), var(--ld-card)), linear-gradient(135deg, hsl(280, 80%, 62%), hsl(320, 90%, 62%));
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	box-shadow: 0 4px 20px hsla(280, 80%, 62%, 0.1);
+}
+.ld-features-grid .ld-feature-card:nth-child(4):hover {
+	background-image: linear-gradient(var(--ld-card), var(--ld-card)), linear-gradient(135deg, hsl(140, 70%, 48%), hsl(175, 80%, 45%));
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	box-shadow: 0 4px 20px hsla(140, 70%, 48%, 0.1);
+}
+.ld-features-grid .ld-feature-card:nth-child(5):hover {
+	background-image: linear-gradient(var(--ld-card), var(--ld-card)), linear-gradient(135deg, hsl(175, 80%, 45%), hsl(210, 90%, 58%));
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	box-shadow: 0 4px 20px hsla(175, 80%, 45%, 0.1);
+}
+.ld-features-grid .ld-feature-card:nth-child(6):hover {
+	background-image: linear-gradient(var(--ld-card), var(--ld-card)), linear-gradient(135deg, hsl(25, 95%, 58%), hsl(280, 80%, 62%));
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	box-shadow: 0 4px 20px hsla(25, 95%, 58%, 0.1);
 }
 
 /* ── Buttons ── */
@@ -136,14 +229,15 @@
 	font-family: inherit;
 }
 
+.landing-page .ld-btn-primary,
 .ld-btn-primary {
 	background: var(--ld-primary);
-	color: var(--ld-bg);
+	color: white;
 }
 
 .ld-btn-primary:hover {
 	transform: translateY(-1px);
-	box-shadow: 0 4px 20px oklch(0.7 0.18 170 / 0.35);
+	box-shadow: 0 4px 20px var(--ld-accent-glow);
 }
 
 .ld-btn-outline {
@@ -154,12 +248,12 @@
 
 .ld-btn-outline:hover {
 	background: var(--ld-secondary);
-	border-color: oklch(0.7 0.18 170 / 0.5);
+	border-color: var(--ld-accent-border);
 }
 
 /* ── Code blocks ── */
 .ld-code-window {
-	background: oklch(0.06 0.015 260);
+	background: var(--ld-bg-deep);
 	border: 1px solid var(--ld-border);
 	border-radius: var(--ld-radius);
 	overflow: hidden;
@@ -235,7 +329,7 @@
 }
 
 .ld-nav.scrolled {
-	background: oklch(0.08 0.015 260 / 0.92);
+	background: var(--ld-nav-scrolled-bg);
 	backdrop-filter: blur(16px);
 	-webkit-backdrop-filter: blur(16px);
 	border-bottom-color: var(--ld-border);
@@ -286,6 +380,18 @@
 		display: flex;
 		align-items: center;
 		gap: 1rem;
+	}
+}
+
+.ld-nav-mobile-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+	.ld-nav-mobile-controls {
+		display: none;
 	}
 }
 
@@ -341,7 +447,7 @@
 /* ── Hero ── */
 .ld-hero {
 	position: relative;
-	min-height: 80vh;
+	min-height: 90vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -353,6 +459,20 @@
 .ld-hero-content {
 	position: relative;
 	z-index: 1;
+}
+
+.ld-version-badge {
+	display: inline-block;
+	font-family: var(--ld-font-mono);
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--ld-primary);
+	background: var(--ld-secondary);
+	border: 1px solid var(--ld-border);
+	border-radius: 9999px;
+	padding: 0.25rem 0.85rem;
+	margin-bottom: 1.25rem;
+	letter-spacing: 0.02em;
 }
 
 .ld-hero h1 {
@@ -376,8 +496,8 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 1rem;
-	background: oklch(0.14 0.015 260);
-	border: 1px solid var(--ld-border);
+	background: var(--ld-card-hover);
+	border: 1px solid var(--ld-install-border);
 	border-radius: 0.625rem;
 	padding: 0.75rem 1rem 0.75rem 1.25rem;
 	margin-bottom: 2rem;
@@ -385,6 +505,9 @@
 	font-size: 1rem;
 	color: var(--ld-muted);
 	user-select: all;
+	box-shadow:
+		0 0 15px var(--ld-install-shadow1),
+		0 0 40px var(--ld-install-shadow2);
 }
 
 .ld-install-cmd code {
@@ -436,7 +559,7 @@
 
 .ld-hero-logos {
 	text-align: center;
-	margin-top: 2rem;
+	margin-top: 6.5rem;
 }
 
 .ld-hero-logos-label {
@@ -523,10 +646,32 @@
 	font-family: var(--ld-font-mono);
 	font-size: 0.65rem;
 	line-height: 1.15;
-	color: var(--ld-primary);
 	margin-bottom: 1.25rem;
 	height: 3.5rem;
 	overflow: hidden;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+/* JetBrains-style per-card gradients */
+.ld-features-grid .ld-feature-card:nth-child(1) .ld-feature-icon {
+	background-image: linear-gradient(135deg, hsl(25, 95%, 58%), hsl(320, 85%, 58%));
+}
+.ld-features-grid .ld-feature-card:nth-child(2) .ld-feature-icon {
+	background-image: linear-gradient(135deg, hsl(195, 90%, 50%), hsl(215, 90%, 60%));
+}
+.ld-features-grid .ld-feature-card:nth-child(3) .ld-feature-icon {
+	background-image: linear-gradient(135deg, hsl(280, 80%, 62%), hsl(320, 90%, 62%));
+}
+.ld-features-grid .ld-feature-card:nth-child(4) .ld-feature-icon {
+	background-image: linear-gradient(135deg, hsl(140, 70%, 48%), hsl(175, 80%, 45%));
+}
+.ld-features-grid .ld-feature-card:nth-child(5) .ld-feature-icon {
+	background-image: linear-gradient(135deg, hsl(175, 80%, 45%), hsl(210, 90%, 58%));
+}
+.ld-features-grid .ld-feature-card:nth-child(6) .ld-feature-icon {
+	background-image: linear-gradient(135deg, hsl(25, 95%, 58%), hsl(280, 80%, 62%));
 }
 
 .ld-feature-card h3 {
@@ -574,7 +719,7 @@
 
 .ld-how-step.active {
 	background: var(--ld-card);
-	border-color: oklch(0.7 0.18 170 / 0.5);
+	border-color: var(--ld-accent-border);
 }
 
 .ld-how-step-num {
@@ -671,7 +816,7 @@
 	font-size: 0.8rem;
 	color: var(--ld-muted);
 	padding: 0.3rem 0.6rem;
-	background: oklch(0.08 0.015 260);
+	background: var(--ld-bg);
 	border-radius: 0.375rem;
 }
 
@@ -699,7 +844,7 @@
 
 .ld-dev-feature {
 	padding-left: 1rem;
-	border-left: 2px solid oklch(0.7 0.18 170 / 0.3);
+	border-left: 2px solid var(--ld-accent-border-dim);
 }
 
 .ld-dev-feature strong {
@@ -807,7 +952,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.75rem;
-	background: oklch(0.06 0.015 260);
+	background: var(--ld-bg-deep);
 	border: 1px solid var(--ld-border);
 	border-radius: var(--ld-radius);
 	padding: 0.75rem 1.25rem;
@@ -904,6 +1049,42 @@
 @keyframes ld-pulse {
 	0%, 100% { opacity: 1; }
 	50% { opacity: 0.4; }
+}
+
+/* ── Theme toggle ── */
+.ld-theme-toggle {
+	display: grid;
+	place-items: center;
+	background: none;
+	border: none;
+	color: var(--ld-muted);
+	cursor: pointer;
+	padding: 0.4rem;
+	border-radius: 0.5rem;
+	transition: color 0.2s ease;
+}
+
+.ld-theme-toggle:hover {
+	color: var(--ld-fg);
+}
+
+/* Default: show sun (click to go light), hide moon */
+.ld-theme-toggle .ld-icon-moon { display: none; }
+.ld-theme-toggle .ld-icon-sun { display: block; }
+
+/* In light mode: show moon (click to go dark), hide sun */
+:root[data-theme="light"] .ld-theme-toggle .ld-icon-sun { display: none; }
+:root[data-theme="light"] .ld-theme-toggle .ld-icon-moon { display: block; }
+
+/* Mobile toggle: only visible below 768px */
+.ld-theme-toggle-mobile {
+	display: grid;
+}
+
+@media (min-width: 768px) {
+	.ld-theme-toggle-mobile {
+		display: none;
+	}
 }
 
 /* ── Smooth scroll ── */

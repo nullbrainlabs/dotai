@@ -1,19 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&display=swap");
+
 /* Dark mode overrides */
 :root[data-theme="dark"] {
 	--sl-color-black: hsl(224, 15%, 4%);
 	--sl-color-gray-6: hsl(224, 14%, 9%);
 	--sl-color-gray-5: hsl(224, 10%, 15%);
+	--sl-color-bg-nav: var(--sl-color-bg);
+	--sl-color-bg-sidebar: var(--sl-color-bg);
+	--sl-color-hairline-shade: hsla(224, 10%, 15%, 0.5);
+	--sl-color-accent-low: hsl(215, 54%, 20%);
+	--sl-color-accent: hsl(215, 90%, 55%);
+	--sl-color-accent-high: hsl(215, 90%, 55%);
+	--sl-color-text-accent: hsl(215, 90%, 55%);
 }
 
-/* ── Site title ── */
-
-:root[data-theme="dark"] .site-title {
-	color: white;
-}
-
-.site-title {
-	font-size: calc(var(--sl-text-h4) * 1.3);
-	letter-spacing: -0.08em;
+:root[data-theme="light"] {
+	--sl-color-bg-nav: var(--sl-color-bg);
+	--sl-color-bg-sidebar: var(--sl-color-bg);
+	--sl-color-hairline-shade: hsla(224, 20%, 94%, 0.5);
+	--sl-color-accent-high: hsl(215, 80%, 30%);
+	--sl-color-accent: hsl(215, 90%, 55%);
+	--sl-color-accent-low: hsl(215, 88%, 90%);
 }
 
 /* ── Hero section ── */
@@ -185,6 +192,36 @@
 	transform: translateY(-1px);
 	box-shadow: 0 4px 20px hsla(240, 80%, 60%, 0.35);
 	text-decoration: none;
+}
+
+/* ── Sidebar active item ── */
+
+:root[data-theme="dark"] .sidebar a[aria-current="page"] {
+	color: white;
+}
+
+/* ── Sidebar section headings ── */
+
+.group-label .large,
+#starlight__on-this-page,
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+.sl-markdown-content h5,
+.sl-markdown-content h6 {
+	font-family: "Geist Mono", ui-monospace, monospace;
+}
+
+/* ── Doc page layout tweaks ── */
+
+:root {
+	--sl-content-width: 55rem;
+}
+
+/* Reduce heading section height on doc pages */
+:not([data-page-title="ai"]) .content-panel:first-child {
+	padding-block: 0.75rem;
 }
 
 /* ── Splash page general layout ── */

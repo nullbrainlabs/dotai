@@ -9,6 +9,7 @@ export default defineConfig({
 			customCss: ["./src/styles/custom.css"],
 			components: {
 				PageTitle: "./src/components/PageTitle.astro",
+				SiteTitle: "./src/components/SiteTitle.astro",
 			},
 			description:
 				"One config, every AI coding tool. Unified configuration for Claude Code, Cursor, Codex, and GitHub Copilot.",

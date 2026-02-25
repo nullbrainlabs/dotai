@@ -1,9 +1,10 @@
 ---
+import Logo from "./Logo.astro";
 ---
 <nav class="ld-nav" id="landing-nav">
 	<div class="ld-container">
 		<div class="ld-nav-inner">
-			<a href="/" class="ld-nav-logo">.ai</a>
+			<Logo size="1.75rem" />
 			<div class="ld-nav-links">
 				<a href="#features">Features</a>
 				<a href="#how-it-works">How It Works</a>
@@ -11,11 +12,21 @@
 				<a href="#developers">CLI</a>
 			</div>
 			<div class="ld-nav-cta">
-				<a href="/getting-started/quickstart" class="ld-btn ld-btn-primary" style="padding:0.5rem 1.25rem;font-size:0.85rem;">Get Started</a>
+				<a href="/getting-started/introduction" class="ld-btn ld-btn-primary" style="padding:0.5rem 1.25rem;font-size:0.85rem;">Documentation</a>
+				<button class="ld-theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode">
+					<svg class="ld-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+					<svg class="ld-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+				</button>
 			</div>
-			<button class="ld-nav-hamburger" id="nav-toggle" aria-label="Toggle menu">
-				<span></span><span></span><span></span>
-			</button>
+			<div class="ld-nav-mobile-controls">
+				<button class="ld-theme-toggle ld-theme-toggle-mobile" id="theme-toggle-mobile" aria-label="Toggle light/dark mode">
+					<svg class="ld-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+					<svg class="ld-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+				</button>
+				<button class="ld-nav-hamburger" id="nav-toggle" aria-label="Toggle menu">
+					<span></span><span></span><span></span>
+				</button>
+			</div>
 		</div>
 		<div class="ld-nav-mobile" id="nav-mobile">
 			<a href="#features">Features</a>
@@ -43,5 +54,26 @@
 	// Close mobile menu on link click
 	mobile?.querySelectorAll('a').forEach(a => {
 		a.addEventListener('click', () => mobile?.classList.remove('open'));
+	});
+
+	// Theme toggle
+	const getPreferred = (): string => {
+		const stored = localStorage.getItem('ld-theme');
+		if (stored) return stored;
+		return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+	};
+
+	const applyTheme = (theme: string) => {
+		document.documentElement.setAttribute('data-theme', theme);
+		localStorage.setItem('ld-theme', theme);
+	};
+
+	applyTheme(getPreferred());
+
+	document.querySelectorAll<HTMLButtonElement>('.ld-theme-toggle').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const current = document.documentElement.getAttribute('data-theme') || 'dark';
+			applyTheme(current === 'dark' ? 'light' : 'dark');
+		});
 	});
 </script>

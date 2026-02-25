@@ -1,0 +1,36 @@
+---
+interface Props {
+	href?: string;
+	size?: string;
+}
+const { href = "/", size = "1.5rem" } = Astro.props;
+---
+
+<a href={href} class="ld-logo" style={`font-size:${size}`} translate="no">
+	<span class="ld-logo-dot">.</span><span class="ld-logo-word">ai</span>
+</a>
+
+<style>
+	.ld-logo {
+		font-family: "Geist Mono", ui-monospace, monospace;
+		font-weight: 700;
+		letter-spacing: -0.08em;
+		text-decoration: none;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.ld-logo-dot {
+		color: hsl(215, 90%, 55%);
+		font-size: 1.4em;
+		line-height: 1;
+		position: relative;
+		top: -0.12em;
+		margin-right: -0.09em;
+	}
+
+	.ld-logo-word {
+		color: var(--ld-fg, currentColor);
+		letter-spacing: -0.02em;
+	}
+</style>
