@@ -10,6 +10,7 @@ import {
 	createToolServer,
 	Decision,
 	HookEvent,
+	HookType,
 	isAgent,
 	isDirective,
 	isHook,
@@ -193,6 +194,22 @@ describe("Const enums", () => {
 		expect(HookEvent.PostFileEdit).toBe("postFileEdit");
 		expect(HookEvent.SessionStart).toBe("sessionStart");
 		expect(HookEvent.SessionEnd).toBe("sessionEnd");
+		expect(HookEvent.PermissionRequest).toBe("permissionRequest");
+		expect(HookEvent.PostToolUseFailure).toBe("postToolUseFailure");
+		expect(HookEvent.Notification).toBe("notification");
+		expect(HookEvent.SubagentStart).toBe("subagentStart");
+		expect(HookEvent.TeammateIdle).toBe("teammateIdle");
+		expect(HookEvent.TaskCompleted).toBe("taskCompleted");
+		expect(HookEvent.ConfigChange).toBe("configChange");
+		expect(HookEvent.WorktreeCreate).toBe("worktreeCreate");
+		expect(HookEvent.WorktreeRemove).toBe("worktreeRemove");
+		expect(HookEvent.PreCompact).toBe("preCompact");
+	});
+
+	it("HookType has expected values", () => {
+		expect(HookType.Command).toBe("command");
+		expect(HookType.Prompt).toBe("prompt");
+		expect(HookType.Agent).toBe("agent");
 	});
 
 	it("Decision has expected values", () => {

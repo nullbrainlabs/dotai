@@ -26,6 +26,25 @@ describe("permissionsEmitter", () => {
 			expect(parsed.permissions.deny).toContain("Write(dist/**)");
 			expect(parsed.model).toBe("claude-sonnet-4-6");
 		});
+
+		it("includes $schema in settings.json", () => {
+			const result = permissionsEmitter.emit(makeConfig(), "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.$schema).toBe("https://json.schemastore.org/claude-code-settings.json");
+		});
+
+		it("emits ask permissions into permissions.ask", () => {
+			const config = emptyConfig();
+			config.permissions.push(
+				{ tool: "Bash", pattern: "docker *", decision: "ask", scope: "project" },
+				{ tool: "Write", decision: "allow", scope: "project" },
+			);
+			const result = permissionsEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.permissions.ask).toContain("Bash(docker *)");
+			expect(parsed.permissions.allow).toContain("Write");
+			expect(result.warnings).toHaveLength(0);
+		});
 	});
 
 	describe("Cursor", () => {

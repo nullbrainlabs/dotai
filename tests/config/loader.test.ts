@@ -94,7 +94,7 @@ Body`);
 });
 
 describe("loadSkills", () => {
-	it("loads skills from fixture directory", async () => {
+	it("loads skills from fixture directory (backward compat, no frontmatter)", async () => {
 		const skills = await loadSkills(join(FIXTURES, "skills"));
 		expect(skills).toHaveLength(1);
 		expect(skills[0].name).toBe("review");
@@ -105,6 +105,48 @@ describe("loadSkills", () => {
 	it("returns empty array for missing directory", async () => {
 		const skills = await loadSkills("/nonexistent/path");
 		expect(skills).toEqual([]);
+	});
+
+	it("parses frontmatter fields from SKILL.md", async () => {
+		const { mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+		const tmpDir = join(import.meta.dirname, "../fixtures/tmp-skills");
+		const skillDir = join(tmpDir, "gen");
+		mkdirSync(skillDir, { recursive: true });
+		writeFileSync(
+			join(skillDir, "SKILL.md"),
+			`---
+description: Generate code
+disable-model-invocation: true
+argument-hint: "<file-path>"
+user-invocable: false
+allowed-tools: [Read, Grep]
+model: opus
+context: fork
+agent: reviewer
+---
+
+# Generator
+
+Generate code from templates.`,
+		);
+
+		try {
+			const skills = await loadSkills(tmpDir);
+			expect(skills).toHaveLength(1);
+			expect(skills[0].name).toBe("gen");
+			expect(skills[0].description).toBe("Generate code");
+			expect(skills[0].disableAutoInvocation).toBe(true);
+			expect(skills[0].argumentHint).toBe("<file-path>");
+			expect(skills[0].userInvocable).toBe(false);
+			expect(skills[0].allowedTools).toEqual(["Read", "Grep"]);
+			expect(skills[0].model).toBe("opus");
+			expect(skills[0].context).toBe("fork");
+			expect(skills[0].agent).toBe("reviewer");
+			expect(skills[0].content).toContain("# Generator");
+			expect(skills[0].content).not.toContain("---");
+		} finally {
+			rmSync(tmpDir, { recursive: true });
+		}
 	});
 });
 

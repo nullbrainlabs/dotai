@@ -29,6 +29,11 @@ function emitClaudeMcp(servers: ToolServer[]): EmitResult {
 	const mcpServers: Record<string, unknown> = {};
 	for (const server of servers) {
 		mcpServers[server.name] = buildMcpEntry(server);
+		if (server.transport === "sse") {
+			warnings.push(
+				`MCP server "${server.name}" uses SSE transport which is deprecated — consider migrating to HTTP (Streamable HTTP).`,
+			);
+		}
 	}
 
 	files.push({
@@ -123,6 +128,12 @@ function buildMcpEntry(server: ToolServer): Record<string, unknown> {
 	} else {
 		entry.type = server.transport;
 		entry.url = server.url;
+		if (server.headers && Object.keys(server.headers).length > 0) {
+			entry.headers = server.headers;
+		}
+		if (server.oauth) {
+			entry.oauth = server.oauth;
+		}
 	}
 
 	if (server.env && Object.keys(server.env).length > 0) {

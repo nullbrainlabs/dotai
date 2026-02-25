@@ -13,6 +13,16 @@ const CLAUDE_EVENT_MAP: Partial<Record<HookEvent, string>> = {
 	userPromptSubmitted: "UserPromptSubmit",
 	agentStop: "Stop",
 	subagentStop: "SubagentStop",
+	permissionRequest: "PermissionRequest",
+	postToolUseFailure: "PostToolUseFailure",
+	notification: "Notification",
+	subagentStart: "SubagentStart",
+	teammateIdle: "TeammateIdle",
+	taskCompleted: "TaskCompleted",
+	configChange: "ConfigChange",
+	worktreeCreate: "WorktreeCreate",
+	worktreeRemove: "WorktreeRemove",
+	preCompact: "PreCompact",
 };
 
 /** Emits hooks and ignore pattern configuration files. */
@@ -38,10 +48,12 @@ function emitClaude(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult 
 
 	if (hooks.length === 0 && ignorePatterns.length === 0) return { files, warnings };
 
-	const settings: Record<string, unknown> = {};
+	const settings: Record<string, unknown> = {
+		$schema: "https://json.schemastore.org/claude-code-settings.json",
+	};
 
 	// Hooks — Claude Code format:
-	// { "Event": [{ "matcher": "ToolName", "hooks": [{ "type": "command", "command": "..." }] }] }
+	// { "Event": [{ "matcher": "ToolName", "hooks": [{ ... }] }] }
 	if (hooks.length > 0) {
 		const hooksObj: Record<string, unknown[]> = {};
 		for (const hook of hooks) {
@@ -52,7 +64,7 @@ function emitClaude(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult 
 			}
 			if (!hooksObj[claudeEvent]) hooksObj[claudeEvent] = [];
 			const entry: Record<string, unknown> = {
-				hooks: [{ type: "command", command: hook.handler }],
+				hooks: [buildClaudeHookHandler(hook)],
 			};
 			if (hook.matcher) entry.matcher = hook.matcher;
 			hooksObj[claudeEvent].push(entry);
@@ -72,6 +84,30 @@ function emitClaude(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult 
 	});
 
 	return { files, warnings };
+}
+
+/** Build a Claude Code hook handler object based on hook type and fields. */
+function buildClaudeHookHandler(hook: Hook): Record<string, unknown> {
+	const hookType = hook.type ?? "command";
+	const handler: Record<string, unknown> = {};
+
+	if (hookType === "command") {
+		handler.type = "command";
+		handler.command = hook.handler;
+		if (hook.async) handler.async = true;
+	} else if (hookType === "prompt") {
+		handler.type = "prompt";
+		handler.prompt = hook.handler;
+	} else if (hookType === "agent") {
+		handler.type = "agent";
+		handler.prompt = hook.handler;
+	}
+
+	if (hook.timeout !== undefined) handler.timeout = hook.timeout;
+	if (hook.statusMessage) handler.statusMessage = hook.statusMessage;
+	if (hook.once) handler.once = true;
+
+	return handler;
 }
 
 /** Cursor: ignore patterns → .cursorignore, hooks not directly emitted */
@@ -132,6 +168,16 @@ const COPILOT_HOOK_EVENTS = new Set([
 	"agentStop",
 	"subagentStop",
 	"errorOccurred",
+	"permissionRequest",
+	"postToolUseFailure",
+	"notification",
+	"subagentStart",
+	"teammateIdle",
+	"taskCompleted",
+	"configChange",
+	"worktreeCreate",
+	"worktreeRemove",
+	"preCompact",
 ]);
 
 /** Copilot: .github/hooks/dotai.hooks.json */

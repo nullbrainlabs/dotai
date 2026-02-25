@@ -11,7 +11,7 @@ export {
 	createToolServer,
 } from "./factories.js";
 export type { Hook } from "./hook.js";
-export { HookEvent } from "./hook.js";
+export { HookEvent, HookType } from "./hook.js";
 export type { IgnorePattern } from "./ignore-pattern.js";
 export type { Permission } from "./permission.js";
 export { Decision } from "./permission.js";

@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import type { Agent } from "../domain/agent.js";
 import type { Directive } from "../domain/directive.js";
-import type { Hook, HookEvent } from "../domain/hook.js";
+import type { Hook, HookEvent, HookType } from "../domain/hook.js";
 import type { Permission } from "../domain/permission.js";
 import type { Scope } from "../domain/scope.js";
 import type { ToolServer, Transport } from "../domain/tool-server.js";
@@ -165,7 +165,24 @@ function parseToolServer(
 				: undefined,
 		enabledTools: Array.isArray(obj.enabledTools) ? obj.enabledTools.map(String) : undefined,
 		disabledTools: Array.isArray(obj.disabledTools) ? obj.disabledTools.map(String) : undefined,
+		headers:
+			typeof obj.headers === "object" && obj.headers !== null
+				? Object.fromEntries(
+						Object.entries(obj.headers as Record<string, unknown>).map(([k, v]) => [k, String(v)]),
+					)
+				: undefined,
+		oauth: parseOauthConfig(obj.oauth),
 		scope: scope as Scope,
+	};
+}
+
+function parseOauthConfig(raw: unknown): { clientId: string; callbackPort?: number } | undefined {
+	if (typeof raw !== "object" || raw === null) return undefined;
+	const obj = raw as Record<string, unknown>;
+	if (typeof obj.clientId !== "string") return undefined;
+	return {
+		clientId: obj.clientId,
+		callbackPort: typeof obj.callbackPort === "number" ? obj.callbackPort : undefined,
 	};
 }
 
@@ -207,11 +224,22 @@ function parseHook(
 		errors.push({ file, message: "Hook requires 'event' and 'handler' fields" });
 		return null;
 	}
+	const validHookTypes = ["command", "prompt", "agent"];
+	const hookType =
+		typeof obj.type === "string" && validHookTypes.includes(obj.type)
+			? (obj.type as HookType)
+			: undefined;
+
 	return {
 		event: obj.event as HookEvent,
 		matcher: typeof obj.matcher === "string" ? obj.matcher : undefined,
 		handler: obj.handler,
 		scope: scope as Scope,
+		type: hookType,
+		timeout: typeof obj.timeout === "number" ? obj.timeout : undefined,
+		statusMessage: typeof obj.statusMessage === "string" ? obj.statusMessage : undefined,
+		once: obj.once === true ? true : undefined,
+		async: obj.async === true ? true : undefined,
 	};
 }
 

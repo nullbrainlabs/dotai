@@ -56,6 +56,7 @@ export {
 	createToolServer,
 	Decision,
 	HookEvent,
+	HookType,
 	isAgent,
 	isDirective,
 	isHook,

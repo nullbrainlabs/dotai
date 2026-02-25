@@ -3,6 +3,7 @@ import { join } from "node:path";
 import type { ProjectConfig } from "../../config/schema.js";
 import { emptyConfig } from "../../config/schema.js";
 import { loadSkills } from "../../config/skill-loader.js";
+import type { Hook } from "../../domain/hook.js";
 import type { DetectedFile } from "../scanner.js";
 
 /** Parse Claude Code config files into a partial ProjectConfig. */
@@ -108,6 +109,16 @@ async function parseMcpJson(filePath: string, config: ProjectConfig): Promise<vo
 								Object.entries(obj.env as Record<string, unknown>).map(([k, v]) => [k, String(v)]),
 							)
 						: undefined,
+				headers:
+					typeof obj.headers === "object" && obj.headers !== null
+						? Object.fromEntries(
+								Object.entries(obj.headers as Record<string, unknown>).map(([k, v]) => [
+									k,
+									String(v),
+								]),
+							)
+						: undefined,
+				oauth: parseOauthFromJson(obj.oauth),
 				scope: "project",
 			});
 		}
@@ -129,7 +140,6 @@ async function parseClaudeSettings(filePath: string, config: ProjectConfig): Pro
 			for (const rule of perms.allow ?? []) {
 				const p = parsePermissionRule(rule, "allow");
 				if (p) {
-					// Check if this is an ignore pattern (paired Read/Edit deny)
 					config.permissions.push(p);
 				}
 			}
@@ -150,33 +160,65 @@ async function parseClaudeSettings(filePath: string, config: ProjectConfig): Pro
 					}
 				}
 			}
+			for (const rule of perms.ask ?? []) {
+				const p = parsePermissionRule(rule, "ask");
+				if (p) {
+					config.permissions.push(p);
+				}
+			}
 		}
 
-		// Parse hooks
+		// Parse hooks — Claude Code format:
+		// { "Event": [{ "matcher": "...", "hooks": [{ "type": "command", "command": "..." }] }] }
 		if (parsed.hooks && typeof parsed.hooks === "object") {
 			for (const [event, entries] of Object.entries(parsed.hooks)) {
 				if (!Array.isArray(entries)) continue;
 				for (const entry of entries) {
 					const obj = entry as Record<string, unknown>;
-					if (typeof obj.command !== "string") continue;
-					config.hooks.push({
-						event: event as
-							| "preToolUse"
-							| "postToolUse"
-							| "preFileEdit"
-							| "postFileEdit"
-							| "sessionStart"
-							| "sessionEnd",
-						handler: obj.command,
-						matcher: typeof obj.matcher === "string" ? obj.matcher : undefined,
-						scope: "project",
-					});
+					const matcher = typeof obj.matcher === "string" ? obj.matcher : undefined;
+
+					// New nested format: entry.hooks is an array of handler objects
+					if (Array.isArray(obj.hooks)) {
+						for (const innerHook of obj.hooks) {
+							const h = innerHook as Record<string, unknown>;
+							const hookType = typeof h.type === "string" ? h.type : "command";
+							const handler =
+								hookType === "command"
+									? typeof h.command === "string"
+										? h.command
+										: undefined
+									: typeof h.prompt === "string"
+										? h.prompt
+										: undefined;
+							if (!handler) continue;
+							config.hooks.push({
+								event: event as Hook["event"],
+								handler,
+								matcher,
+								scope: "project",
+								type: hookType as Hook["type"],
+								timeout: typeof h.timeout === "number" ? h.timeout : undefined,
+								statusMessage: typeof h.statusMessage === "string" ? h.statusMessage : undefined,
+								once: h.once === true ? true : undefined,
+								async: h.async === true ? true : undefined,
+							});
+						}
+					}
+					// Legacy flat format: { command: "..." }
+					else if (typeof obj.command === "string") {
+						config.hooks.push({
+							event: event as Hook["event"],
+							handler: obj.command,
+							matcher,
+							scope: "project",
+						});
+					}
 				}
 			}
 		}
 
 		// Parse remaining settings (exclude known keys)
-		const knownKeys = new Set(["permissions", "hooks"]);
+		const knownKeys = new Set(["permissions", "hooks", "$schema"]);
 		for (const [key, value] of Object.entries(parsed)) {
 			if (!knownKeys.has(key)) {
 				config.settings.push({ key, value, scope: "project" });
@@ -187,10 +229,20 @@ async function parseClaudeSettings(filePath: string, config: ProjectConfig): Pro
 	}
 }
 
+function parseOauthFromJson(raw: unknown): { clientId: string; callbackPort?: number } | undefined {
+	if (typeof raw !== "object" || raw === null) return undefined;
+	const obj = raw as Record<string, unknown>;
+	if (typeof obj.clientId !== "string") return undefined;
+	return {
+		clientId: obj.clientId,
+		callbackPort: typeof obj.callbackPort === "number" ? obj.callbackPort : undefined,
+	};
+}
+
 function parsePermissionRule(
 	rule: string,
-	decision: "allow" | "deny",
-): { tool: string; pattern?: string; decision: "allow" | "deny"; scope: "project" } | null {
+	decision: "allow" | "deny" | "ask",
+): { tool: string; pattern?: string; decision: "allow" | "deny" | "ask"; scope: "project" } | null {
 	const match = rule.match(/^(\w+)\((.+)\)$/);
 	if (match) {
 		return { tool: match[1], pattern: match[2], decision, scope: "project" };

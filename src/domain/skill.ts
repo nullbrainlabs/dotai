@@ -14,4 +14,18 @@ export interface Skill {
 	content: string;
 	/** When true, only allow explicit /skill-name invocation. */
 	disableAutoInvocation: boolean;
+	/** Hint for the argument format (e.g. "<file-path>"). */
+	argumentHint?: string;
+	/** When false, skill is not user-invocable (only model-invoked). */
+	userInvocable?: boolean;
+	/** Tools the skill is allowed to use. */
+	allowedTools?: string[];
+	/** Model override for skill execution. */
+	model?: string;
+	/** Execution context: "fork" runs in isolated context. */
+	context?: "fork";
+	/** Agent to delegate to when skill is invoked. */
+	agent?: string;
+	/** Hook definitions for skill lifecycle. */
+	hooks?: Record<string, unknown>;
 }

@@ -36,6 +36,51 @@ describe("mcpEmitter", () => {
 			expect(parsed.mcpServers.github.args).toEqual(["@modelcontextprotocol/server-github"]);
 			expect(parsed.mcpServers.remote.url).toBe("https://mcp.example.com");
 		});
+
+		it("emits headers for non-stdio servers", () => {
+			const config = emptyConfig();
+			config.toolServers.push({
+				name: "authed",
+				transport: "http",
+				url: "https://mcp.example.com",
+				headers: { Authorization: "Bearer token123" },
+				scope: "project",
+			});
+			const result = mcpEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.mcpServers.authed.headers).toEqual({
+				Authorization: "Bearer token123",
+			});
+		});
+
+		it("emits oauth for non-stdio servers", () => {
+			const config = emptyConfig();
+			config.toolServers.push({
+				name: "oauth-server",
+				transport: "http",
+				url: "https://mcp.example.com",
+				oauth: { clientId: "my-client", callbackPort: 8080 },
+				scope: "project",
+			});
+			const result = mcpEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.mcpServers["oauth-server"].oauth).toEqual({
+				clientId: "my-client",
+				callbackPort: 8080,
+			});
+		});
+
+		it("warns when server uses SSE transport", () => {
+			const config = emptyConfig();
+			config.toolServers.push({
+				name: "legacy",
+				transport: "sse",
+				url: "https://mcp.example.com/sse",
+				scope: "project",
+			});
+			const result = mcpEmitter.emit(config, "claude");
+			expect(result.warnings.some((w) => w.includes("SSE") && w.includes("deprecated"))).toBe(true);
+		});
 	});
 
 	describe("Cursor", () => {

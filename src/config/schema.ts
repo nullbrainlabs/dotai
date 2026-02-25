@@ -106,6 +106,12 @@ export function validateConfig(config: ProjectConfig): ValidationResult {
 		if (!s.content.trim()) {
 			errors.push({ file: `skills/${s.name}`, message: "Skill has empty content" });
 		}
+		if (s.context !== undefined && s.context !== "fork") {
+			errors.push({
+				file: `skills/${s.name}`,
+				message: `Invalid context "${s.context}" — must be "fork" if specified`,
+			});
+		}
 	}
 
 	const validPermissionModes = ["default", "acceptEdits", "dontAsk", "bypassPermissions", "plan"];
@@ -159,6 +165,28 @@ export function validateConfig(config: ProjectConfig): ValidationResult {
 			errors.push({
 				file: "config.yaml",
 				message: `ToolServer "${ts.name}" uses ${ts.transport} transport but has no url`,
+			});
+		}
+	}
+
+	const validHookTypes = ["command", "prompt", "agent"];
+	for (const h of config.hooks) {
+		if (h.type && !validHookTypes.includes(h.type)) {
+			errors.push({
+				file: "config.yaml",
+				message: `Invalid hook type "${h.type}" — must be one of: ${validHookTypes.join(", ")}`,
+			});
+		}
+		if (h.timeout !== undefined && (typeof h.timeout !== "number" || h.timeout <= 0)) {
+			errors.push({
+				file: "config.yaml",
+				message: `Hook timeout must be a positive number, got ${h.timeout}`,
+			});
+		}
+		if (h.async && h.type && h.type !== "command") {
+			errors.push({
+				file: "config.yaml",
+				message: `Hook async is only valid with type "command", got type "${h.type}"`,
 			});
 		}
 	}

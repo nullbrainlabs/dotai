@@ -182,6 +182,133 @@ describe("parseClaude", () => {
 		expect(result.directives?.[0].content).toContain("Testing Rules");
 	});
 
+	it("parses .mcp.json with headers and oauth", async () => {
+		const content = JSON.stringify({
+			mcpServers: {
+				authed: {
+					type: "http",
+					url: "https://mcp.example.com",
+					headers: { Authorization: "Bearer tok" },
+					oauth: { clientId: "cid", callbackPort: 9090 },
+				},
+			},
+		});
+		const filePath = join(TMP_DIR, ".mcp.json");
+		writeFileSync(filePath, content);
+
+		const files: DetectedFile[] = [
+			{
+				path: filePath,
+				relativePath: ".mcp.json",
+				source: "claude",
+				kind: "mcp",
+				label: ".mcp.json",
+			},
+		];
+
+		const result = await parseClaude(TMP_DIR, files);
+		expect(result.toolServers?.[0].headers).toEqual({ Authorization: "Bearer tok" });
+		expect(result.toolServers?.[0].oauth).toEqual({ clientId: "cid", callbackPort: 9090 });
+	});
+
+	it("parses permissions.ask from settings.json", async () => {
+		const settingsDir = join(TMP_DIR, ".claude");
+		mkdirSync(settingsDir, { recursive: true });
+		const content = JSON.stringify({
+			permissions: {
+				allow: ["Read"],
+				ask: ["Bash(docker *)"],
+			},
+		});
+		const filePath = join(settingsDir, "settings.json");
+		writeFileSync(filePath, content);
+
+		const files: DetectedFile[] = [
+			{
+				path: filePath,
+				relativePath: ".claude/settings.json",
+				source: "claude",
+				kind: "settings",
+				label: ".claude/settings.json",
+			},
+		];
+
+		const result = await parseClaude(TMP_DIR, files);
+		const askPerm = result.permissions?.find((p) => p.decision === "ask");
+		expect(askPerm).toBeDefined();
+		expect(askPerm?.tool).toBe("Bash");
+		expect(askPerm?.pattern).toBe("docker *");
+	});
+
+	it("excludes $schema from settings passthrough", async () => {
+		const settingsDir = join(TMP_DIR, ".claude");
+		mkdirSync(settingsDir, { recursive: true });
+		const content = JSON.stringify({
+			$schema: "https://json.schemastore.org/claude-code-settings.json",
+			model: "claude-sonnet-4-6",
+		});
+		const filePath = join(settingsDir, "settings.json");
+		writeFileSync(filePath, content);
+
+		const files: DetectedFile[] = [
+			{
+				path: filePath,
+				relativePath: ".claude/settings.json",
+				source: "claude",
+				kind: "settings",
+				label: ".claude/settings.json",
+			},
+		];
+
+		const result = await parseClaude(TMP_DIR, files);
+		const schemaSettings = result.settings?.find((s) => s.key === "$schema");
+		expect(schemaSettings).toBeUndefined();
+		const modelSetting = result.settings?.find((s) => s.key === "model");
+		expect(modelSetting).toBeDefined();
+	});
+
+	it("parses nested hook format with type and fields", async () => {
+		const settingsDir = join(TMP_DIR, ".claude");
+		mkdirSync(settingsDir, { recursive: true });
+		const content = JSON.stringify({
+			hooks: {
+				PreToolUse: [
+					{
+						matcher: "Bash",
+						hooks: [
+							{
+								type: "prompt",
+								prompt: "Check this tool use",
+								timeout: 5000,
+								once: true,
+							},
+						],
+					},
+				],
+			},
+		});
+		const filePath = join(settingsDir, "settings.json");
+		writeFileSync(filePath, content);
+
+		const files: DetectedFile[] = [
+			{
+				path: filePath,
+				relativePath: ".claude/settings.json",
+				source: "claude",
+				kind: "settings",
+				label: ".claude/settings.json",
+			},
+		];
+
+		const result = await parseClaude(TMP_DIR, files);
+		expect(result.hooks).toHaveLength(1);
+		expect(result.hooks?.[0].type).toBe("prompt");
+		expect(result.hooks?.[0].handler).toBe("Check this tool use");
+		expect(result.hooks?.[0].timeout).toBe(5000);
+		expect(result.hooks?.[0].once).toBe(true);
+		expect(result.hooks?.[0].matcher).toBe("Bash");
+	});
+
 	it("parses .claude/agents/*.md into agents", async () => {
 		const agentsDir = join(TMP_DIR, ".claude", "agents");
 		mkdirSync(agentsDir, { recursive: true });

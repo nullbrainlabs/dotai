@@ -41,6 +41,18 @@ describe("hooksEmitter", () => {
 			expect(parsed.permissions.deny).toContain("Read(node_modules/**)");
 		});
 
+		it("includes $schema in settings.json", () => {
+			const config = emptyConfig();
+			config.hooks.push({
+				event: "sessionStart",
+				handler: "echo hello",
+				scope: "project",
+			});
+			const result = hooksEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.$schema).toBe("https://json.schemastore.org/claude-code-settings.json");
+		});
+
 		it("omits matcher when not specified", () => {
 			const config = emptyConfig();
 			config.hooks.push({
@@ -76,6 +88,84 @@ describe("hooksEmitter", () => {
 			const result = hooksEmitter.emit(config, "claude");
 			const parsed = JSON.parse(result.files[0].content);
 			expect(parsed.hooks.Stop).toHaveLength(1);
+		});
+
+		it("maps new events correctly", () => {
+			const newEvents = [
+				["permissionRequest", "PermissionRequest"],
+				["postToolUseFailure", "PostToolUseFailure"],
+				["notification", "Notification"],
+				["subagentStart", "SubagentStart"],
+				["teammateIdle", "TeammateIdle"],
+				["taskCompleted", "TaskCompleted"],
+				["configChange", "ConfigChange"],
+				["worktreeCreate", "WorktreeCreate"],
+				["worktreeRemove", "WorktreeRemove"],
+				["preCompact", "PreCompact"],
+			] as const;
+
+			for (const [event, claudeEvent] of newEvents) {
+				const config = emptyConfig();
+				config.hooks.push({ event, handler: "echo test", scope: "project" });
+				const result = hooksEmitter.emit(config, "claude");
+				const parsed = JSON.parse(result.files[0].content);
+				expect(parsed.hooks[claudeEvent]).toHaveLength(1);
+			}
+		});
+
+		it("emits prompt type hooks correctly", () => {
+			const config = emptyConfig();
+			config.hooks.push({
+				event: "preToolUse",
+				handler: "Check if this tool use is appropriate",
+				type: "prompt",
+				scope: "project",
+			});
+			const result = hooksEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.hooks.PreToolUse[0].hooks[0]).toEqual({
+				type: "prompt",
+				prompt: "Check if this tool use is appropriate",
+			});
+		});
+
+		it("emits agent type hooks correctly", () => {
+			const config = emptyConfig();
+			config.hooks.push({
+				event: "postToolUse",
+				handler: "Verify the output is correct",
+				type: "agent",
+				scope: "project",
+			});
+			const result = hooksEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			expect(parsed.hooks.PostToolUse[0].hooks[0]).toEqual({
+				type: "agent",
+				prompt: "Verify the output is correct",
+			});
+		});
+
+		it("includes timeout, statusMessage, once, and async fields", () => {
+			const config = emptyConfig();
+			config.hooks.push({
+				event: "preToolUse",
+				handler: "lint-check",
+				type: "command",
+				timeout: 5000,
+				statusMessage: "Running lint...",
+				once: true,
+				async: true,
+				scope: "project",
+			});
+			const result = hooksEmitter.emit(config, "claude");
+			const parsed = JSON.parse(result.files[0].content);
+			const handler = parsed.hooks.PreToolUse[0].hooks[0];
+			expect(handler.type).toBe("command");
+			expect(handler.command).toBe("lint-check");
+			expect(handler.timeout).toBe(5000);
+			expect(handler.statusMessage).toBe("Running lint...");
+			expect(handler.once).toBe(true);
+			expect(handler.async).toBe(true);
 		});
 
 		it("warns and skips unsupported events", () => {

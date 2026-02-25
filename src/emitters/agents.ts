@@ -31,6 +31,7 @@ const CLAUDE_MODEL_MAP: Record<string, string> = {
 	sonnet: "sonnet",
 	opus: "opus",
 	haiku: "haiku",
+	inherit: "inherit",
 };
 
 /** Claude Code: .claude/agents/<name>.md */
@@ -53,6 +54,10 @@ function emitClaudeAgents(agents: Agent[]): EmitResult {
 				);
 				lines.push(`model: ${agent.model}`);
 			}
+		}
+
+		if (agent.modelReasoningEffort) {
+			lines.push(`modelReasoningEffort: ${agent.modelReasoningEffort}`);
 		}
 
 		if (agent.tools?.length) {

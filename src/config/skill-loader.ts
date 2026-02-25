@@ -1,6 +1,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import type { Skill } from "../domain/skill.js";
+import { parseMarkdownWithFrontmatter } from "./markdown-loader.js";
 
 /**
  * Scan `.ai/skills/` for skill directories.
@@ -16,15 +17,50 @@ export async function loadSkills(skillsDir: string): Promise<Skill[]> {
 		if (!skillStat?.isDirectory()) continue;
 
 		const skillFile = join(skillDir, "SKILL.md");
-		const content = await readFile(skillFile, "utf-8").catch(() => null);
-		if (content === null) continue;
+		const raw = await readFile(skillFile, "utf-8").catch(() => null);
+		if (raw === null) continue;
 
-		skills.push({
+		const { frontmatter, body } = parseMarkdownWithFrontmatter(raw);
+
+		// When frontmatter exists, extract fields; otherwise backward-compat
+		const hasFrontmatter = Object.keys(frontmatter).length > 0;
+
+		const skill: Skill = {
 			name: entry,
-			description: extractDescription(content),
-			content,
-			disableAutoInvocation: false,
-		});
+			description: hasFrontmatter
+				? typeof frontmatter.description === "string"
+					? frontmatter.description
+					: ""
+				: extractDescription(raw),
+			content: hasFrontmatter ? body : raw,
+			disableAutoInvocation:
+				frontmatter["disable-model-invocation"] === true ||
+				frontmatter.disableModelInvocation === true,
+			argumentHint:
+				typeof frontmatter["argument-hint"] === "string"
+					? frontmatter["argument-hint"]
+					: typeof frontmatter.argumentHint === "string"
+						? frontmatter.argumentHint
+						: undefined,
+			userInvocable:
+				frontmatter["user-invocable"] === false || frontmatter.userInvocable === false
+					? false
+					: undefined,
+			allowedTools: Array.isArray(frontmatter["allowed-tools"])
+				? frontmatter["allowed-tools"].map(String)
+				: Array.isArray(frontmatter.allowedTools)
+					? frontmatter.allowedTools.map(String)
+					: undefined,
+			model: typeof frontmatter.model === "string" ? frontmatter.model : undefined,
+			context: frontmatter.context === "fork" ? "fork" : undefined,
+			agent: typeof frontmatter.agent === "string" ? frontmatter.agent : undefined,
+			hooks:
+				typeof frontmatter.hooks === "object" && frontmatter.hooks !== null
+					? (frontmatter.hooks as Record<string, unknown>)
+					: undefined,
+		};
+
+		skills.push(skill);
 	}
 
 	return skills;

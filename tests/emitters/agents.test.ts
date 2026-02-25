@@ -90,6 +90,32 @@ describe("agentsEmitter", () => {
 			expect(content).toContain("isolation: worktree");
 		});
 
+		it("emits modelReasoningEffort in frontmatter", () => {
+			const config = emptyConfig();
+			config.agents.push({
+				name: "thinker",
+				description: "Deep thinker",
+				instructions: "Think carefully.",
+				model: "claude-sonnet-4-6",
+				modelReasoningEffort: "high",
+			});
+			const result = agentsEmitter.emit(config, "claude");
+			expect(result.files[0].content).toContain("modelReasoningEffort: high");
+		});
+
+		it("passes through inherit model without warning", () => {
+			const config = emptyConfig();
+			config.agents.push({
+				name: "sub",
+				description: "Subagent",
+				instructions: "Do stuff.",
+				model: "inherit",
+			});
+			const result = agentsEmitter.emit(config, "claude");
+			expect(result.files[0].content).toContain("model: inherit");
+			expect(result.warnings).toHaveLength(0);
+		});
+
 		it("serializes hooks and mcpServers into frontmatter", () => {
 			const config = emptyConfig();
 			config.agents.push({

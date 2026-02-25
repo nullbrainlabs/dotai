@@ -29,6 +29,10 @@ export interface ToolServer {
 	enabledTools?: string[];
 	/** If set, these tools are hidden from the server. */
 	disabledTools?: string[];
+	/** Custom HTTP headers for non-stdio transports. */
+	headers?: Record<string, string>;
+	/** OAuth configuration for non-stdio transports. */
+	oauth?: { clientId: string; callbackPort?: number };
 	/** Scope at which this server is configured. */
 	scope: Scope;
 }
