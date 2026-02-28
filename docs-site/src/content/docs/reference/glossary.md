@@ -11,15 +11,15 @@ description: Definitions of terms used in the dotai project.
 
 **Compaction** — Summarizing earlier conversation history to free context window space when approaching token limits.
 
-**Context Window** — The fixed token budget available to the agent for a single session. IgnorePattern and Directive scoping manage what occupies this limited space.
+**Context Window** — The fixed token budget available to the agent for a single session. IgnorePattern and Rule scoping manage what occupies this limited space.
 
-**Directive** — A persistent, text-based instruction that shapes agent behavior. The unified abstraction for Claude Code's `CLAUDE.md`/rules, Cursor's `.mdc` rules, Codex's `AGENTS.md`, and Copilot's `.github/copilot-instructions.md`/`.github/instructions/`. Defined in `.ai/directives/*.md`. See [Directives](/concepts/directives).
+**Rule** — A persistent, text-based instruction that shapes agent behavior. The unified abstraction for Claude Code's `CLAUDE.md`/rules, Cursor's `.mdc` rules, Codex's `AGENTS.md`, and Copilot's `.github/copilot-instructions.md`/`.github/instructions/`. Defined in `.ai/rules/*.md`. See [Rules](/concepts/rules).
 
 **Enterprise Scope** — The highest-precedence scope tier. Organization-wide policy that cannot be overridden.
 
 **Frontmatter** — YAML metadata at the top of a markdown file, delimited by `---` lines. Used to declare properties like `scope`, `alwaysApply`, `appliesTo`.
 
-**Glob** — A file path pattern using wildcard syntax (e.g., `*.tsx`, `src/**/*.test.ts`). Used in directive `appliesTo`, permission `pattern`, and ignore patterns.
+**Glob** — A file path pattern using wildcard syntax (e.g., `*.tsx`, `src/**/*.test.ts`). Used in rule `appliesTo`, permission `pattern`, and ignore patterns.
 
 **Hook** — An event handler fired at specific agent lifecycle points. Supported by Claude Code (full), GitHub Copilot (most events), and Cursor (partial). Not supported by Codex. Defined in `.ai/config.yaml`. See [Hooks](/concepts/hooks).
 

@@ -38,7 +38,7 @@ You define your AI coding config once in `.ai/`:
 ```
 .ai/
   config.yaml          # MCP servers, permissions, hooks, ignore patterns
-  directives/          # Markdown instruction files
+  rules/               # Markdown instruction files
     code-style.md
     testing.md
   skills/              # Reusable skill definitions
@@ -77,7 +77,7 @@ dotai import --source cursor
 | `dotai check` | Validate config and report compatibility |
 | `dotai status` | Show sync state and detect manual edits |
 | `dotai import` | Import config from an existing tool |
-| `dotai add` | Add a directive, skill, or agent |
+| `dotai add` | Add a rule, skill, or agent |
 
 ## Programmatic usage
 

@@ -3,7 +3,7 @@ import type { ProjectConfig } from "../config/schema.js";
 /** Python project starter — formatting, typing, docstring conventions. */
 export function pythonTemplate(): ProjectConfig {
 	return {
-		directives: [
+		rules: [
 			{
 				content:
 					"# Python Conventions\n\n- Use type hints for all function signatures\n- Follow PEP 8 style guidelines\n- Use `ruff` or `black` for formatting\n- Prefer f-strings over `.format()` or `%` formatting\n- Use `pathlib.Path` instead of `os.path` for file operations\n- Use dataclasses or Pydantic models for structured data",

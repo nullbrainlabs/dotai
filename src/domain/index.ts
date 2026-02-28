@@ -1,11 +1,10 @@
 export type { Agent } from "./agent.js";
-export type { Directive } from "./directive.js";
 export {
 	createAgent,
-	createDirective,
 	createHook,
 	createIgnorePattern,
 	createPermission,
+	createRule,
 	createSetting,
 	createSkill,
 	createToolServer,
@@ -15,6 +14,7 @@ export { HookEvent, HookType } from "./hook.js";
 export type { IgnorePattern } from "./ignore-pattern.js";
 export type { Permission } from "./permission.js";
 export { Decision } from "./permission.js";
+export type { Rule } from "./rule.js";
 export { SCOPE_PRECEDENCE, Scope, scopeOutranks } from "./scope.js";
 export type { Setting } from "./settings.js";
 export type { Skill } from "./skill.js";
@@ -22,10 +22,10 @@ export type { ToolServer } from "./tool-server.js";
 export { Transport } from "./tool-server.js";
 export {
 	isAgent,
-	isDirective,
 	isHook,
 	isIgnorePattern,
 	isPermission,
+	isRule,
 	isSetting,
 	isSkill,
 	isToolServer,

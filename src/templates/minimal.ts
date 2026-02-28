@@ -1,9 +1,9 @@
 import type { ProjectConfig } from "../config/schema.js";
 
-/** Minimal starter — conventions directive + common ignore patterns. */
+/** Minimal starter — conventions rule + common ignore patterns. */
 export function minimalTemplate(): ProjectConfig {
 	return {
-		directives: [
+		rules: [
 			{
 				content:
 					"# Project Conventions\n\n- Follow existing code style and patterns\n- Write clear, descriptive commit messages\n- Keep functions focused and small\n- Add comments only where the logic isn't self-evident",

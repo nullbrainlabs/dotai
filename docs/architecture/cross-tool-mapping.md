@@ -6,7 +6,7 @@ This document maps every dotai unified concept to its equivalent in Claude Code,
 
 ## Concept Mapping Table
 
-### Directive
+### Rule
 
 | Aspect | Claude Code | Cursor | Codex |
 |--------|-------------|--------|-------|
@@ -14,12 +14,12 @@ This document maps every dotai unified concept to its equivalent in Claude Code,
 | **Scoped / conditional** | `.claude/rules/*.md` with frontmatter | `.cursor/rules/*.mdc` with `globs` frontmatter | Not supported (concatenated into `AGENTS.md`) |
 | **File format** | Markdown with optional YAML frontmatter | MDC (Markdown Components) with YAML frontmatter | Plain markdown |
 | **Conditional activation** | `appliesTo` globs in frontmatter | `globs` field in frontmatter | None |
-| **Intelligent selection** | `description` field, `alwaysApply: false` | `description` field, `alwaysApply: false` | None (all directives always apply) |
+| **Intelligent selection** | `description` field, `alwaysApply: false` | `description` field, `alwaysApply: false` | None (all rules always apply) |
 | **Scope support** | Enterprise, project, user | Project only | Project only |
 
 **Translation notes:**
-- When generating for Codex, all directives are concatenated into a single `AGENTS.md` file regardless of their `appliesTo` or `alwaysApply` settings. Conditional semantics are lost.
-- Claude Code's `CLAUDE.md` is reserved for always-apply project-scope directives. Conditional directives go into `.claude/rules/`.
+- When generating for Codex, all rules are concatenated into a single `AGENTS.md` file regardless of their `appliesTo` or `alwaysApply` settings. Conditional semantics are lost.
+- Claude Code's `CLAUDE.md` is reserved for always-apply project-scope rules. Conditional rules go into `.claude/rules/`.
 - Cursor's MDC frontmatter keys differ from dotai's: `appliesTo` becomes `globs`, and the format uses `---` delimiters just like standard YAML frontmatter.
 
 ### Skill
@@ -143,8 +143,8 @@ What dotai generates for each target tool, organized by entity type.
 
 | dotai Source | Generated File | Notes |
 |---------------|---------------|-------|
-| `.ai/directives/*.md` (alwaysApply: true) | `CLAUDE.md` | All always-apply directives concatenated |
-| `.ai/directives/*.md` (alwaysApply: false) | `.claude/rules/*.md` | One file per directive, frontmatter preserved |
+| `.ai/rules/*.md` (alwaysApply: true) | `CLAUDE.md` | All always-apply rules concatenated |
+| `.ai/rules/*.md` (alwaysApply: false) | `.claude/rules/*.md` | One file per rule, frontmatter preserved |
 | `.ai/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` | Direct copy with directory structure |
 | `.ai/agents/*.md` | `.claude/agents/*.md` | Frontmatter mapped to Claude Code format |
 | `.ai/config.yaml` servers | `.mcp.json` | JSON with `mcpServers` key |
@@ -157,7 +157,7 @@ What dotai generates for each target tool, organized by entity type.
 
 | dotai Source | Generated File | Notes |
 |---------------|---------------|-------|
-| `.ai/directives/*.md` | `.cursor/rules/*.mdc` | Frontmatter converted to MDC format (`appliesTo` -> `globs`) |
+| `.ai/rules/*.md` | `.cursor/rules/*.mdc` | Frontmatter converted to MDC format (`appliesTo` -> `globs`) |
 | `.ai/skills/<name>/SKILL.md` | `.cursor/skills/<name>/SKILL.md` | Direct copy with directory structure |
 | `.ai/agents/*.md` | `.cursor/agents/*.md` | Frontmatter mapped to Cursor format |
 | `.ai/config.yaml` servers | `.cursor/mcp.json` | JSON with `mcpServers` key |
@@ -170,7 +170,7 @@ What dotai generates for each target tool, organized by entity type.
 
 | dotai Source | Generated File | Notes |
 |---------------|---------------|-------|
-| `.ai/directives/*.md` | `AGENTS.md` | All directives concatenated (conditional semantics lost) |
+| `.ai/rules/*.md` | `AGENTS.md` | All rules concatenated (conditional semantics lost) |
 | `.ai/skills/<name>/SKILL.md` | `.codex/skills/<name>/SKILL.md` | Direct copy with directory structure |
 | `.ai/agents/*.md` | `.codex/config.toml` (`[agents.<name>]`) | Instructions inlined or referenced |
 | `.ai/config.yaml` servers | `.codex/config.toml` (`[mcp_servers.<name>]`) | TOML with snake_case keys |
@@ -210,14 +210,14 @@ dotai resolves this by computing the most restrictive policy that satisfies all 
 
 Cursor does not support the `ask` decision. All `ask` permissions are downgraded to `deny` in Cursor output. This is more restrictive than intended -- the user wanted to be prompted, not blocked.
 
-### Directive Conditional Semantics (Codex)
+### Rule Conditional Semantics (Codex)
 
 Codex's `AGENTS.md` does not support:
 - `appliesTo` glob patterns (conditional activation based on active file)
 - `alwaysApply: false` (intelligent selection based on relevance)
 - `description` field (used by other tools for intelligent selection)
 
-All directives are unconditionally included in `AGENTS.md`. For large directive sets, this may cause context window pressure in Codex.
+All rules are unconditionally included in `AGENTS.md`. For large rule sets, this may cause context window pressure in Codex.
 
 ### Agent Configuration (Codex)
 

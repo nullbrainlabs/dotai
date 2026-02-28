@@ -1,9 +1,9 @@
 import type { ProjectConfig } from "../config/schema.js";
 
-/** Monorepo starter — workspace-aware directive, reviewer agent, scoped ignores. */
+/** Monorepo starter — workspace-aware rule, reviewer agent, scoped ignores. */
 export function monorepoTemplate(): ProjectConfig {
 	return {
-		directives: [
+		rules: [
 			{
 				content:
 					"# Monorepo Conventions\n\n- Each package lives in its own directory under `packages/` or `apps/`\n- Changes to shared packages require careful review of downstream consumers\n- Prefer workspace-level dependencies; hoist shared deps to the root\n- Each package must have its own README, tests, and build script\n- Cross-package imports must go through published package names, not relative paths",

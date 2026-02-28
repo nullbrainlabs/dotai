@@ -6,10 +6,10 @@ import type { ConfigScope, ProjectConfig } from "../config/schema.js";
 import { validateConfig } from "../config/schema.js";
 import {
 	agentsEmitter,
-	directivesEmitter,
 	hooksEmitter,
 	mcpEmitter,
 	permissionsEmitter,
+	rulesEmitter,
 	skillsEmitter,
 } from "../emitters/index.js";
 import { mergeFiles } from "../emitters/merge.js";
@@ -37,7 +37,7 @@ const USER_OUTPUT_DIRS: Record<TargetTool, string> = {
 
 const EMITTERS: Emitter[] = [
 	skillsEmitter,
-	directivesEmitter,
+	rulesEmitter,
 	mcpEmitter,
 	agentsEmitter,
 	permissionsEmitter,
@@ -198,8 +198,7 @@ interface EntityCount {
 
 function countEntities(config: ProjectConfig): EntityCount[] {
 	const counts: EntityCount[] = [];
-	if (config.directives.length > 0)
-		counts.push({ label: "directive", count: config.directives.length });
+	if (config.rules.length > 0) counts.push({ label: "rule", count: config.rules.length });
 	if (config.skills.length > 0) counts.push({ label: "skill", count: config.skills.length });
 	if (config.agents.length > 0) counts.push({ label: "agent", count: config.agents.length });
 	if (config.toolServers.length > 0)

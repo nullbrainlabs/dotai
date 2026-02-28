@@ -28,7 +28,7 @@ describe("end-to-end", () => {
 		await runInit(PROJECT, { template: "minimal", skipImport: true });
 
 		expect(existsSync(join(PROJECT, ".ai/config.yaml"))).toBe(true);
-		expect(existsSync(join(PROJECT, ".ai/directives/conventions.md"))).toBe(true);
+		expect(existsSync(join(PROJECT, ".ai/rules/conventions.md"))).toBe(true);
 		expect(existsSync(join(PROJECT, ".ai/skills"))).toBe(true);
 		expect(existsSync(join(PROJECT, ".ai/agents"))).toBe(true);
 	});
@@ -78,7 +78,7 @@ ignore:
 		);
 
 		await writeFile(
-			join(PROJECT, ".ai/directives/conventions.md"),
+			join(PROJECT, ".ai/rules/conventions.md"),
 			`---
 scope: project
 alwaysApply: true
@@ -95,7 +95,7 @@ description: Project conventions
 		);
 
 		await writeFile(
-			join(PROJECT, ".ai/directives/testing.md"),
+			join(PROJECT, ".ai/rules/testing.md"),
 			`---
 scope: project
 alwaysApply: false
@@ -323,9 +323,9 @@ Assist with deployment tasks.
 		// Sync everything fresh
 		await runSync(PROJECT, { ...defaults, force: true });
 
-		// Change config — add a new directive
+		// Change config — add a new rule
 		await writeFile(
-			join(PROJECT, ".ai/directives/security.md"),
+			join(PROJECT, ".ai/rules/security.md"),
 			`---
 scope: project
 alwaysApply: true
@@ -353,7 +353,7 @@ description: Security rules
 	// ── Step 12: Copilot output verification ────────────────────────
 
 	it("sync writes correct Copilot output files", async () => {
-		// Copilot instructions (alwaysApply directives)
+		// Copilot instructions (alwaysApply rules)
 		const copilotInstructions = await readFile(
 			join(PROJECT, ".github/copilot-instructions.md"),
 			"utf-8",
@@ -361,7 +361,7 @@ description: Security rules
 		expect(copilotInstructions).toContain("Use TypeScript strict mode");
 		expect(copilotInstructions).toContain("Never commit secrets");
 
-		// Copilot scoped directive
+		// Copilot scoped rule
 		const copilotTesting = await readFile(
 			join(PROJECT, ".github/instructions/testing-rules.instructions.md"),
 			"utf-8",
@@ -417,7 +417,7 @@ description: Security rules
 
 	it("outputDir nests generated files in subdirectory", async () => {
 		await writeFile(
-			join(PROJECT, ".ai/directives/docs.md"),
+			join(PROJECT, ".ai/rules/docs.md"),
 			`---
 alwaysApply: true
 outputDir: docs-site
@@ -462,15 +462,15 @@ Keep documentation current with code changes.
 
 	// ── Step 15: orphaned file detection ────────────────────────────
 
-	it("removing a directive causes orphaned files", async () => {
+	it("removing a rule causes orphaned files", async () => {
 		// Sync fresh to establish state
 		await runSync(PROJECT, { ...defaults, force: true });
 
 		const stateBefore = JSON.parse(await readFile(join(PROJECT, ".ai/.state.json"), "utf-8"));
 		expect(stateBefore.files[".claude/rules/testing-rules.md"]).toBeDefined();
 
-		// Remove the testing directive
-		await rm(join(PROJECT, ".ai/directives/testing.md"));
+		// Remove the testing rule
+		await rm(join(PROJECT, ".ai/rules/testing.md"));
 
 		// Re-sync — orphaned files should still exist on disk but not be regenerated
 		await runSync(PROJECT, { ...defaults, force: true });
@@ -486,12 +486,12 @@ Keep documentation current with code changes.
 		expect(existsSync(join(PROJECT, ".claude/rules/testing-rules.md"))).toBe(true);
 	});
 
-	// ── Step 16: add command — directive ────────────────────────────
+	// ── Step 16: add command — rule ─────────────────────────────────
 
-	it("add directive creates .ai/directives/<name>.md", async () => {
-		await runAdd(PROJECT, "directive", "api-guidelines");
+	it("add rule creates .ai/rules/<name>.md", async () => {
+		await runAdd(PROJECT, "rule", "api-guidelines");
 
-		const filePath = join(PROJECT, ".ai/directives/api-guidelines.md");
+		const filePath = join(PROJECT, ".ai/rules/api-guidelines.md");
 		expect(existsSync(filePath)).toBe(true);
 
 		const content = await readFile(filePath, "utf-8");
@@ -558,9 +558,9 @@ Keep documentation current with code changes.
 
 	// ── Step 21: add command — duplicate errors in non-TTY ─────────
 
-	it("add directive errors when file already exists (non-TTY)", async () => {
+	it("add rule errors when file already exists (non-TTY)", async () => {
 		const orig = process.exitCode;
-		await runAdd(PROJECT, "directive", "api-guidelines");
+		await runAdd(PROJECT, "rule", "api-guidelines");
 		expect(process.exitCode).toBe(1);
 		process.exitCode = orig;
 	});
@@ -583,26 +583,24 @@ Keep documentation current with code changes.
 			expect(existsSync(join(templateDir, ".ai/config.yaml"))).toBe(true);
 
 			if (template === "blank") {
-				// Blank has config only, no directive files
-				const directives = join(templateDir, ".ai/directives");
-				if (existsSync(directives)) {
+				// Blank has config only, no rule files
+				const rules = join(templateDir, ".ai/rules");
+				if (existsSync(rules)) {
 					const { readdirSync } = await import("node:fs");
-					expect(readdirSync(directives).filter((f) => f.endsWith(".md"))).toHaveLength(0);
+					expect(readdirSync(rules).filter((f) => f.endsWith(".md"))).toHaveLength(0);
 				}
 			}
 			if (template === "web") {
-				expect(existsSync(join(templateDir, ".ai/directives/typescript-conventions.md"))).toBe(
-					true,
-				);
-				expect(existsSync(join(templateDir, ".ai/directives/testing.md"))).toBe(true);
-				expect(existsSync(join(templateDir, ".ai/directives/security.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/rules/typescript-conventions.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/rules/testing.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/rules/security.md"))).toBe(true);
 			}
 			if (template === "python") {
-				expect(existsSync(join(templateDir, ".ai/directives/python-conventions.md"))).toBe(true);
-				expect(existsSync(join(templateDir, ".ai/directives/docstrings.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/rules/python-conventions.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/rules/docstrings.md"))).toBe(true);
 			}
 			if (template === "monorepo") {
-				expect(existsSync(join(templateDir, ".ai/directives/monorepo-conventions.md"))).toBe(true);
+				expect(existsSync(join(templateDir, ".ai/rules/monorepo-conventions.md"))).toBe(true);
 				expect(existsSync(join(templateDir, ".ai/agents/reviewer.md"))).toBe(true);
 			}
 		} finally {
@@ -620,12 +618,12 @@ Keep documentation current with code changes.
 		try {
 			// First init
 			await runInit(reinitDir, { template: "minimal", skipImport: true });
-			expect(existsSync(join(reinitDir, ".ai/directives/conventions.md"))).toBe(true);
+			expect(existsSync(join(reinitDir, ".ai/rules/conventions.md"))).toBe(true);
 
 			// Re-init with different template — non-TTY should proceed
 			await runInit(reinitDir, { template: "web", skipImport: true });
 			expect(existsSync(join(reinitDir, ".ai/config.yaml"))).toBe(true);
-			expect(existsSync(join(reinitDir, ".ai/directives/typescript-conventions.md"))).toBe(true);
+			expect(existsSync(join(reinitDir, ".ai/rules/typescript-conventions.md"))).toBe(true);
 		} finally {
 			rmSync(reinitDir, { recursive: true, force: true });
 		}

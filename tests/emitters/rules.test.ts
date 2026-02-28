@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { emptyConfig } from "../../src/config/schema.js";
-import { directivesEmitter } from "../../src/emitters/directives.js";
+import { rulesEmitter } from "../../src/emitters/rules.js";
 
-describe("directivesEmitter", () => {
+describe("rulesEmitter", () => {
 	const makeConfig = () => {
 		const config = emptyConfig();
-		config.directives.push(
+		config.rules.push(
 			{
 				content: "Use tabs for indentation.",
 				scope: "project",
@@ -24,15 +24,15 @@ describe("directivesEmitter", () => {
 	};
 
 	describe("Claude", () => {
-		it("puts alwaysApply directives in CLAUDE.md", () => {
-			const result = directivesEmitter.emit(makeConfig(), "claude");
+		it("puts alwaysApply rules in CLAUDE.md", () => {
+			const result = rulesEmitter.emit(makeConfig(), "claude");
 			const claudeMd = result.files.find((f) => f.path === "CLAUDE.md");
 			expect(claudeMd).toBeDefined();
 			expect(claudeMd?.content).toContain("Use tabs for indentation.");
 		});
 
-		it("puts scoped directives in .claude/rules/ with YAML frontmatter", () => {
-			const result = directivesEmitter.emit(makeConfig(), "claude");
+		it("puts scoped rules in .claude/rules/ with YAML frontmatter", () => {
+			const result = rulesEmitter.emit(makeConfig(), "claude");
 			const rules = result.files.filter((f) => f.path.startsWith(".claude/rules/"));
 			expect(rules).toHaveLength(1);
 			expect(rules[0].path).toBe(".claude/rules/testing-rules.md");
@@ -43,14 +43,14 @@ describe("directivesEmitter", () => {
 
 		it("emits multi-pattern YAML frontmatter", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Follow React conventions.",
 				scope: "project",
 				alwaysApply: false,
 				appliesTo: ["**/*.tsx", "**/*.jsx", "src/components/**"],
 				description: "React rules",
 			});
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			const rule = result.files.find((f) => f.path.startsWith(".claude/rules/"));
 			expect(rule).toBeDefined();
 			expect(rule?.content).toContain('  - "**/*.tsx"');
@@ -58,31 +58,31 @@ describe("directivesEmitter", () => {
 			expect(rule?.content).toContain('  - "src/components/**"');
 		});
 
-		it("routes local-scope directives to CLAUDE.local.md", () => {
+		it("routes local-scope rules to CLAUDE.local.md", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "My local preference.",
 				scope: "local",
 				alwaysApply: true,
 				description: "Local prefs",
 			});
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			const localMd = result.files.find((f) => f.path === "CLAUDE.local.md");
 			expect(localMd).toBeDefined();
 			expect(localMd?.content).toContain("My local preference.");
 			expect(result.files.find((f) => f.path === "CLAUDE.md")).toBeUndefined();
 		});
 
-		it("warns when local-scope directive has appliesTo", () => {
+		it("warns when local-scope rule has appliesTo", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Local scoped rule.",
 				scope: "local",
 				alwaysApply: false,
 				appliesTo: ["**/*.ts"],
 				description: "Local scoped",
 			});
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			const localMd = result.files.find((f) => f.path === "CLAUDE.local.md");
 			expect(localMd).toBeDefined();
 			expect(localMd?.content).toContain("Local scoped rule.");
@@ -91,9 +91,9 @@ describe("directivesEmitter", () => {
 			);
 		});
 
-		it("skips user-scope directives with warning", () => {
+		it("skips user-scope rules with warning", () => {
 			const config = emptyConfig();
-			config.directives.push(
+			config.rules.push(
 				{
 					content: "User pref.",
 					scope: "user",
@@ -107,39 +107,37 @@ describe("directivesEmitter", () => {
 					description: "Project rule",
 				},
 			);
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			expect(result.files).toHaveLength(1);
 			expect(result.files[0].path).toBe("CLAUDE.md");
 			expect(result.files[0].content).not.toContain("User pref.");
 			expect(result.warnings).toContainEqual(
-				expect.stringContaining('user-scope directive(s) — use "dotai sync --scope user"'),
+				expect.stringContaining('user-scope rule(s) — use "dotai sync --scope user"'),
 			);
 		});
 
-		it("skips enterprise-scope directives with warning", () => {
+		it("skips enterprise-scope rules with warning", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Enterprise policy.",
 				scope: "enterprise",
 				alwaysApply: true,
 				description: "Enterprise rule",
 			});
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			expect(result.files).toHaveLength(0);
-			expect(result.warnings).toContainEqual(
-				expect.stringContaining("enterprise-scope directive(s)"),
-			);
+			expect(result.warnings).toContainEqual(expect.stringContaining("enterprise-scope rule(s)"));
 		});
 
 		it("warns on alwaysApply: false without appliesTo", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Orphan rule.",
 				scope: "project",
 				alwaysApply: false,
 				description: "No scope rule",
 			});
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			// Still emits to .claude/rules/ but warns
 			const rule = result.files.find((f) => f.path === ".claude/rules/no-scope-rule.md");
 			expect(rule).toBeDefined();
@@ -152,8 +150,8 @@ describe("directivesEmitter", () => {
 	});
 
 	describe("Cursor", () => {
-		it("emits .mdc files with frontmatter for each directive", () => {
-			const result = directivesEmitter.emit(makeConfig(), "cursor");
+		it("emits .mdc files with frontmatter for each rule", () => {
+			const result = rulesEmitter.emit(makeConfig(), "cursor");
 			expect(result.files).toHaveLength(2);
 
 			const style = result.files.find((f) => f.path.includes("code-style"));
@@ -169,8 +167,8 @@ describe("directivesEmitter", () => {
 	});
 
 	describe("Codex", () => {
-		it("concatenates all directives into AGENTS.md", () => {
-			const result = directivesEmitter.emit(makeConfig(), "codex");
+		it("concatenates all rules into AGENTS.md", () => {
+			const result = rulesEmitter.emit(makeConfig(), "codex");
 			const agentsMd = result.files.find((f) => f.path === "AGENTS.md");
 			expect(agentsMd).toBeDefined();
 			expect(agentsMd?.content).toContain("# Project Instructions");
@@ -178,14 +176,14 @@ describe("directivesEmitter", () => {
 			expect(agentsMd?.content).toContain("Write tests with vitest.");
 		});
 
-		it("warns about file-scoped directives", () => {
-			const result = directivesEmitter.emit(makeConfig(), "codex");
+		it("warns about file-scoped rules", () => {
+			const result = rulesEmitter.emit(makeConfig(), "codex");
 			expect(result.warnings).toContainEqual(expect.stringContaining("appliesTo"));
 		});
 
-		it("skips user-scope directives with warning", () => {
+		it("skips user-scope rules with warning", () => {
 			const config = emptyConfig();
-			config.directives.push(
+			config.rules.push(
 				{
 					content: "User pref.",
 					scope: "user",
@@ -199,33 +197,31 @@ describe("directivesEmitter", () => {
 					description: "Project rule",
 				},
 			);
-			const result = directivesEmitter.emit(config, "codex");
+			const result = rulesEmitter.emit(config, "codex");
 			expect(result.files).toHaveLength(1);
 			expect(result.files[0].path).toBe("AGENTS.md");
 			expect(result.files[0].content).not.toContain("User pref.");
 			expect(result.warnings).toContainEqual(
-				expect.stringContaining('user-scope directive(s) — use "dotai sync --scope user"'),
+				expect.stringContaining('user-scope rule(s) — use "dotai sync --scope user"'),
 			);
 		});
 
-		it("skips enterprise-scope directives with warning", () => {
+		it("skips enterprise-scope rules with warning", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Enterprise policy.",
 				scope: "enterprise",
 				alwaysApply: true,
 				description: "Enterprise rule",
 			});
-			const result = directivesEmitter.emit(config, "codex");
+			const result = rulesEmitter.emit(config, "codex");
 			expect(result.files).toHaveLength(0);
-			expect(result.warnings).toContainEqual(
-				expect.stringContaining("enterprise-scope directive(s)"),
-			);
+			expect(result.warnings).toContainEqual(expect.stringContaining("enterprise-scope rule(s)"));
 		});
 
-		it("emits override: true directives to AGENTS.override.md", () => {
+		it("emits override: true rules to AGENTS.override.md", () => {
 			const config = emptyConfig();
-			config.directives.push(
+			config.rules.push(
 				{
 					content: "Normal rule.",
 					scope: "project",
@@ -240,7 +236,7 @@ describe("directivesEmitter", () => {
 					override: true,
 				},
 			);
-			const result = directivesEmitter.emit(config, "codex");
+			const result = rulesEmitter.emit(config, "codex");
 			const agentsMd = result.files.find((f) => f.path === "AGENTS.md");
 			expect(agentsMd).toBeDefined();
 			expect(agentsMd?.content).toContain("Normal rule.");
@@ -253,7 +249,7 @@ describe("directivesEmitter", () => {
 
 		it("emits override: true + outputDir to <dir>/AGENTS.override.md", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Nested override.",
 				scope: "project",
 				alwaysApply: true,
@@ -261,7 +257,7 @@ describe("directivesEmitter", () => {
 				outputDir: "services/api",
 				override: true,
 			});
-			const result = directivesEmitter.emit(config, "codex");
+			const result = rulesEmitter.emit(config, "codex");
 			const overrideMd = result.files.find((f) => f.path === "services/api/AGENTS.override.md");
 			expect(overrideMd).toBeDefined();
 			expect(overrideMd?.content).toContain("Nested override.");
@@ -269,19 +265,19 @@ describe("directivesEmitter", () => {
 
 		it("warns when content exceeds 32 KiB", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "x".repeat(33 * 1024),
 				scope: "project",
 				alwaysApply: true,
 				description: "Huge",
 			});
-			const result = directivesEmitter.emit(config, "codex");
+			const result = rulesEmitter.emit(config, "codex");
 			expect(result.warnings).toContainEqual(expect.stringContaining("exceeds Codex 32 KiB limit"));
 		});
 
 		it("override field is ignored for Claude/Cursor/Copilot targets", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Override ignored.",
 				scope: "project",
 				alwaysApply: true,
@@ -290,7 +286,7 @@ describe("directivesEmitter", () => {
 			});
 
 			for (const target of ["claude", "cursor", "copilot"] as const) {
-				const result = directivesEmitter.emit(config, target);
+				const result = rulesEmitter.emit(config, target);
 				// No file should route to AGENTS.override.md
 				expect(result.files.every((f) => !f.path.includes("AGENTS.override"))).toBe(true);
 				// Content should still be emitted
@@ -300,15 +296,15 @@ describe("directivesEmitter", () => {
 	});
 
 	describe("Copilot", () => {
-		it("puts alwaysApply directives in .github/copilot-instructions.md", () => {
-			const result = directivesEmitter.emit(makeConfig(), "copilot");
+		it("puts alwaysApply rules in .github/copilot-instructions.md", () => {
+			const result = rulesEmitter.emit(makeConfig(), "copilot");
 			const repoWide = result.files.find((f) => f.path === ".github/copilot-instructions.md");
 			expect(repoWide).toBeDefined();
 			expect(repoWide?.content).toContain("Use tabs for indentation.");
 		});
 
-		it("puts scoped directives in .github/instructions/ with applyTo frontmatter", () => {
-			const result = directivesEmitter.emit(makeConfig(), "copilot");
+		it("puts scoped rules in .github/instructions/ with applyTo frontmatter", () => {
+			const result = rulesEmitter.emit(makeConfig(), "copilot");
 			const scoped = result.files.filter((f) => f.path.startsWith(".github/instructions/"));
 			expect(scoped).toHaveLength(1);
 			expect(scoped[0].path).toBe(".github/instructions/testing-rules.instructions.md");
@@ -316,16 +312,16 @@ describe("directivesEmitter", () => {
 			expect(scoped[0].content).toContain("Write tests with vitest.");
 		});
 
-		it("emits non-alwaysApply directives without frontmatter when no appliesTo", () => {
+		it("emits non-alwaysApply rules without frontmatter when no appliesTo", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Be concise.",
 				scope: "project",
 				alwaysApply: false,
 				description: "Style guide",
 			});
 
-			const result = directivesEmitter.emit(config, "copilot");
+			const result = rulesEmitter.emit(config, "copilot");
 			expect(result.files).toHaveLength(1);
 			expect(result.files[0].path).toBe(".github/instructions/style-guide.instructions.md");
 			expect(result.files[0].content).not.toContain("applyTo");
@@ -333,7 +329,7 @@ describe("directivesEmitter", () => {
 
 		it("emits excludeAgent in frontmatter for scoped instructions", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Skip code review.",
 				scope: "project",
 				alwaysApply: false,
@@ -342,7 +338,7 @@ describe("directivesEmitter", () => {
 				excludeAgent: "code-review",
 			});
 
-			const result = directivesEmitter.emit(config, "copilot");
+			const result = rulesEmitter.emit(config, "copilot");
 			expect(result.files).toHaveLength(1);
 			expect(result.files[0].path).toBe(".github/instructions/no-review.instructions.md");
 			expect(result.files[0].content).toContain("excludeAgent: code-review");
@@ -351,7 +347,7 @@ describe("directivesEmitter", () => {
 
 		it("routes alwaysApply + excludeAgent to instructions path", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Not for coding agent.",
 				scope: "project",
 				alwaysApply: true,
@@ -359,7 +355,7 @@ describe("directivesEmitter", () => {
 				excludeAgent: "coding-agent",
 			});
 
-			const result = directivesEmitter.emit(config, "copilot");
+			const result = rulesEmitter.emit(config, "copilot");
 			// Should NOT go to copilot-instructions.md (no frontmatter support there)
 			const repoWide = result.files.find((f) => f.path === ".github/copilot-instructions.md");
 			expect(repoWide).toBeUndefined();
@@ -371,24 +367,24 @@ describe("directivesEmitter", () => {
 		});
 	});
 
-	it("returns empty for no directives", () => {
+	it("returns empty for no rules", () => {
 		const config = emptyConfig();
-		const result = directivesEmitter.emit(config, "claude");
+		const result = rulesEmitter.emit(config, "claude");
 		expect(result.files).toHaveLength(0);
 	});
 
 	describe("outputDir", () => {
 		const makeOutputDirConfig = () => {
 			const config = emptyConfig();
-			config.directives.push(
+			config.rules.push(
 				{
-					content: "Root directive.",
+					content: "Root rule.",
 					scope: "project",
 					alwaysApply: true,
 					description: "Root rules",
 				},
 				{
-					content: "Docs directive.",
+					content: "Docs rule.",
 					scope: "project",
 					alwaysApply: true,
 					description: "Docs rules",
@@ -406,41 +402,41 @@ describe("directivesEmitter", () => {
 			return config;
 		};
 
-		it("emits Claude directives to outputDir/CLAUDE.md", () => {
-			const result = directivesEmitter.emit(makeOutputDirConfig(), "claude");
+		it("emits Claude rules to outputDir/CLAUDE.md", () => {
+			const result = rulesEmitter.emit(makeOutputDirConfig(), "claude");
 			const rootMd = result.files.find((f) => f.path === "CLAUDE.md");
 			expect(rootMd).toBeDefined();
-			expect(rootMd?.content).toContain("Root directive.");
+			expect(rootMd?.content).toContain("Root rule.");
 
 			const docsMd = result.files.find((f) => f.path === "docs-site/CLAUDE.md");
 			expect(docsMd).toBeDefined();
-			expect(docsMd?.content).toContain("Docs directive.");
+			expect(docsMd?.content).toContain("Docs rule.");
 
 			const docsRule = result.files.find((f) => f.path.startsWith("docs-site/.claude/rules/"));
 			expect(docsRule).toBeDefined();
 			expect(docsRule?.content).toContain("Scoped to docs.");
 		});
 
-		it("emits Cursor directives to outputDir/.cursor/rules/", () => {
-			const result = directivesEmitter.emit(makeOutputDirConfig(), "cursor");
+		it("emits Cursor rules to outputDir/.cursor/rules/", () => {
+			const result = rulesEmitter.emit(makeOutputDirConfig(), "cursor");
 			const docsFiles = result.files.filter((f) => f.path.startsWith("docs-site/"));
 			expect(docsFiles).toHaveLength(2);
 			expect(docsFiles[0].path).toMatch(/^docs-site\/\.cursor\/rules\/.*\.mdc$/);
 		});
 
-		it("emits Codex directives to outputDir/AGENTS.md", () => {
-			const result = directivesEmitter.emit(makeOutputDirConfig(), "codex");
+		it("emits Codex rules to outputDir/AGENTS.md", () => {
+			const result = rulesEmitter.emit(makeOutputDirConfig(), "codex");
 			const rootAgents = result.files.find((f) => f.path === "AGENTS.md");
 			expect(rootAgents).toBeDefined();
-			expect(rootAgents?.content).toContain("Root directive.");
+			expect(rootAgents?.content).toContain("Root rule.");
 
 			const docsAgents = result.files.find((f) => f.path === "docs-site/AGENTS.md");
 			expect(docsAgents).toBeDefined();
-			expect(docsAgents?.content).toContain("Docs directive.");
+			expect(docsAgents?.content).toContain("Docs rule.");
 		});
 
-		it("emits Copilot directives to outputDir/.github/", () => {
-			const result = directivesEmitter.emit(makeOutputDirConfig(), "copilot");
+		it("emits Copilot rules to outputDir/.github/", () => {
+			const result = rulesEmitter.emit(makeOutputDirConfig(), "copilot");
 			const rootCopilot = result.files.find((f) => f.path === ".github/copilot-instructions.md");
 			expect(rootCopilot).toBeDefined();
 
@@ -448,25 +444,25 @@ describe("directivesEmitter", () => {
 				(f) => f.path === "docs-site/.github/copilot-instructions.md",
 			);
 			expect(docsCopilot).toBeDefined();
-			expect(docsCopilot?.content).toContain("Docs directive.");
+			expect(docsCopilot?.content).toContain("Docs rule.");
 		});
 
-		it("directive without outputDir still emits to root (backward compat)", () => {
+		it("rule without outputDir still emits to root (backward compat)", () => {
 			const config = emptyConfig();
-			config.directives.push({
+			config.rules.push({
 				content: "Root only.",
 				scope: "project",
 				alwaysApply: true,
 				description: "Root",
 			});
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			expect(result.files).toHaveLength(1);
 			expect(result.files[0].path).toBe("CLAUDE.md");
 		});
 
-		it("emits local-scope directives to outputDir/CLAUDE.local.md", () => {
+		it("emits local-scope rules to outputDir/CLAUDE.local.md", () => {
 			const config = emptyConfig();
-			config.directives.push(
+			config.rules.push(
 				{
 					content: "Local root.",
 					scope: "local",
@@ -481,7 +477,7 @@ describe("directivesEmitter", () => {
 					outputDir: "docs-site",
 				},
 			);
-			const result = directivesEmitter.emit(config, "claude");
+			const result = rulesEmitter.emit(config, "claude");
 			const rootLocal = result.files.find((f) => f.path === "CLAUDE.local.md");
 			expect(rootLocal).toBeDefined();
 			expect(rootLocal?.content).toContain("Local root.");

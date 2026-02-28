@@ -25,7 +25,7 @@ dotai introduces a single `.ai/` directory as the source of truth:
 ```
 .ai/
 ├── config.yaml          # Servers, hooks, permissions, settings, ignore patterns
-├── directives/          # Markdown instruction files
+├── rules/               # Markdown instruction files
 │   ├── code-style.md
 │   └── security.md
 ├── skills/              # Reusable knowledge packages
@@ -45,7 +45,7 @@ Run `dotai sync` and the CLI reads your `.ai/` directory, applies scope preceden
                               →  Copilot files
 ```
 
-1. **Define** your configuration in `.ai/` using 8 entity types: directives, skills, agents, tool servers, hooks, permissions, settings, and ignore patterns.
+1. **Define** your configuration in `.ai/` using 8 entity types: rules, skills, agents, tool servers, hooks, permissions, settings, and ignore patterns.
 2. **Sync** with `dotai sync` to generate tool-specific files.
 3. **Track** changes with content hashing — dotai detects when generated files have been manually edited and warns before overwriting.
 

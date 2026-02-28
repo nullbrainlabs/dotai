@@ -2,10 +2,10 @@ import { loadMergedConfig } from "../config/loader.js";
 import { validateConfig } from "../config/schema.js";
 import {
 	agentsEmitter,
-	directivesEmitter,
 	hooksEmitter,
 	mcpEmitter,
 	permissionsEmitter,
+	rulesEmitter,
 	skillsEmitter,
 } from "../emitters/index.js";
 import type { EmittedFile, Emitter } from "../emitters/types.js";
@@ -14,7 +14,7 @@ import { diffFiles, type FileStatus, loadState } from "../state.js";
 
 const EMITTERS: Emitter[] = [
 	skillsEmitter,
-	directivesEmitter,
+	rulesEmitter,
 	mcpEmitter,
 	agentsEmitter,
 	permissionsEmitter,

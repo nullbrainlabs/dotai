@@ -24,7 +24,7 @@ describe("runAdd", () => {
 		mkdirSync(emptyDir, { recursive: true });
 
 		const origExitCode = process.exitCode;
-		await runAdd(emptyDir, "directive", "test");
+		await runAdd(emptyDir, "rule", "test");
 		expect(process.exitCode).toBe(1);
 		process.exitCode = origExitCode;
 	});
@@ -36,10 +36,10 @@ describe("runAdd", () => {
 		process.exitCode = origExitCode;
 	});
 
-	it("scaffolds a directive", async () => {
-		await runAdd(TMP_DIR, "directive", "security");
+	it("scaffolds a rule", async () => {
+		await runAdd(TMP_DIR, "rule", "security");
 
-		const filePath = join(TMP_DIR, ".ai/directives/security.md");
+		const filePath = join(TMP_DIR, ".ai/rules/security.md");
 		expect(existsSync(filePath)).toBe(true);
 
 		const content = await readFile(filePath, "utf-8");
@@ -106,13 +106,13 @@ describe("runAdd", () => {
 	});
 
 	it("errors when file already exists in non-TTY", async () => {
-		// Create the directive first
-		await runAdd(TMP_DIR, "directive", "existing");
-		expect(existsSync(join(TMP_DIR, ".ai/directives/existing.md"))).toBe(true);
+		// Create the rule first
+		await runAdd(TMP_DIR, "rule", "existing");
+		expect(existsSync(join(TMP_DIR, ".ai/rules/existing.md"))).toBe(true);
 
 		// Try again — should error in non-TTY (test env is non-TTY)
 		const origExitCode = process.exitCode;
-		await runAdd(TMP_DIR, "directive", "existing");
+		await runAdd(TMP_DIR, "rule", "existing");
 		expect(process.exitCode).toBe(1);
 		process.exitCode = origExitCode;
 	});

@@ -15,7 +15,7 @@ export async function parseClaude(
 
 	for (const file of files) {
 		switch (file.kind) {
-			case "directives":
+			case "rules":
 				if (file.relativePath === "CLAUDE.md") {
 					await parseClaudeMd(file.path, config);
 				} else {
@@ -54,7 +54,7 @@ async function parseClaudeMd(filePath: string, config: ProjectConfig): Promise<v
 	for (const section of sections) {
 		const content = section.trim();
 		if (!content) continue;
-		config.directives.push({
+		config.rules.push({
 			content,
 			scope: "project",
 			alwaysApply: true,
@@ -77,7 +77,7 @@ async function parseClaudeRule(filePath: string, config: ProjectConfig): Promise
 		content = content.slice(match[0].length).trim();
 	}
 
-	config.directives.push({
+	config.rules.push({
 		content,
 		scope: "project",
 		alwaysApply: !appliesTo,

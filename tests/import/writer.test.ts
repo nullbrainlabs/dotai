@@ -13,12 +13,12 @@ describe("writeProjectConfig", () => {
 	});
 
 	const fullConfig: ProjectConfig = {
-		directives: [
+		rules: [
 			{
-				content: "# Test Directive\n\nSome rules here.",
+				content: "# Test Rule\n\nSome rules here.",
 				scope: "project",
 				alwaysApply: true,
-				description: "test-directive",
+				description: "test-rule",
 			},
 		],
 		skills: [
@@ -93,19 +93,19 @@ describe("writeProjectConfig", () => {
 		expect(content).toContain("dist/**");
 	});
 
-	it("writes directives as .md files with frontmatter", async () => {
+	it("writes rules as .md files with frontmatter", async () => {
 		const written = await writeProjectConfig(TMP_DIR, fullConfig);
-		const directivePath = join(TMP_DIR, "directives", "test-directive.md");
+		const rulePath = join(TMP_DIR, "rules", "test-rule.md");
 
-		expect(written).toContain(directivePath);
-		expect(existsSync(directivePath)).toBe(true);
+		expect(written).toContain(rulePath);
+		expect(existsSync(rulePath)).toBe(true);
 
-		const content = readFileSync(directivePath, "utf-8");
+		const content = readFileSync(rulePath, "utf-8");
 		expect(content).toContain("---");
 		expect(content).toContain("scope: project");
 		expect(content).toContain("alwaysApply: true");
-		expect(content).toContain("description: test-directive");
-		expect(content).toContain("# Test Directive");
+		expect(content).toContain("description: test-rule");
+		expect(content).toContain("# Test Rule");
 		expect(content).toContain("Some rules here.");
 	});
 
@@ -143,13 +143,13 @@ describe("writeProjectConfig", () => {
 		const { config: loaded, errors } = await loadProjectConfig(TMP_DIR);
 		expect(errors).toEqual([]);
 
-		// Directives
-		expect(loaded.directives).toHaveLength(1);
-		expect(loaded.directives[0].content).toContain("# Test Directive");
-		expect(loaded.directives[0].content).toContain("Some rules here.");
-		expect(loaded.directives[0].alwaysApply).toBe(true);
-		expect(loaded.directives[0].scope).toBe("project");
-		expect(loaded.directives[0].description).toBe("test-directive");
+		// Rules
+		expect(loaded.rules).toHaveLength(1);
+		expect(loaded.rules[0].content).toContain("# Test Rule");
+		expect(loaded.rules[0].content).toContain("Some rules here.");
+		expect(loaded.rules[0].alwaysApply).toBe(true);
+		expect(loaded.rules[0].scope).toBe("project");
+		expect(loaded.rules[0].description).toBe("test-rule");
 
 		// Skills
 		expect(loaded.skills).toHaveLength(1);
@@ -198,7 +198,7 @@ describe("writeProjectConfig", () => {
 
 	it("empty config produces minimal skeleton", async () => {
 		const emptyProjectConfig: ProjectConfig = {
-			directives: [],
+			rules: [],
 			skills: [],
 			agents: [],
 			toolServers: [],
@@ -223,7 +223,7 @@ describe("writeProjectConfig", () => {
 		expect(content).toContain("hooks");
 		expect(content).toContain("ignore");
 
-		// No directive, skill, or agent files should be written
+		// No rule, skill, or agent files should be written
 		expect(written).toHaveLength(1);
 	});
 });

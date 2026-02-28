@@ -12,15 +12,15 @@ Definitions of terms as used within the dotai project.
 
 **Compaction** -- The process of summarizing earlier conversation history to free up context window space when the agent approaches its token limit. The agent condenses prior turns into a shorter summary and continues with the freed capacity. Relevant to Setting configuration (e.g., enabling/disabling auto-compaction).
 
-**Context Window** -- The fixed token budget available to the agent for a single session. All instructions, file contents, tool outputs, and conversation history must fit within this window. IgnorePattern and Directive scoping exist specifically to manage what occupies this limited space.
+**Context Window** -- The fixed token budget available to the agent for a single session. All instructions, file contents, tool outputs, and conversation history must fit within this window. IgnorePattern and Rule scoping exist specifically to manage what occupies this limited space.
 
-**Directive** -- A persistent, text-based instruction that shapes agent behavior. The unified abstraction for what Claude Code calls `CLAUDE.md` and rules, Cursor calls rules (`.mdc` files), and Codex calls `AGENTS.md`. Defined in `.ai/directives/*.md` with YAML frontmatter controlling scope, conditional application, and always-apply behavior.
+**Rule** -- A persistent, text-based instruction that shapes agent behavior. The unified abstraction for what Claude Code calls `CLAUDE.md` and rules, Cursor calls rules (`.mdc` files), and Codex calls `AGENTS.md`. Defined in `.ai/rules/*.md` with YAML frontmatter controlling scope, conditional application, and always-apply behavior.
 
 **Enterprise Scope** -- The highest-precedence scope tier. Represents organization-wide policy (security rules, compliance requirements, mandatory MCP servers) that cannot be overridden by project, user, or local configuration.
 
-**Frontmatter** -- YAML metadata at the top of a markdown file, delimited by `---` lines. dotai directives and agents use frontmatter to declare properties like `scope`, `alwaysApply`, `appliesTo`, `model`, `readonly`, and `tools` without polluting the markdown body.
+**Frontmatter** -- YAML metadata at the top of a markdown file, delimited by `---` lines. dotai rules and agents use frontmatter to declare properties like `scope`, `alwaysApply`, `appliesTo`, `model`, `readonly`, and `tools` without polluting the markdown body.
 
-**Glob** -- A file path pattern using wildcard syntax (e.g., `*.tsx`, `src/**/*.test.ts`). Used in Directive `appliesTo` fields to conditionally activate directives, in Permission `pattern` fields to scope access control, and in IgnorePattern to exclude files from agent visibility.
+**Glob** -- A file path pattern using wildcard syntax (e.g., `*.tsx`, `src/**/*.test.ts`). Used in Rule `appliesTo` fields to conditionally activate rules, in Permission `pattern` fields to scope access control, and in IgnorePattern to exclude files from agent visibility.
 
 **Hook** -- An event handler that fires at specific points in the agent lifecycle (before/after tool use, before/after file edits, session start/end). Supported by Claude Code and Cursor; not supported by Codex. Defined in `.ai/config.yaml` under the `hooks` section.
 
@@ -34,11 +34,11 @@ Definitions of terms as used within the dotai project.
 
 **Permission** -- An access control rule governing what tools and actions the agent can perform. Consists of a tool name, an optional argument pattern, and a decision (allow, deny, or ask). dotai stores permissions at the finest granularity and projects down to coarser models (Cursor's two-way allow/deny, Codex's approval policy) during generation.
 
-**Profile** -- A named collection of settings, permissions, and directives that can be activated as a group. Profiles allow switching between configurations (e.g., "review mode" with read-only permissions vs. "development mode" with full access) without modifying individual settings.
+**Profile** -- A named collection of settings, permissions, and rules that can be activated as a group. Profiles allow switching between configurations (e.g., "review mode" with read-only permissions vs. "development mode" with full access) without modifying individual settings.
 
 **Progressive Disclosure** -- A UX principle applied to dotai's CLI and configuration: show the simplest interface by default and reveal advanced options only when needed. For example, `dotai init` asks minimal questions and generates sensible defaults; advanced users can then edit `.ai/config.yaml` directly.
 
-**Project Scope** -- The second-highest-precedence scope tier. Represents shared project configuration committed to version control and used by all contributors. The most common scope for directives, permissions, and MCP server definitions.
+**Project Scope** -- The second-highest-precedence scope tier. Represents shared project configuration committed to version control and used by all contributors. The most common scope for rules, permissions, and MCP server definitions.
 
 **Sandbox** -- An isolation mechanism that restricts the agent's ability to affect the host system. Codex supports explicit sandbox modes (`off`, `read-only`, `full`). Claude Code and Cursor use permission rules to achieve similar isolation. dotai maps Permission deny rules to sandbox configuration where applicable.
 
@@ -54,6 +54,6 @@ Definitions of terms as used within the dotai project.
 
 **Transport** -- The connection mechanism used to communicate with a ToolServer. One of `stdio` (spawn a child process and communicate over stdin/stdout), `http` (stateless HTTP requests), or `sse` (server-sent events for streaming responses).
 
-**User Scope** -- The third-precedence scope tier. Represents personal preferences for the current user (preferred model, custom MCP servers, personal workflow directives). Stored outside the project directory (e.g., `~/.config/dotai/user/`) and not committed to version control.
+**User Scope** -- The third-precedence scope tier. Represents personal preferences for the current user (preferred model, custom MCP servers, personal workflow rules). Stored outside the project directory (e.g., `~/.config/dotai/user/`) and not committed to version control.
 
 **Worktree** -- A git worktree used to isolate agent work on a separate branch without affecting the main working tree. Claude Code can create worktrees automatically for experimental changes. dotai's scope system is worktree-aware: local scope configuration applies per-worktree.

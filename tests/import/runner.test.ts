@@ -53,7 +53,7 @@ describe("runImport", () => {
 
 		// Verify generated .ai/ config
 		const loaded = await loadProjectConfig(join(TMP_DIR, ".ai"), "project");
-		expect(loaded.config.directives.length).toBeGreaterThanOrEqual(2);
+		expect(loaded.config.rules.length).toBeGreaterThanOrEqual(2);
 		expect(loaded.config.toolServers.length).toBe(1);
 		expect(loaded.config.toolServers[0].name).toBe("github");
 	});
@@ -77,8 +77,8 @@ describe("runImport", () => {
 		expect(result.imported.every((f) => f.source === "cursor")).toBe(true);
 
 		const loaded = await loadProjectConfig(join(TMP_DIR, ".ai"), "project");
-		// Only cursor directives should be present
-		expect(loaded.config.directives.length).toBe(1);
+		// Only cursor rules should be present
+		expect(loaded.config.rules.length).toBe(1);
 		expect(loaded.config.toolServers.length).toBe(0);
 	});
 
@@ -179,9 +179,9 @@ describe("runImport", () => {
 		expect(result.imported.length).toBe(1);
 		expect(result.imported[0].relativePath).toBe("CLAUDE.md");
 
-		// Only directives from CLAUDE.md, no MCP servers
+		// Only rules from CLAUDE.md, no MCP servers
 		const loaded = await loadProjectConfig(join(TMP_DIR, ".ai"), "project");
-		expect(loaded.config.directives.length).toBeGreaterThanOrEqual(1);
+		expect(loaded.config.rules.length).toBeGreaterThanOrEqual(1);
 		expect(loaded.config.toolServers.length).toBe(0);
 	});
 });

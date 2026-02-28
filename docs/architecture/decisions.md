@@ -24,7 +24,7 @@ We use **inline content generation** for all emitters.
 **Symlinks only work when source and destination are byte-identical.** Most emitters *transform* content rather than copying it verbatim:
 
 - Cursor rules inject YAML frontmatter (`description`, `globs`, `alwaysApply`) that doesn't exist in `.ai/` source files.
-- `CLAUDE.md` and `AGENTS.md` are concatenations of multiple directives with separators and section headers.
+- `CLAUDE.md` and `AGENTS.md` are concatenations of multiple rules with separators and section headers.
 - `.claude/rules/*.md` files inject `<!-- applies to: ... -->` HTML comments.
 - MCP, permissions, and hooks emit structured JSON/TOML aggregated from multiple config entries.
 

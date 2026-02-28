@@ -94,7 +94,7 @@ describe("parseCodex", () => {
 		expect(result.ignorePatterns?.[1].pattern).toBe(".env");
 	});
 
-	it("parses AGENTS.md sections into directives", async () => {
+	it("parses AGENTS.md sections into rules", async () => {
 		const content = [
 			"# Project Instructions",
 			"",
@@ -110,14 +110,14 @@ describe("parseCodex", () => {
 				path: filePath,
 				relativePath: "AGENTS.md",
 				source: "codex",
-				kind: "directives",
+				kind: "rules",
 				label: "AGENTS.md",
 			},
 		];
 
 		const result = await parseCodex(TMP_DIR, files);
-		expect(result.directives?.length).toBeGreaterThanOrEqual(1);
-		const conventions = result.directives?.find((d) => d.description === "Conventions");
+		expect(result.rules?.length).toBeGreaterThanOrEqual(1);
+		const conventions = result.rules?.find((d) => d.description === "Conventions");
 		expect(conventions).toBeDefined();
 		expect(conventions?.content).toContain("Follow project conventions.");
 		expect(conventions?.alwaysApply).toBe(true);
@@ -143,7 +143,7 @@ describe("parseCodex", () => {
 				path: filePath,
 				relativePath: "AGENTS.md",
 				source: "codex",
-				kind: "directives",
+				kind: "rules",
 				label: "AGENTS.md",
 			},
 		];
@@ -153,8 +153,8 @@ describe("parseCodex", () => {
 		const reviewer = result.agents?.find((a) => a.name === "reviewer");
 		expect(reviewer).toBeDefined();
 		expect(reviewer?.instructions).toContain("Review code changes carefully.");
-		// Conventions should still be a directive
-		const conventions = result.directives?.find((d) => d.description === "Conventions");
+		// Conventions should still be a rule
+		const conventions = result.rules?.find((d) => d.description === "Conventions");
 		expect(conventions).toBeDefined();
 	});
 });

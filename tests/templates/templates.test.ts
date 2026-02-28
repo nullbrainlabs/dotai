@@ -13,7 +13,7 @@ describe("templates", () => {
 
 	it("blank template returns empty arrays", () => {
 		const config = getTemplate("blank");
-		expect(config.directives).toEqual([]);
+		expect(config.rules).toEqual([]);
 		expect(config.skills).toEqual([]);
 		expect(config.agents).toEqual([]);
 		expect(config.toolServers).toEqual([]);
@@ -23,30 +23,30 @@ describe("templates", () => {
 		expect(config.ignorePatterns).toEqual([]);
 	});
 
-	it("minimal template has at least one directive and one ignorePattern", () => {
+	it("minimal template has at least one rule and one ignorePattern", () => {
 		const config = getTemplate("minimal");
-		expect(config.directives.length).toBeGreaterThanOrEqual(1);
+		expect(config.rules.length).toBeGreaterThanOrEqual(1);
 		expect(config.ignorePatterns.length).toBeGreaterThanOrEqual(1);
 	});
 
-	it("web template has directives, toolServers, permissions, and ignorePatterns", () => {
+	it("web template has rules, toolServers, permissions, and ignorePatterns", () => {
 		const config = getTemplate("web");
-		expect(config.directives.length).toBeGreaterThanOrEqual(1);
+		expect(config.rules.length).toBeGreaterThanOrEqual(1);
 		expect(config.toolServers.length).toBeGreaterThanOrEqual(1);
 		expect(config.permissions.length).toBeGreaterThanOrEqual(1);
 		expect(config.ignorePatterns.length).toBeGreaterThanOrEqual(1);
 	});
 
-	it("python template has directives, permissions, and ignorePatterns", () => {
+	it("python template has rules, permissions, and ignorePatterns", () => {
 		const config = getTemplate("python");
-		expect(config.directives.length).toBeGreaterThanOrEqual(1);
+		expect(config.rules.length).toBeGreaterThanOrEqual(1);
 		expect(config.permissions.length).toBeGreaterThanOrEqual(1);
 		expect(config.ignorePatterns.length).toBeGreaterThanOrEqual(1);
 	});
 
-	it("monorepo template has directives, agents, and permissions", () => {
+	it("monorepo template has rules, agents, and permissions", () => {
 		const config = getTemplate("monorepo");
-		expect(config.directives.length).toBeGreaterThanOrEqual(1);
+		expect(config.rules.length).toBeGreaterThanOrEqual(1);
 		expect(config.agents.length).toBeGreaterThanOrEqual(1);
 		expect(config.permissions.length).toBeGreaterThanOrEqual(1);
 	});

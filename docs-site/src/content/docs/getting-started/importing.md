@@ -27,8 +27,8 @@ dotai import --from codex
 
 | Source | Imported as |
 |--------|-----------|
-| `CLAUDE.md` | Directive (alwaysApply: true) |
-| `.claude/rules/*.md` | Directive (with frontmatter) |
+| `CLAUDE.md` | Rule (alwaysApply: true) |
+| `.claude/rules/*.md` | Rule (with frontmatter) |
 | `.claude/skills/*/SKILL.md` | Skill |
 | `.claude/agents/*.md` | Agent |
 | `.mcp.json` | ToolServer entries |
@@ -39,7 +39,7 @@ dotai import --from codex
 
 | Source | Imported as |
 |--------|-----------|
-| `.cursor/rules/*.mdc` | Directive (`globs` → `appliesTo`) |
+| `.cursor/rules/*.mdc` | Rule (`globs` → `appliesTo`) |
 | `.cursor/skills/*/SKILL.md` | Skill |
 | `.cursor/agents/*.md` | Agent |
 | `.cursor/mcp.json` | ToolServer entries |
@@ -49,7 +49,7 @@ dotai import --from codex
 
 | Source | Imported as |
 |--------|-----------|
-| `AGENTS.md` | Directive (alwaysApply: true) |
+| `AGENTS.md` | Rule (alwaysApply: true) |
 | `.codex/skills/*/SKILL.md` | Skill |
 | `.codex/config.toml` (agents) | Agent entries |
 | `.codex/config.toml` (mcp_servers) | ToolServer entries |

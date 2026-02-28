@@ -7,7 +7,7 @@ Claude Code has the richest configuration surface of any supported tool. It supp
 
 ## Supported features
 
-- Conditional directives with intelligent selection
+- Conditional rules with intelligent selection
 - Skills (all 11 frontmatter fields)
 - Sub-agents (all 14+ frontmatter fields)
 - MCP servers (with headers and OAuth support)
@@ -19,10 +19,10 @@ Claude Code has the richest configuration surface of any supported tool. It supp
 
 | dotai source | Generated file |
 |---------------|---------------|
-| Directives (`alwaysApply: true`, project scope) | `CLAUDE.md` |
-| Directives (local scope) | `CLAUDE.local.md` |
-| Directives (`alwaysApply: false` or `appliesTo` set) | `.claude/rules/*.md` |
-| Directives with `outputDir` | `<outputDir>/CLAUDE.md`, `<outputDir>/.claude/rules/*.md` |
+| Rules (`alwaysApply: true`, project scope) | `CLAUDE.md` |
+| Rules (local scope) | `CLAUDE.local.md` |
+| Rules (`alwaysApply: false` or `appliesTo` set) | `.claude/rules/*.md` |
+| Rules with `outputDir` | `<outputDir>/CLAUDE.md`, `<outputDir>/.claude/rules/*.md` |
 | Skills | `.claude/skills/<name>/SKILL.md` |
 | Agents | `.claude/agents/*.md` |
 | Servers | `.mcp.json` |
@@ -32,9 +32,9 @@ Claude Code has the richest configuration surface of any supported tool. It supp
 
 ## Entity details
 
-### Directives
+### Rules
 
-Directive output depends on scope and activation mode:
+Rule output depends on scope and activation mode:
 
 - **Project scope + `alwaysApply: true`** — concatenated into `CLAUDE.md` at the project root (or `<outputDir>/CLAUDE.md` if `outputDir` is set).
 - **Local scope** — concatenated into `CLAUDE.local.md` (not checked into version control).

@@ -9,7 +9,7 @@ dotai maps the configuration surfaces of four AI coding tools — Claude Code, C
 
 | Entity | What it governs | Config location |
 |---|---|---|
-| Directive | Persistent textual instructions | `.ai/directives/*.md` |
+| Rule | Persistent textual instructions | `.ai/rules/*.md` |
 | Skill | Reusable knowledge packages | `.ai/skills/<name>/SKILL.md` |
 | Agent | Specialized sub-agents | `.ai/agents/*.md` |
 | ToolServer | MCP tool/data providers | `.ai/config.yaml` `servers` |
@@ -35,13 +35,13 @@ enterprise > project > user > local
 | `user` | Personal preferences | `~/.ai/` in the home directory | Not committed |
 | `local` | Machine-local overrides | `.ai.local/` at the repo root | Gitignored |
 
-Scope represents a trust hierarchy, not just layering. A directive scoped to `enterprise` expresses organization policy that downstream scopes cannot override. A `user`-scoped directive applies only to one developer's environment and is never committed to the repository.
+Scope represents a trust hierarchy, not just layering. A rule scoped to `enterprise` expresses organization policy that downstream scopes cannot override. A `user`-scoped rule applies only to one developer's environment and is never committed to the repository.
 
-When the same key appears at multiple scopes, the narrower scope wins for settings and permissions. For directives and skills, all scopes contribute — a project-scoped directive and a user-scoped directive are both active simultaneously.
+When the same key appears at multiple scopes, the narrower scope wins for settings and permissions. For rules and skills, all scopes contribute — a project-scoped rule and a user-scoped rule are both active simultaneously.
 
 ## Further Reading
 
-- [Directives](./directives) — persistent textual instructions
+- [Rules](./rules) — persistent textual instructions
 - [Skills](./skills) — reusable knowledge packages
 - [Agents](./agents) — specialized sub-agents
 - [Tool Servers](./tool-servers) — MCP providers

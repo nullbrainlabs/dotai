@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
 	createAgent,
-	createDirective,
 	createHook,
 	createIgnorePattern,
 	createPermission,
+	createRule,
 	createSetting,
 	createSkill,
 	createToolServer,
@@ -12,10 +12,10 @@ import {
 	HookEvent,
 	HookType,
 	isAgent,
-	isDirective,
 	isHook,
 	isIgnorePattern,
 	isPermission,
+	isRule,
 	isSetting,
 	isSkill,
 	isToolServer,
@@ -44,24 +44,24 @@ describe("Scope", () => {
 	});
 });
 
-describe("Directive", () => {
+describe("Rule", () => {
 	it("creates with defaults", () => {
-		const d = createDirective({ content: "Use tabs", scope: Scope.Project });
+		const d = createRule({ content: "Use tabs", scope: Scope.Project });
 		expect(d.alwaysApply).toBe(true);
 		expect(d.content).toBe("Use tabs");
 		expect(d.scope).toBe("project");
 	});
 
 	it("allows overriding alwaysApply", () => {
-		const d = createDirective({ content: "x", scope: Scope.User, alwaysApply: false });
+		const d = createRule({ content: "x", scope: Scope.User, alwaysApply: false });
 		expect(d.alwaysApply).toBe(false);
 	});
 
 	it("type guard validates correctly", () => {
-		expect(isDirective({ content: "x", scope: "project", alwaysApply: true })).toBe(true);
-		expect(isDirective({ content: "x" })).toBe(false);
-		expect(isDirective(null)).toBe(false);
-		expect(isDirective("string")).toBe(false);
+		expect(isRule({ content: "x", scope: "project", alwaysApply: true })).toBe(true);
+		expect(isRule({ content: "x" })).toBe(false);
+		expect(isRule(null)).toBe(false);
+		expect(isRule("string")).toBe(false);
 	});
 });
 

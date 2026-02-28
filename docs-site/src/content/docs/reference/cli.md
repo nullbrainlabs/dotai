@@ -16,7 +16,7 @@ dotai init [options]
 | `--template <name>` | Use a starter template (blank, minimal, web, python, monorepo) |
 | `--force` | Overwrite existing `.ai/` directory |
 
-Creates a starter `config.yaml` and example directives.
+Creates a starter `config.yaml` and example rules.
 
 ## dotai sync
 
@@ -44,7 +44,7 @@ dotai check
 
 Checks for:
 - Valid YAML syntax in `config.yaml`
-- Valid frontmatter in directives and agents
+- Valid frontmatter in rules and agents
 - Required fields present on all entities
 - Scope values within allowed range
 - No conflicting permission rules

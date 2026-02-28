@@ -17,7 +17,7 @@ describe("parseCursor", () => {
 		if (existsSync(TMP_DIR)) rmSync(TMP_DIR, { recursive: true });
 	});
 
-	it("parses .cursor/rules/*.mdc into directives with frontmatter", async () => {
+	it("parses .cursor/rules/*.mdc into rules with frontmatter", async () => {
 		const rulesDir = join(TMP_DIR, ".cursor", "rules");
 		await mkdir(rulesDir, { recursive: true });
 		const content = [
@@ -39,17 +39,17 @@ describe("parseCursor", () => {
 				path: filePath,
 				relativePath: ".cursor/rules/testing.mdc",
 				source: "cursor",
-				kind: "directives",
+				kind: "rules",
 				label: ".cursor/rules/testing.mdc",
 			},
 		];
 
 		const result = await parseCursor(TMP_DIR, files);
-		expect(result.directives).toHaveLength(1);
-		expect(result.directives?.[0].description).toBe("Testing rules");
-		expect(result.directives?.[0].appliesTo).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
-		expect(result.directives?.[0].alwaysApply).toBe(false);
-		expect(result.directives?.[0].content).toContain("Write good tests.");
+		expect(result.rules).toHaveLength(1);
+		expect(result.rules?.[0].description).toBe("Testing rules");
+		expect(result.rules?.[0].appliesTo).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
+		expect(result.rules?.[0].alwaysApply).toBe(false);
+		expect(result.rules?.[0].content).toContain("Write good tests.");
 	});
 
 	it("parses .cursor/mcp.json into toolServers", async () => {

@@ -1,9 +1,9 @@
 import type { ProjectConfig } from "../config/schema.js";
 
-/** Web/TypeScript project starter — conventions, testing, security directives. */
+/** Web/TypeScript project starter — conventions, testing, security rules. */
 export function webTemplate(): ProjectConfig {
 	return {
-		directives: [
+		rules: [
 			{
 				content:
 					"# TypeScript Conventions\n\n- Use strict TypeScript — avoid `any`, prefer explicit types\n- Prefer `const` over `let`; never use `var`\n- Use ES modules (`import`/`export`), not CommonJS\n- Prefer async/await over raw promises\n- Use template literals over string concatenation\n- Destructure objects and arrays where it improves readability",

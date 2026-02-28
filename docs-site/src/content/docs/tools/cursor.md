@@ -9,7 +9,7 @@ Cursor supports most entity types but with some limitations on hooks and permiss
 
 | dotai Source | Generated File |
 |---------------|---------------|
-| Directives | `.cursor/rules/*.mdc` |
+| Rules | `.cursor/rules/*.mdc` |
 | Skills | `.cursor/skills/<name>/SKILL.md` |
 | Agents | `.cursor/agents/*.md` |
 | Servers | `.cursor/mcp.json` |
@@ -19,9 +19,9 @@ Cursor supports most entity types but with some limitations on hooks and permiss
 
 ## Entity Details
 
-### Directives
+### Rules
 
-Directives are written as MDC files under `.cursor/rules/`. Each file uses YAML frontmatter with a `globs` field that carries any glob patterns used for intelligent selection. The markdown body contains the directive content. Directives without glob patterns are applied globally.
+Rules are written as MDC files under `.cursor/rules/`. Each file uses YAML frontmatter with a `globs` field that carries any glob patterns used for intelligent selection. The markdown body contains the rule content. Rules without glob patterns are applied globally.
 
 ### Hooks
 

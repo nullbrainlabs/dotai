@@ -6,10 +6,10 @@ import type { Scope } from "./scope.js";
  * Abstracts what Claude Code calls "CLAUDE.md / rules",
  * Cursor calls "rules", and Codex calls "AGENTS.md / instructions".
  */
-export interface Directive {
-	/** Markdown content of the directive. */
+export interface Rule {
+	/** Markdown content of the rule. */
 	content: string;
-	/** Scope at which this directive is defined. */
+	/** Scope at which this rule is defined. */
 	scope: Scope;
 	/** Optional glob patterns — activates only for matching file paths. */
 	appliesTo?: string[];

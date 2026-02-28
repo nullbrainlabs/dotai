@@ -5,9 +5,9 @@ import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { cancelGuard, confirm, intro, isTTY, outro, select, text } from "../tui.js";
 
 /** Supported entity types for the add command. */
-export type AddEntityType = "directive" | "agent" | "skill" | "mcp";
+export type AddEntityType = "rule" | "agent" | "skill" | "mcp";
 
-const ENTITY_TYPES: AddEntityType[] = ["directive", "agent", "skill", "mcp"];
+const ENTITY_TYPES: AddEntityType[] = ["rule", "agent", "skill", "mcp"];
 
 /** Options for the add command. */
 export interface AddOptions {
@@ -18,13 +18,13 @@ export interface AddOptions {
 }
 
 const ENTITY_LABELS: Record<AddEntityType, string> = {
-	directive: "Directive — project rules and conventions",
+	rule: "Rule — project rules and conventions",
 	agent: "Agent — specialized AI agent instructions",
 	skill: "Skill — reusable AI skill definition",
 	mcp: "MCP Server — tool server configuration",
 };
 
-/** Scaffold individual directives, agents, skills, or MCP servers. */
+/** Scaffold individual rules, agents, skills, or MCP servers. */
 export async function runAdd(
 	projectDir: string,
 	entityType?: string,
@@ -96,8 +96,8 @@ export async function runAdd(
 	const type = entityType as AddEntityType;
 
 	switch (type) {
-		case "directive":
-			await addDirective(aiDir, name);
+		case "rule":
+			await addRule(aiDir, name);
 			break;
 		case "agent":
 			await addAgent(aiDir, name);
@@ -111,8 +111,8 @@ export async function runAdd(
 	}
 }
 
-async function addDirective(aiDir: string, name: string): Promise<void> {
-	const dirPath = join(aiDir, "directives");
+async function addRule(aiDir: string, name: string): Promise<void> {
+	const dirPath = join(aiDir, "rules");
 	await mkdir(dirPath, { recursive: true });
 
 	const filePath = join(dirPath, `${name}.md`);
@@ -124,7 +124,7 @@ alwaysApply: true
 description: ${name}
 ---
 
-<!-- Add your directive content here -->
+<!-- Add your rule content here -->
 `;
 
 	await writeFile(filePath, content, "utf-8");

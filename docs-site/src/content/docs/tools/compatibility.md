@@ -9,7 +9,7 @@ Not all tools support all features. This page shows what's supported where, and 
 
 | Feature | Claude Code | Cursor | Codex | Copilot |
 |---------|:-----------:|:------:|:-----:|:-------:|
-| Conditional directives | ✓ | ✓ | ✗ | ✓ |
+| Conditional rules | ✓ | ✓ | ✗ | ✓ |
 | Intelligent selection | ✓ | ✓ | ✗ | ✗ |
 | Skills (all 11 fields) | ✓ | ✓ | ✓ | ✓ |
 | Sub-agents (14+ fields) | ✓ | Partial | Partial | Partial |
@@ -40,7 +40,7 @@ When dotai emits configuration for a tool that doesn't support a given feature, 
 
 | What's lost | Affected tool | Workaround |
 |-------------|--------------|------------|
-| Conditional directive activation | Codex | All directives always apply |
+| Conditional rule activation | Codex | All rules always apply |
 | `ask` permission decision | Cursor | Downgraded to `deny` |
 | Per-tool permission rules | Codex, Copilot | Collapsed to global policy / not supported |
 | Lifecycle hooks | Codex | Not supported |

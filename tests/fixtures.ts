@@ -1,24 +1,24 @@
 import type { ProjectConfig } from "../src/config/schema.js";
 import { emptyConfig } from "../src/config/schema.js";
 import type { Agent } from "../src/domain/agent.js";
-import type { Directive } from "../src/domain/directive.js";
 import {
 	createAgent,
-	createDirective,
 	createHook,
 	createPermission,
+	createRule,
 	createSkill,
 	createToolServer,
 } from "../src/domain/factories.js";
 import type { Hook } from "../src/domain/hook.js";
 import type { Permission } from "../src/domain/permission.js";
+import type { Rule } from "../src/domain/rule.js";
 import type { Skill } from "../src/domain/skill.js";
 import type { ToolServer } from "../src/domain/tool-server.js";
 
-/** Create a test Directive with sensible defaults. */
-export function fixtureDirective(overrides?: Partial<Directive>): Directive {
-	return createDirective({
-		content: "Test directive content",
+/** Create a test Rule with sensible defaults. */
+export function fixtureRule(overrides?: Partial<Rule>): Rule {
+	return createRule({
+		content: "Test rule content",
 		scope: "project",
 		...overrides,
 	});
@@ -77,7 +77,7 @@ export function fixtureToolServer(overrides?: Partial<ToolServer>): ToolServer {
 export function fixtureConfig(overrides?: Partial<ProjectConfig>): ProjectConfig {
 	return {
 		...emptyConfig(),
-		directives: [fixtureDirective()],
+		rules: [fixtureRule()],
 		skills: [fixtureSkill()],
 		agents: [fixtureAgent()],
 		toolServers: [fixtureToolServer()],

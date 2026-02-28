@@ -101,6 +101,6 @@ pnpm dev          # tsx src/cli.ts
 
 ## Config Format
 
-- Input: `.ai/` directory with `config.yaml`, `directives/*.md`, `skills/*/SKILL.md`, `agents/*.md`
+- Input: `.ai/` directory with `config.yaml`, `rules/*.md`, `skills/*/SKILL.md`, `agents/*.md`
 - User scope: `~/.ai/` as base, project `.ai/` overrides
 - Outputs: Claude Code, Cursor, Codex, GitHub Copilot

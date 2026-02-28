@@ -22,7 +22,7 @@ describe("runInit", () => {
 		const aiDir = join(TMP_DIR, ".ai");
 		expect(existsSync(aiDir)).toBe(true);
 		expect(existsSync(join(aiDir, "config.yaml"))).toBe(true);
-		expect(existsSync(join(aiDir, "directives"))).toBe(true);
+		expect(existsSync(join(aiDir, "rules"))).toBe(true);
 		expect(existsSync(join(aiDir, "skills"))).toBe(true);
 		expect(existsSync(join(aiDir, "agents"))).toBe(true);
 
@@ -38,10 +38,10 @@ describe("runInit", () => {
 		await runInit(TMP_DIR, { template: "minimal", skipImport: true });
 
 		const aiDir = join(TMP_DIR, ".ai");
-		expect(existsSync(join(aiDir, "directives", "conventions.md"))).toBe(true);
+		expect(existsSync(join(aiDir, "rules", "conventions.md"))).toBe(true);
 
-		const directive = await readFile(join(aiDir, "directives", "conventions.md"), "utf-8");
-		expect(directive).toContain("Project Conventions");
+		const rule = await readFile(join(aiDir, "rules", "conventions.md"), "utf-8");
+		expect(rule).toContain("Project Conventions");
 	});
 
 	it("scaffolds with web template", async () => {
@@ -51,9 +51,9 @@ describe("runInit", () => {
 		await runInit(TMP_DIR, { template: "web", skipImport: true });
 
 		const aiDir = join(TMP_DIR, ".ai");
-		expect(existsSync(join(aiDir, "directives", "typescript-conventions.md"))).toBe(true);
-		expect(existsSync(join(aiDir, "directives", "testing.md"))).toBe(true);
-		expect(existsSync(join(aiDir, "directives", "security.md"))).toBe(true);
+		expect(existsSync(join(aiDir, "rules", "typescript-conventions.md"))).toBe(true);
+		expect(existsSync(join(aiDir, "rules", "testing.md"))).toBe(true);
+		expect(existsSync(join(aiDir, "rules", "security.md"))).toBe(true);
 
 		const configContent = await readFile(join(aiDir, "config.yaml"), "utf-8");
 		expect(configContent).toContain("filesystem");

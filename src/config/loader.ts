@@ -3,9 +3,9 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import type { Agent } from "../domain/agent.js";
-import type { Directive } from "../domain/directive.js";
 import type { Hook, HookEvent, HookType } from "../domain/hook.js";
 import type { Permission } from "../domain/permission.js";
+import type { Rule } from "../domain/rule.js";
 import type { Scope } from "../domain/scope.js";
 import type { ToolServer, Transport } from "../domain/tool-server.js";
 import { loadMarkdownFile } from "./markdown-loader.js";
@@ -31,9 +31,9 @@ export async function loadProjectConfig(
 	const configPath = join(aiDir, "config.yaml");
 	await loadConfigYaml(configPath, config, errors, scope);
 
-	// Load directives
-	const directivesDir = join(aiDir, "directives");
-	await loadDirectives(directivesDir, config, errors, scope);
+	// Load rules
+	const rulesDir = join(aiDir, "rules");
+	await loadRules(rulesDir, config, errors, scope);
 
 	// Load skills
 	const skillsDir = join(aiDir, "skills");
@@ -251,26 +251,26 @@ function parseHook(
 	};
 }
 
-async function loadDirectives(
-	directivesDir: string,
+async function loadRules(
+	rulesDir: string,
 	config: ProjectConfig,
 	errors: ConfigError[],
 	scope: ConfigScope = "project",
 ): Promise<void> {
 	let files: string[];
 	try {
-		files = await readdir(directivesDir);
+		files = await readdir(rulesDir);
 	} catch {
 		return; // directory doesn't exist
 	}
 
 	for (const file of files.filter((f) => f.endsWith(".md"))) {
-		const filePath = join(directivesDir, file);
+		const filePath = join(rulesDir, file);
 		try {
 			const { frontmatter, body } = await loadMarkdownFile(filePath);
 			const excludeAgentRaw = frontmatter.excludeAgent ?? frontmatter["exclude-agent"];
 			const validExcludeAgents = ["code-review", "coding-agent"];
-			const directive: Directive = {
+			const rule: Rule = {
 				content: body,
 				scope: (typeof frontmatter.scope === "string" ? frontmatter.scope : scope) as Scope,
 				alwaysApply: frontmatter.alwaysApply !== false,
@@ -287,10 +287,10 @@ async function loadDirectives(
 				override: frontmatter.override === true ? true : undefined,
 				excludeAgent:
 					typeof excludeAgentRaw === "string" && validExcludeAgents.includes(excludeAgentRaw)
-						? (excludeAgentRaw as Directive["excludeAgent"])
+						? (excludeAgentRaw as Rule["excludeAgent"])
 						: undefined,
 			};
-			config.directives.push(directive);
+			config.rules.push(rule);
 		} catch (e) {
 			errors.push({
 				file: filePath,

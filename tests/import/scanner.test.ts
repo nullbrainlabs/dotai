@@ -20,13 +20,13 @@ describe("scanForConfigs", () => {
 		expect(result).toEqual([]);
 	});
 
-	it("detects CLAUDE.md as claude/directives", async () => {
+	it("detects CLAUDE.md as claude/rules", async () => {
 		writeFileSync(join(TMP_DIR, "CLAUDE.md"), "# Rules\n\nDo things.");
 		const result = await scanForConfigs(TMP_DIR);
 		const found = result.find((f) => f.relativePath === "CLAUDE.md");
 		expect(found).toBeDefined();
 		expect(found?.source).toBe("claude");
-		expect(found?.kind).toBe("directives");
+		expect(found?.kind).toBe("rules");
 	});
 
 	it("detects .mcp.json as claude/mcp", async () => {
@@ -48,14 +48,14 @@ describe("scanForConfigs", () => {
 		expect(found?.kind).toBe("settings");
 	});
 
-	it("detects .claude/rules/*.md as claude/directives", async () => {
+	it("detects .claude/rules/*.md as claude/rules", async () => {
 		mkdirSync(join(TMP_DIR, ".claude", "rules"), { recursive: true });
 		writeFileSync(join(TMP_DIR, ".claude", "rules", "style.md"), "# Style\n\nUse tabs.");
 		const result = await scanForConfigs(TMP_DIR);
 		const found = result.find((f) => f.relativePath === ".claude/rules/style.md");
 		expect(found).toBeDefined();
 		expect(found?.source).toBe("claude");
-		expect(found?.kind).toBe("directives");
+		expect(found?.kind).toBe("rules");
 	});
 
 	it("detects .claude/agents/*.md as claude/agents", async () => {
@@ -68,7 +68,7 @@ describe("scanForConfigs", () => {
 		expect(found?.kind).toBe("agents");
 	});
 
-	it("detects .cursor/rules/*.mdc as cursor/directives", async () => {
+	it("detects .cursor/rules/*.mdc as cursor/rules", async () => {
 		mkdirSync(join(TMP_DIR, ".cursor", "rules"), { recursive: true });
 		writeFileSync(
 			join(TMP_DIR, ".cursor", "rules", "testing.mdc"),
@@ -78,7 +78,7 @@ describe("scanForConfigs", () => {
 		const found = result.find((f) => f.relativePath === ".cursor/rules/testing.mdc");
 		expect(found).toBeDefined();
 		expect(found?.source).toBe("cursor");
-		expect(found?.kind).toBe("directives");
+		expect(found?.kind).toBe("rules");
 	});
 
 	it("detects .cursor/mcp.json as cursor/mcp", async () => {
@@ -101,13 +101,13 @@ describe("scanForConfigs", () => {
 		expect(found?.kind).toBe("settings");
 	});
 
-	it("detects AGENTS.md as codex/directives", async () => {
+	it("detects AGENTS.md as codex/rules", async () => {
 		writeFileSync(join(TMP_DIR, "AGENTS.md"), "# Agents\n\nInstructions.");
 		const result = await scanForConfigs(TMP_DIR);
 		const found = result.find((f) => f.relativePath === "AGENTS.md");
 		expect(found).toBeDefined();
 		expect(found?.source).toBe("codex");
-		expect(found?.kind).toBe("directives");
+		expect(found?.kind).toBe("rules");
 	});
 
 	it("detects multiple sources at once", async () => {

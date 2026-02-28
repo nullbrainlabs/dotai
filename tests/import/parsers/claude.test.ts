@@ -16,7 +16,7 @@ describe("parseClaude", () => {
 		if (existsSync(TMP_DIR)) rmSync(TMP_DIR, { recursive: true });
 	});
 
-	it("parses CLAUDE.md into directives split on separator", async () => {
+	it("parses CLAUDE.md into rules split on separator", async () => {
 		const content = "# Rule One\n\nDo this thing.\n\n---\n\n# Rule Two\n\nDo that thing.";
 		const filePath = join(TMP_DIR, "CLAUDE.md");
 		writeFileSync(filePath, content);
@@ -26,16 +26,16 @@ describe("parseClaude", () => {
 				path: filePath,
 				relativePath: "CLAUDE.md",
 				source: "claude",
-				kind: "directives",
+				kind: "rules",
 				label: "CLAUDE.md",
 			},
 		];
 
 		const result = await parseClaude(TMP_DIR, files);
-		expect(result.directives).toHaveLength(2);
-		expect(result.directives?.[0].content).toContain("Rule One");
-		expect(result.directives?.[0].alwaysApply).toBe(true);
-		expect(result.directives?.[1].content).toContain("Rule Two");
+		expect(result.rules).toHaveLength(2);
+		expect(result.rules?.[0].content).toContain("Rule One");
+		expect(result.rules?.[0].alwaysApply).toBe(true);
+		expect(result.rules?.[1].content).toContain("Rule Two");
 	});
 
 	it("parses .mcp.json into toolServers", async () => {
@@ -157,7 +157,7 @@ describe("parseClaude", () => {
 		expect(readDeny).toBeUndefined();
 	});
 
-	it("parses .claude/rules/*.md into directives with appliesTo", async () => {
+	it("parses .claude/rules/*.md into rules with appliesTo", async () => {
 		const rulesDir = join(TMP_DIR, ".claude", "rules");
 		mkdirSync(rulesDir, { recursive: true });
 		const content =
@@ -170,16 +170,16 @@ describe("parseClaude", () => {
 				path: filePath,
 				relativePath: ".claude/rules/testing.md",
 				source: "claude",
-				kind: "directives",
+				kind: "rules",
 				label: ".claude/rules/testing.md",
 			},
 		];
 
 		const result = await parseClaude(TMP_DIR, files);
-		expect(result.directives).toHaveLength(1);
-		expect(result.directives?.[0].appliesTo).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
-		expect(result.directives?.[0].alwaysApply).toBe(false);
-		expect(result.directives?.[0].content).toContain("Testing Rules");
+		expect(result.rules).toHaveLength(1);
+		expect(result.rules?.[0].appliesTo).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
+		expect(result.rules?.[0].alwaysApply).toBe(false);
+		expect(result.rules?.[0].content).toContain("Testing Rules");
 	});
 
 	it("parses .mcp.json with headers and oauth", async () => {

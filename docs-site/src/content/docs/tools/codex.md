@@ -3,13 +3,13 @@ title: Codex
 description: How dotai generates Codex configuration.
 ---
 
-Codex has a minimal configuration surface centered on two outputs: an `AGENTS.md` markdown file for directives, and a `.codex/config.toml` TOML file for everything else. It is a project-scope-only target.
+Codex has a minimal configuration surface centered on two outputs: an `AGENTS.md` markdown file for rules, and a `.codex/config.toml` TOML file for everything else. It is a project-scope-only target.
 
 ## Generated Files
 
 | dotai Source | Generated File |
 |---------------|---------------|
-| Directives | `AGENTS.md` |
+| Rules | `AGENTS.md` |
 | Skills | `.codex/skills/<name>/SKILL.md` |
 | Agents | `.codex/config.toml` |
 | Servers | `.codex/config.toml` |
@@ -19,9 +19,9 @@ Codex has a minimal configuration surface centered on two outputs: an `AGENTS.md
 
 ## Entity Details
 
-### Directives
+### Rules
 
-All directives — regardless of their `alwaysApply` setting or glob patterns — are concatenated and written to `AGENTS.md` at the project root. Codex does not support conditional directive activation, so intelligent selection and `alwaysApply: false` directives are treated identically to always-apply directives.
+All rules — regardless of their `alwaysApply` setting or glob patterns — are concatenated and written to `AGENTS.md` at the project root. Codex does not support conditional rule activation, so intelligent selection and `alwaysApply: false` rules are treated identically to always-apply rules.
 
 ### Agents
 
@@ -51,7 +51,7 @@ Ignore patterns are written to `.codex/config.toml` as a `protected_paths` array
 
 ## Known Limitations
 
-- **No conditional directives.** All directives always apply regardless of `alwaysApply` or glob patterns.
+- **No conditional rules.** All rules always apply regardless of `alwaysApply` or glob patterns.
 - **No hooks.** Lifecycle hooks are not supported and are not generated.
 - **No per-tool permissions.** Permissions are collapsed to a global `approval_policy` level. A single `deny` rule forces the entire policy to `suggest` mode.
 - **No `readonly` agent flag.** The agent `readonly` attribute is dropped during emission.

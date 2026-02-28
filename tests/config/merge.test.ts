@@ -7,25 +7,25 @@ describe("mergeConfigs", () => {
 		expect(result).toEqual(emptyConfig());
 	});
 
-	it("concatenates directives from both configs", () => {
+	it("concatenates rules from both configs", () => {
 		const base = emptyConfig();
-		base.directives.push({
+		base.rules.push({
 			content: "User rule",
 			scope: "user",
 			alwaysApply: true,
 		});
 
 		const override = emptyConfig();
-		override.directives.push({
+		override.rules.push({
 			content: "Project rule",
 			scope: "project",
 			alwaysApply: true,
 		});
 
 		const result = mergeConfigs(base, override);
-		expect(result.directives).toHaveLength(2);
-		expect(result.directives[0].content).toBe("User rule");
-		expect(result.directives[1].content).toBe("Project rule");
+		expect(result.rules).toHaveLength(2);
+		expect(result.rules[0].content).toBe("User rule");
+		expect(result.rules[1].content).toBe("Project rule");
 	});
 
 	it("project settings override user settings by key", () => {

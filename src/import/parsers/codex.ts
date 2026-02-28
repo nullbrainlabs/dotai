@@ -16,7 +16,7 @@ export async function parseCodex(
 			case "settings":
 				await parseCodexToml(file.path, config);
 				break;
-			case "directives":
+			case "rules":
 				await parseAgentsMd(file.path, config);
 				break;
 		}
@@ -97,7 +97,7 @@ async function parseAgentsMd(filePath: string, config: ProjectConfig): Promise<v
 
 	const lines = raw.split("\n");
 	let currentName: string | null = null;
-	let currentType: "agent" | "directive" = "directive";
+	let currentType: "agent" | "rule" = "rule";
 	let currentLines: string[] = [];
 
 	const flush = () => {
@@ -110,12 +110,12 @@ async function parseAgentsMd(filePath: string, config: ProjectConfig): Promise<v
 				description: "",
 				instructions: content,
 			});
-		} else if (currentType === "directive") {
-			config.directives.push({
+		} else if (currentType === "rule") {
+			config.rules.push({
 				content,
 				scope: "project",
 				alwaysApply: true,
-				description: currentName ?? "directive",
+				description: currentName ?? "rule",
 			});
 		}
 	};
@@ -132,9 +132,9 @@ async function parseAgentsMd(filePath: string, config: ProjectConfig): Promise<v
 		} else if (sectionMatch) {
 			flush();
 			currentName = sectionMatch[1].trim();
-			currentType = "directive";
+			currentType = "rule";
 			currentLines = [];
-		} else if (currentName !== null || currentType === "directive") {
+		} else if (currentName !== null || currentType === "rule") {
 			// Skip top-level heading
 			if (line.match(/^#\s/) && currentLines.length === 0 && currentName === null) continue;
 			currentLines.push(line);

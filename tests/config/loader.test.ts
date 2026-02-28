@@ -186,14 +186,14 @@ describe("loadProjectConfig", () => {
 		expect(config.ignorePatterns).toHaveLength(3);
 		expect(config.ignorePatterns[0].pattern).toBe("node_modules/**");
 
-		// Directives
-		expect(config.directives).toHaveLength(2);
-		const codeStyle = config.directives.find((d) => d.description === "Code style rules");
+		// Rules
+		expect(config.rules).toHaveLength(2);
+		const codeStyle = config.rules.find((d) => d.description === "Code style rules");
 		expect(codeStyle).toBeDefined();
 		expect(codeStyle?.alwaysApply).toBe(true);
 		expect(codeStyle?.content).toContain("Use tabs for indentation");
 
-		const testing = config.directives.find((d) => d.description === "Testing conventions");
+		const testing = config.rules.find((d) => d.description === "Testing conventions");
 		expect(testing).toBeDefined();
 		expect(testing?.alwaysApply).toBe(false);
 		expect(testing?.appliesTo).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
@@ -218,7 +218,7 @@ describe("loadProjectConfig", () => {
 });
 
 describe("loadProjectConfig — outputDir", () => {
-	it("parses outputDir from directive frontmatter", async () => {
+	it("parses outputDir from rule frontmatter", async () => {
 		// Use inline parsing to verify the loader logic for outputDir
 		const result = parseMarkdownWithFrontmatter(`---
 description: Docs rules
@@ -240,9 +240,9 @@ describe("validateConfig", () => {
 		expect(result.errors).toEqual([]);
 	});
 
-	it("reports empty directive content", () => {
+	it("reports empty rule content", () => {
 		const config = emptyConfig();
-		config.directives.push({
+		config.rules.push({
 			content: "",
 			scope: "project",
 			alwaysApply: true,

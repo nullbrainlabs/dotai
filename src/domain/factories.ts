@@ -1,16 +1,14 @@
 import type { Agent } from "./agent.js";
-import type { Directive } from "./directive.js";
 import type { Hook } from "./hook.js";
 import type { IgnorePattern } from "./ignore-pattern.js";
 import type { Permission } from "./permission.js";
+import type { Rule } from "./rule.js";
 import type { Setting } from "./settings.js";
 import type { Skill } from "./skill.js";
 import type { ToolServer } from "./tool-server.js";
 
-/** Create a Directive with sensible defaults. */
-export function createDirective(
-	overrides: Partial<Directive> & Pick<Directive, "content" | "scope">,
-): Directive {
+/** Create a Rule with sensible defaults. */
+export function createRule(overrides: Partial<Rule> & Pick<Rule, "content" | "scope">): Rule {
 	return {
 		alwaysApply: true,
 		...overrides,

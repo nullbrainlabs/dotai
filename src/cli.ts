@@ -55,8 +55,8 @@ program
 
 program
 	.command("add")
-	.description("Scaffold a directive, agent, skill, or MCP server")
-	.argument("[type]", "Entity type (directive, agent, skill, mcp)")
+	.description("Scaffold a rule, agent, skill, or MCP server")
+	.argument("[type]", "Entity type (rule, agent, skill, mcp)")
 	.argument("[name]", "Name of the entity to create")
 	.option("--command <cmd>", "MCP server command (stdio transport)")
 	.option("--url <url>", "MCP server URL (http/sse transport)")

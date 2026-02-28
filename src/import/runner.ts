@@ -115,7 +115,7 @@ function deduplicateByName<T extends { name: string }>(items: T[]): T[] {
 
 function hasContent(config: ProjectConfig): boolean {
 	return (
-		config.directives.length > 0 ||
+		config.rules.length > 0 ||
 		config.skills.length > 0 ||
 		config.agents.length > 0 ||
 		config.toolServers.length > 0 ||

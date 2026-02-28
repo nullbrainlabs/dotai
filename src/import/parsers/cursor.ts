@@ -13,7 +13,7 @@ export async function parseCursor(
 
 	for (const file of files) {
 		switch (file.kind) {
-			case "directives":
+			case "rules":
 				await parseCursorRule(file.path, config);
 				break;
 			case "mcp":
@@ -41,7 +41,7 @@ async function parseCursorRule(filePath: string, config: ProjectConfig): Promise
 		appliesTo = frontmatter.globs.map(String);
 	}
 
-	config.directives.push({
+	config.rules.push({
 		content: body,
 		scope: "project",
 		alwaysApply: frontmatter.alwaysApply !== false,

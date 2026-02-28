@@ -1,8 +1,8 @@
 import type { Agent } from "./agent.js";
-import type { Directive } from "./directive.js";
 import type { Hook } from "./hook.js";
 import type { IgnorePattern } from "./ignore-pattern.js";
 import type { Permission } from "./permission.js";
+import type { Rule } from "./rule.js";
 import { SCOPE_PRECEDENCE } from "./scope.js";
 import type { Setting } from "./settings.js";
 import type { Skill } from "./skill.js";
@@ -20,8 +20,8 @@ function hasScope(o: Record<string, unknown>): boolean {
 	return typeof o.scope === "string" && SCOPE_PRECEDENCE.includes(o.scope as never);
 }
 
-/** Type guard for Directive. */
-export function isDirective(v: unknown): v is Directive {
+/** Type guard for Rule. */
+export function isRule(v: unknown): v is Rule {
 	return isObj(v) && hasString(v, "content") && hasScope(v) && typeof v.alwaysApply === "boolean";
 }
 

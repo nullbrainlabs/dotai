@@ -149,9 +149,9 @@ Agents are defined in `.ai/agents/*.md` files, not in `config.yaml`. See [Agents
 
 Skills are defined in `.ai/skills/<name>/SKILL.md` files, not in `config.yaml`. See [Skills](/concepts/skills) for the full reference including all 11 frontmatter fields.
 
-## Directives
+## Rules
 
-Directives are defined in `.ai/directives/*.md` files, not in `config.yaml`. See [Directives](/concepts/directives) for the full reference including `outputDir` and `override` fields.
+Rules are defined in `.ai/rules/*.md` files, not in `config.yaml`. See [Rules](/concepts/rules) for the full reference including `outputDir` and `override` fields.
 
 ## Local overrides
 

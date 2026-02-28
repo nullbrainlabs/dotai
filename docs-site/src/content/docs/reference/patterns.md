@@ -15,7 +15,7 @@ CLAUDE.md → "Read @AGENTS.md for all project instructions."
 
 **Why this matters:** Rules are maintained in one place. When you update a pattern, every agent gets it. No drift between what Claude Code knows and what Cursor knows.
 
-**What dotai does:** Generates the canonical instructions from `.ai/directives/`, then produces agent-specific wrappers for each tool.
+**What dotai does:** Generates the canonical instructions from `.ai/rules/`, then produces agent-specific wrappers for each tool.
 
 ## Pattern 2: Task-Specialized Sub-Agents
 
@@ -71,7 +71,7 @@ Commands define repeatable workflows that compose agents and tools:
 Prompts work 90% of the time. Machine-enforced rules catch the other 10%.
 
 Three enforcement layers:
-1. **Human-readable rules** in directives — agents should follow these
+1. **Human-readable rules** in rule files — agents should follow these
 2. **Machine-enforced rules** (ast-grep, ESLint, etc.) — violations fail the build
 3. **Continuous validation** via check scripts — catches everything
 

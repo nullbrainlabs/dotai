@@ -55,11 +55,11 @@ describe("runImportCommand", () => {
 
 		expect(existsSync(join(TMP_DIR, ".ai", "config.yaml"))).toBe(true);
 
-		// Should have a directive from cursor but not the CLAUDE.md content in directives
+		// Should have a rule from cursor but not the CLAUDE.md content in rules
 		const _configContent = await readFile(join(TMP_DIR, ".ai", "config.yaml"), "utf-8");
-		// config.yaml won't contain directive text (directives are in .ai/directives/*.md)
+		// config.yaml won't contain rule text (rules are in .ai/rules/*.md)
 		// but it should exist
-		expect(existsSync(join(TMP_DIR, ".ai", "directives"))).toBe(true);
+		expect(existsSync(join(TMP_DIR, ".ai", "rules"))).toBe(true);
 	});
 
 	it("reports no files found when nothing to import", async () => {

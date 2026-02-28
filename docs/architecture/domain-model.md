@@ -10,7 +10,7 @@ dotai targets three AI coding tools -- Claude Code, Cursor, and Codex -- each wi
 
 | Entity | What it governs |
 |--------|----------------|
-| **Directive** | Persistent textual instructions that shape agent behavior |
+| **Rule** | Persistent textual instructions that shape agent behavior |
 | **Skill** | Reusable packages of domain knowledge invoked by name |
 | **Agent** | Specialized sub-agents with isolated context and tool restrictions |
 | **ToolServer** | External tool/data providers connected via MCP |
@@ -25,7 +25,7 @@ No entity is redundant. Each maps to at least one concrete configuration concept
 
 ## The 4-Tier Scope Hierarchy
 
-Every scoped entity (Directive, ToolServer, Hook, Permission, Setting, IgnorePattern) carries a `scope` field drawn from a four-level hierarchy:
+Every scoped entity (Rule, ToolServer, Hook, Permission, Setting, IgnorePattern) carries a `scope` field drawn from a four-level hierarchy:
 
 ```
 enterprise > project > user > local
@@ -38,7 +38,7 @@ enterprise > project > user > local
 | Scope | Meaning | Typical location | Committed to VCS? |
 |-------|---------|-------------------|--------------------|
 | **Enterprise** | Organization-wide policy enforced across all projects | Managed centrally (e.g. `~/.config/dotai/enterprise/`) | N/A (distributed separately) |
-| **Project** | Shared project configuration, same for all contributors | `.ai/config.yaml`, `.ai/directives/` | Yes |
+| **Project** | Shared project configuration, same for all contributors | `.ai/config.yaml`, `.ai/rules/` | Yes |
 | **User** | Personal preferences for the current user | `~/.config/dotai/user/` | No |
 | **Local** | Machine-specific overrides (e.g. local paths, dev secrets) | `.ai/config.local.yaml` | No (gitignored) |
 
@@ -57,7 +57,7 @@ export const SCOPE_PRECEDENCE: readonly Scope[] = [
 
 A lower index means higher precedence. This means:
 - Enterprise permissions cannot be overridden by project, user, or local config.
-- Project directives take precedence over user or local directives when they conflict.
+- Project rules take precedence over user or local rules when they conflict.
 - Local settings exist for convenience (machine-specific paths, personal model preferences) but cannot weaken enterprise or project policy.
 
 ### Why This Order
@@ -73,10 +73,10 @@ The precedence order `enterprise > project > user > local` reflects a trust hier
 
 ## Entity Reference
 
-### Directive
+### Rule
 
 ```typescript
-interface Directive {
+interface Rule {
   content: string;         // Markdown body
   scope: Scope;
   appliesTo?: string[];    // Glob patterns -- activates only for matching file paths
@@ -85,7 +85,7 @@ interface Directive {
 }
 ```
 
-**Rationale:** Every AI coding tool has a mechanism for injecting persistent instructions into the agent's context. Directive is the unified abstraction for all of them.
+**Rationale:** Every AI coding tool has a mechanism for injecting persistent instructions into the agent's context. Rule is the unified abstraction for all of them.
 
 **Cross-tool mapping:**
 
@@ -97,8 +97,8 @@ interface Directive {
 
 **Design notes:**
 - The `appliesTo` field maps directly to Cursor's `globs` frontmatter and Claude Code's file-scoped rules.
-- The `alwaysApply` flag distinguishes between directives that are always injected and those selected by the agent based on relevance.
-- Codex has no equivalent of conditional/scoped directives; all directives targeting Codex are concatenated into a single `AGENTS.md`.
+- The `alwaysApply` flag distinguishes between rules that are always injected and those selected by the agent based on relevance.
+- Codex has no equivalent of conditional/scoped rules; all rules targeting Codex are concatenated into a single `AGENTS.md`.
 
 ### Skill
 
@@ -303,15 +303,15 @@ skills/<name>/
 
 This convergence means dotai can generate skills with near-zero translation loss. A skill written once works identically across Claude Code, Cursor, and Codex. This is the strongest interoperability story in the entire domain model.
 
-### 2. Directive Divergence
+### 2. Rule Divergence
 
-Directives are the most divergent concept across tools:
+Rules are the most divergent concept across tools:
 
 - **Claude Code** uses `CLAUDE.md` for project-wide always-apply instructions, plus `.claude/rules/*.md` files with YAML frontmatter for scoped, conditional rules.
 - **Cursor** uses `.cursor/rules/*.mdc` files with its own MDC frontmatter format (`alwaysApply`, `globs`, `description`).
 - **Codex** uses a single `AGENTS.md` file with no support for conditional application, glob-based scoping, or intelligent selection.
 
-This divergence means dotai must perform non-trivial translation. A directive with `appliesTo: ["*.tsx"]` and `alwaysApply: false` maps cleanly to Claude Code and Cursor, but must be unconditionally concatenated into `AGENTS.md` for Codex, losing its conditional semantics.
+This divergence means dotai must perform non-trivial translation. A rule with `appliesTo: ["*.tsx"]` and `alwaysApply: false` maps cleanly to Claude Code and Cursor, but must be unconditionally concatenated into `AGENTS.md` for Codex, losing its conditional semantics.
 
 ### 3. MCP Universality
 

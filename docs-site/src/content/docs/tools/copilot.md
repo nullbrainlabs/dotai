@@ -3,14 +3,14 @@ title: GitHub Copilot
 description: How dotai generates GitHub Copilot configuration.
 ---
 
-GitHub Copilot supports directives, skills, agents, MCP servers, and most lifecycle hooks. It does not support file-based permissions, file-based settings, or ignore patterns.
+GitHub Copilot supports rules, skills, agents, MCP servers, and most lifecycle hooks. It does not support file-based permissions, file-based settings, or ignore patterns.
 
 ## Generated Files
 
 | dotai Source | Generated File |
 |---|---|
-| Directives (`alwaysApply: true`) | `.github/copilot-instructions.md` |
-| Directives (scoped) | `.github/instructions/*.instructions.md` |
+| Rules (`alwaysApply: true`) | `.github/copilot-instructions.md` |
+| Rules (scoped) | `.github/instructions/*.instructions.md` |
 | Skills | `.github/skills/<name>/SKILL.md` |
 | Agents | `.github/agents/*.agent.md` |
 | Servers | `.vscode/mcp.json` |
@@ -21,9 +21,9 @@ GitHub Copilot supports directives, skills, agents, MCP servers, and most lifecy
 
 ## Entity Details
 
-### Directives
+### Rules
 
-Always-apply directives (`alwaysApply: true`) are concatenated into `.github/copilot-instructions.md`. Scoped directives are emitted as individual files under `.github/instructions/` with an `applyTo` frontmatter field set to comma-separated glob patterns from the directive's `globs` array.
+Always-apply rules (`alwaysApply: true`) are concatenated into `.github/copilot-instructions.md`. Scoped rules are emitted as individual files under `.github/instructions/` with an `applyTo` frontmatter field set to comma-separated glob patterns from the rule's `globs` array.
 
 ### Agents
 

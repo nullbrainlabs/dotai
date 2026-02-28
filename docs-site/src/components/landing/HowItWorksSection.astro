@@ -3,7 +3,7 @@ const steps = [
 	{
 		num: "01",
 		title: "Define",
-		desc: "Write your AI config once in .ai/config.yaml with directives, skills, and agents.",
+		desc: "Write your AI config once in .ai/config.yaml with rules, skills, and agents.",
 		file: "config.yaml",
 		code: `<span class="kw">version</span>: <span class="num">1</span>
 <span class="kw">tools</span>:
@@ -12,8 +12,8 @@ const steps = [
   - <span class="str">codex</span>
   - <span class="str">copilot</span>
 
-<span class="kw">directives</span>:
-  - <span class="str">directives/*.md</span>
+<span class="kw">rules</span>:
+  - <span class="str">rules/*.md</span>
 
 <span class="kw">skills</span>:
   - <span class="str">skills/*/SKILL.md</span>
@@ -30,7 +30,7 @@ const steps = [
 		code: `<span class="cmt">$ dotai sync</span>
 
 <span class="str">✓</span> Loaded .ai/config.yaml
-<span class="str">✓</span> Scanned 3 directives
+<span class="str">✓</span> Scanned 3 rules
 <span class="str">✓</span> Scanned 2 skills
 <span class="str">✓</span> Generated CLAUDE.md
 <span class="str">✓</span> Generated .claude/settings.json

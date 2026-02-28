@@ -1,15 +1,15 @@
 import type { Agent } from "../domain/agent.js";
-import type { Directive } from "../domain/directive.js";
 import type { Hook } from "../domain/hook.js";
 import type { IgnorePattern } from "../domain/ignore-pattern.js";
 import type { Permission } from "../domain/permission.js";
+import type { Rule } from "../domain/rule.js";
 import type { Setting } from "../domain/settings.js";
 import type { Skill } from "../domain/skill.js";
 import type { ToolServer } from "../domain/tool-server.js";
 
 /** Aggregated project configuration loaded from `.ai/`. */
 export interface ProjectConfig {
-	directives: Directive[];
+	rules: Rule[];
 	skills: Skill[];
 	agents: Agent[];
 	toolServers: ToolServer[];
@@ -38,7 +38,7 @@ export type ConfigScope = "user" | "project";
 /** Create an empty ProjectConfig. */
 export function emptyConfig(): ProjectConfig {
 	return {
-		directives: [],
+		rules: [],
 		skills: [],
 		agents: [],
 		toolServers: [],
@@ -78,7 +78,7 @@ export function mergeConfigs(base: ProjectConfig, override: ProjectConfig): Proj
 	}
 
 	return {
-		directives: [...base.directives, ...override.directives],
+		rules: [...base.rules, ...override.rules],
 		skills: [...base.skills, ...override.skills],
 		agents: [...base.agents, ...override.agents],
 		toolServers: mergedServers,
@@ -94,13 +94,13 @@ export function validateConfig(config: ProjectConfig): ValidationResult {
 	const errors: ConfigError[] = [];
 
 	const validExcludeAgents = ["code-review", "coding-agent"];
-	for (const d of config.directives) {
+	for (const d of config.rules) {
 		if (!d.content.trim()) {
-			errors.push({ file: "directives", message: "Directive has empty content" });
+			errors.push({ file: "rules", message: "Rule has empty content" });
 		}
 		if (d.excludeAgent && !validExcludeAgents.includes(d.excludeAgent)) {
 			errors.push({
-				file: "directives",
+				file: "rules",
 				message: `Invalid excludeAgent "${d.excludeAgent}" — must be one of: ${validExcludeAgents.join(", ")}`,
 			});
 		}

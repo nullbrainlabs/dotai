@@ -17,7 +17,7 @@ export async function writeProjectConfig(aiDir: string, config: ProjectConfig): 
 
 	// Ensure base directories exist
 	await mkdir(aiDir, { recursive: true });
-	await mkdir(join(aiDir, "directives"), { recursive: true });
+	await mkdir(join(aiDir, "rules"), { recursive: true });
 	await mkdir(join(aiDir, "skills"), { recursive: true });
 	await mkdir(join(aiDir, "agents"), { recursive: true });
 
@@ -81,8 +81,8 @@ export async function writeProjectConfig(aiDir: string, config: ProjectConfig): 
 	await writeFile(configPath, stringifyYaml(yamlObj), "utf-8");
 	written.push(configPath);
 
-	// Write directives
-	for (const d of config.directives) {
+	// Write rules
+	for (const d of config.rules) {
 		const name = slugify(d.description || "rule");
 		const fm: string[] = [];
 		fm.push(`scope: ${d.scope}`);
@@ -94,7 +94,7 @@ export async function writeProjectConfig(aiDir: string, config: ProjectConfig): 
 			fm.push(`description: ${d.description}`);
 		}
 		const header = `---\n${fm.join("\n")}\n---`;
-		const filePath = join(aiDir, "directives", `${name}.md`);
+		const filePath = join(aiDir, "rules", `${name}.md`);
 		await writeFile(filePath, `${header}\n\n${d.content}\n`, "utf-8");
 		written.push(filePath);
 	}

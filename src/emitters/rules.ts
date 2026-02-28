@@ -1,19 +1,19 @@
 import type { ProjectConfig } from "../config/schema.js";
-import type { Directive } from "../domain/directive.js";
+import type { Rule } from "../domain/rule.js";
 import type { EmitResult, EmittedFile, Emitter, TargetTool } from "./types.js";
 
-/** Emits directive files — biggest format divergence across tools. */
-export const directivesEmitter: Emitter = {
+/** Emits rule files — biggest format divergence across tools. */
+export const rulesEmitter: Emitter = {
 	emit(config: ProjectConfig, target: TargetTool): EmitResult {
 		switch (target) {
 			case "claude":
-				return emitClaude(config.directives);
+				return emitClaude(config.rules);
 			case "cursor":
-				return emitCursor(config.directives);
+				return emitCursor(config.rules);
 			case "codex":
-				return emitCodex(config.directives);
+				return emitCodex(config.rules);
 			case "copilot":
-				return emitCopilot(config.directives);
+				return emitCopilot(config.rules);
 		}
 	},
 };
@@ -23,10 +23,10 @@ function prefixPath(path: string, outputDir?: string): string {
 	return outputDir ? `${outputDir}/${path}` : path;
 }
 
-/** Group directives by their outputDir (undefined key = root). */
-function groupByOutputDir(directives: Directive[]): Map<string | undefined, Directive[]> {
-	const groups = new Map<string | undefined, Directive[]>();
-	for (const d of directives) {
+/** Group rules by their outputDir (undefined key = root). */
+function groupByOutputDir(rules: Rule[]): Map<string | undefined, Rule[]> {
+	const groups = new Map<string | undefined, Rule[]>();
+	for (const d of rules) {
 		const key = d.outputDir;
 		const list = groups.get(key);
 		if (list) {
@@ -46,35 +46,35 @@ function groupByOutputDir(directives: Directive[]): Map<string | undefined, Dire
  * - project + appliesTo → <outputDir>/.claude/rules/<name>.md with YAML paths: frontmatter
  * - project + alwaysApply:false without appliesTo → .claude/rules/ with warning (no effect)
  */
-function emitClaude(directives: Directive[]): EmitResult {
+function emitClaude(rules: Rule[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
 
 	// 1. Filter by scope — skip enterprise + user with warnings
-	const enterpriseCount = directives.filter((d) => d.scope === "enterprise").length;
+	const enterpriseCount = rules.filter((d) => d.scope === "enterprise").length;
 	if (enterpriseCount > 0) {
 		warnings.push(
-			`Skipping ${enterpriseCount} enterprise-scope directive(s) — no Claude Code target path for enterprise scope.`,
+			`Skipping ${enterpriseCount} enterprise-scope rule(s) — no Claude Code target path for enterprise scope.`,
 		);
 	}
 
-	const userCount = directives.filter((d) => d.scope === "user").length;
+	const userCount = rules.filter((d) => d.scope === "user").length;
 	if (userCount > 0) {
 		warnings.push(
-			`Skipping ${userCount} user-scope directive(s) — use "dotai sync --scope user" to emit these.`,
+			`Skipping ${userCount} user-scope rule(s) — use "dotai sync --scope user" to emit these.`,
 		);
 	}
 
-	const remaining = directives.filter((d) => d.scope !== "enterprise" && d.scope !== "user");
+	const remaining = rules.filter((d) => d.scope !== "enterprise" && d.scope !== "user");
 
 	// 2. Local-scope → collect into CLAUDE.local.md per outputDir
-	const localDirectives = remaining.filter((d) => d.scope === "local");
-	if (localDirectives.some((d) => d.appliesTo?.length)) {
+	const localRules = remaining.filter((d) => d.scope === "local");
+	if (localRules.some((d) => d.appliesTo?.length)) {
 		warnings.push(
-			"Local-scope directives with appliesTo will be placed in CLAUDE.local.md — Claude Code does not support scoped local rules.",
+			"Local-scope rules with appliesTo will be placed in CLAUDE.local.md — Claude Code does not support scoped local rules.",
 		);
 	}
-	for (const [outputDir, group] of groupByOutputDir(localDirectives)) {
+	for (const [outputDir, group] of groupByOutputDir(localRules)) {
 		const sections = group.map((d) => d.content);
 		files.push({
 			path: prefixPath("CLAUDE.local.md", outputDir),
@@ -82,20 +82,20 @@ function emitClaude(directives: Directive[]): EmitResult {
 		});
 	}
 
-	// 3. Project-scope directives
-	const projectDirectives = remaining.filter((d) => d.scope === "project");
-	const alwaysApply = projectDirectives.filter((d) => d.alwaysApply && !d.appliesTo?.length);
-	const scoped = projectDirectives.filter((d) => d.appliesTo?.length);
-	const noEffect = projectDirectives.filter((d) => !d.alwaysApply && !d.appliesTo?.length);
+	// 3. Project-scope rules
+	const projectRules = remaining.filter((d) => d.scope === "project");
+	const alwaysApply = projectRules.filter((d) => d.alwaysApply && !d.appliesTo?.length);
+	const scoped = projectRules.filter((d) => d.appliesTo?.length);
+	const noEffect = projectRules.filter((d) => !d.alwaysApply && !d.appliesTo?.length);
 
 	// 4. Warn on alwaysApply: false without appliesTo
 	if (noEffect.length > 0) {
 		warnings.push(
-			`${noEffect.length} directive(s) have alwaysApply: false without appliesTo — Claude Code loads all rules unconditionally. Add appliesTo patterns or set alwaysApply: true.`,
+			`${noEffect.length} rule(s) have alwaysApply: false without appliesTo — Claude Code loads all rules unconditionally. Add appliesTo patterns or set alwaysApply: true.`,
 		);
 	}
 
-	// Group alwaysApply directives by outputDir → one CLAUDE.md per group
+	// Group alwaysApply rules by outputDir → one CLAUDE.md per group
 	for (const [outputDir, group] of groupByOutputDir(alwaysApply)) {
 		const sections = group.map((d) => d.content);
 		files.push({
@@ -104,25 +104,25 @@ function emitClaude(directives: Directive[]): EmitResult {
 		});
 	}
 
-	// Scoped directives → .claude/rules/<name>.md with YAML paths: frontmatter
-	for (const directive of scoped) {
-		const name = slugify(directive.description || "rule");
-		const paths = directive.appliesTo?.map((p) => `  - "${p}"`).join("\n");
+	// Scoped rules → .claude/rules/<name>.md with YAML paths: frontmatter
+	for (const rule of scoped) {
+		const name = slugify(rule.description || "rule");
+		const paths = rule.appliesTo?.map((p) => `  - "${p}"`).join("\n");
 		const frontmatter = `---\npaths:\n${paths}\n---`;
-		const content = `${frontmatter}\n\n${directive.content}`;
+		const content = `${frontmatter}\n\n${rule.content}`;
 
 		files.push({
-			path: prefixPath(`.claude/rules/${name}.md`, directive.outputDir),
+			path: prefixPath(`.claude/rules/${name}.md`, rule.outputDir),
 			content: `${content}\n`,
 		});
 	}
 
-	// noEffect directives still go to .claude/rules/ (they just load unconditionally)
-	for (const directive of noEffect) {
-		const name = slugify(directive.description || "rule");
+	// noEffect rules still go to .claude/rules/ (they just load unconditionally)
+	for (const rule of noEffect) {
+		const name = slugify(rule.description || "rule");
 		files.push({
-			path: prefixPath(`.claude/rules/${name}.md`, directive.outputDir),
-			content: `${directive.content}\n`,
+			path: prefixPath(`.claude/rules/${name}.md`, rule.outputDir),
+			content: `${rule.content}\n`,
 		});
 	}
 
@@ -131,28 +131,28 @@ function emitClaude(directives: Directive[]): EmitResult {
 
 /**
  * Cursor:
- * Each directive → <outputDir>/.cursor/rules/<name>.mdc with frontmatter.
+ * Each rule → <outputDir>/.cursor/rules/<name>.mdc with frontmatter.
  */
-function emitCursor(directives: Directive[]): EmitResult {
+function emitCursor(rules: Rule[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
 
-	for (const directive of directives) {
-		const name = slugify(directive.description || "rule");
+	for (const rule of rules) {
+		const name = slugify(rule.description || "rule");
 		const frontmatter: string[] = [];
 
-		if (directive.description) {
-			frontmatter.push(`description: ${directive.description}`);
+		if (rule.description) {
+			frontmatter.push(`description: ${rule.description}`);
 		}
-		if (directive.appliesTo?.length) {
-			frontmatter.push(`globs: ${directive.appliesTo.join(", ")}`);
+		if (rule.appliesTo?.length) {
+			frontmatter.push(`globs: ${rule.appliesTo.join(", ")}`);
 		}
-		frontmatter.push(`alwaysApply: ${directive.alwaysApply}`);
+		frontmatter.push(`alwaysApply: ${rule.alwaysApply}`);
 
 		const header = `---\n${frontmatter.join("\n")}\n---`;
 		files.push({
-			path: prefixPath(`.cursor/rules/${name}.mdc`, directive.outputDir),
-			content: `${header}\n\n${directive.content}\n`,
+			path: prefixPath(`.cursor/rules/${name}.mdc`, rule.outputDir),
+			content: `${header}\n\n${rule.content}\n`,
 		});
 	}
 
@@ -178,39 +178,39 @@ function checkSizeLimit(path: string, content: string, warnings: string[]): void
  * - project + local → AGENTS.md / AGENTS.override.md (grouped by outputDir)
  * - override: true → AGENTS.override.md
  */
-function emitCodex(directives: Directive[]): EmitResult {
+function emitCodex(rules: Rule[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
 
-	if (directives.length === 0) return { files, warnings };
+	if (rules.length === 0) return { files, warnings };
 
 	// 1. Filter by scope — skip enterprise + user with warnings
-	const enterpriseCount = directives.filter((d) => d.scope === "enterprise").length;
+	const enterpriseCount = rules.filter((d) => d.scope === "enterprise").length;
 	if (enterpriseCount > 0) {
 		warnings.push(
-			`Skipping ${enterpriseCount} enterprise-scope directive(s) — no Codex target path for enterprise scope.`,
+			`Skipping ${enterpriseCount} enterprise-scope rule(s) — no Codex target path for enterprise scope.`,
 		);
 	}
 
-	const userCount = directives.filter((d) => d.scope === "user").length;
+	const userCount = rules.filter((d) => d.scope === "user").length;
 	if (userCount > 0) {
 		warnings.push(
-			`Skipping ${userCount} user-scope directive(s) — use "dotai sync --scope user" to emit these.`,
+			`Skipping ${userCount} user-scope rule(s) — use "dotai sync --scope user" to emit these.`,
 		);
 	}
 
-	const remaining = directives.filter((d) => d.scope !== "enterprise" && d.scope !== "user");
+	const remaining = rules.filter((d) => d.scope !== "enterprise" && d.scope !== "user");
 
 	if (remaining.length === 0) return { files, warnings };
 
 	// 2. Split by override flag
-	const overrideDirectives = remaining.filter((d) => d.override);
-	const regularDirectives = remaining.filter((d) => !d.override);
+	const overrideRules = remaining.filter((d) => d.override);
+	const regularRules = remaining.filter((d) => !d.override);
 
-	// 3. Emit regular directives → AGENTS.md per outputDir
-	for (const [outputDir, group] of groupByOutputDir(regularDirectives)) {
+	// 3. Emit regular rules → AGENTS.md per outputDir
+	for (const [outputDir, group] of groupByOutputDir(regularRules)) {
 		const sections = group.map((d) => {
-			const header = d.description ? `## ${d.description}` : "## Directive";
+			const header = d.description ? `## ${d.description}` : "## Rule";
 			const scopeNote = d.appliesTo?.length ? `\n\n> Applies to: ${d.appliesTo.join(", ")}` : "";
 			return `${header}${scopeNote}\n\n${d.content}`;
 		});
@@ -221,10 +221,10 @@ function emitCodex(directives: Directive[]): EmitResult {
 		checkSizeLimit(path, content, warnings);
 	}
 
-	// 4. Emit override directives → AGENTS.override.md per outputDir
-	for (const [outputDir, group] of groupByOutputDir(overrideDirectives)) {
+	// 4. Emit override rules → AGENTS.override.md per outputDir
+	for (const [outputDir, group] of groupByOutputDir(overrideRules)) {
 		const sections = group.map((d) => {
-			const header = d.description ? `## ${d.description}` : "## Directive";
+			const header = d.description ? `## ${d.description}` : "## Rule";
 			const scopeNote = d.appliesTo?.length ? `\n\n> Applies to: ${d.appliesTo.join(", ")}` : "";
 			return `${header}${scopeNote}\n\n${d.content}`;
 		});
@@ -237,7 +237,7 @@ function emitCodex(directives: Directive[]): EmitResult {
 
 	if (remaining.some((d) => d.appliesTo?.length)) {
 		warnings.push(
-			"Codex AGENTS.md does not support file-scoped directives — appliesTo patterns are included as notes but not enforced.",
+			"Codex AGENTS.md does not support file-scoped rules — appliesTo patterns are included as notes but not enforced.",
 		);
 	}
 
@@ -251,20 +251,18 @@ function emitCodex(directives: Directive[]): EmitResult {
  * - Has appliesTo → <outputDir>/.github/instructions/<slug>.instructions.md with applyTo frontmatter
  * - Not alwaysApply, no appliesTo → <outputDir>/.github/instructions/<slug>.instructions.md
  */
-function emitCopilot(directives: Directive[]): EmitResult {
+function emitCopilot(rules: Rule[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
 
 	// Repo-wide: alwaysApply + no appliesTo + no excludeAgent (copilot-instructions.md has no frontmatter)
-	const repoWide = directives.filter(
-		(d) => d.alwaysApply && !d.appliesTo?.length && !d.excludeAgent,
-	);
+	const repoWide = rules.filter((d) => d.alwaysApply && !d.appliesTo?.length && !d.excludeAgent);
 	// Everything else goes to .github/instructions/
-	const scoped = directives.filter(
+	const scoped = rules.filter(
 		(d) => !d.alwaysApply || (d.appliesTo?.length ?? 0) > 0 || d.excludeAgent,
 	);
 
-	// Group repo-wide directives by outputDir
+	// Group repo-wide rules by outputDir
 	for (const [outputDir, group] of groupByOutputDir(repoWide)) {
 		const sections = group.map((d) => d.content);
 		files.push({
@@ -273,25 +271,25 @@ function emitCopilot(directives: Directive[]): EmitResult {
 		});
 	}
 
-	for (const directive of scoped) {
-		const name = slugify(directive.description || "rule");
+	for (const rule of scoped) {
+		const name = slugify(rule.description || "rule");
 		const frontmatterLines: string[] = [];
 
-		if (directive.appliesTo?.length) {
-			const applyTo = directive.appliesTo.join(",");
+		if (rule.appliesTo?.length) {
+			const applyTo = rule.appliesTo.join(",");
 			frontmatterLines.push(`applyTo: "${applyTo}"`);
 		}
-		if (directive.excludeAgent) {
-			frontmatterLines.push(`excludeAgent: ${directive.excludeAgent}`);
+		if (rule.excludeAgent) {
+			frontmatterLines.push(`excludeAgent: ${rule.excludeAgent}`);
 		}
 
 		const content =
 			frontmatterLines.length > 0
-				? `---\n${frontmatterLines.join("\n")}\n---\n\n${directive.content}`
-				: directive.content;
+				? `---\n${frontmatterLines.join("\n")}\n---\n\n${rule.content}`
+				: rule.content;
 
 		files.push({
-			path: prefixPath(`.github/instructions/${name}.instructions.md`, directive.outputDir),
+			path: prefixPath(`.github/instructions/${name}.instructions.md`, rule.outputDir),
 			content: `${content}\n`,
 		});
 	}

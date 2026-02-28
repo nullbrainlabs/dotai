@@ -51,7 +51,7 @@ export async function runCheck(projectDir: string, scope: ConfigScope = "project
 
 function printSummary(config: ProjectConfig): void {
 	const counts = [
-		["Directives", config.directives.length],
+		["Rules", config.rules.length],
 		["Skills", config.skills.length],
 		["Agents", config.agents.length],
 		["MCP Servers", config.toolServers.length],
@@ -79,8 +79,8 @@ function checkTarget(config: ProjectConfig, target: TargetTool): void {
 		if (config.permissions.length > 0) {
 			warnings.push("Per-tool permissions are lossy — mapped to approval_policy");
 		}
-		if (config.directives.some((d) => d.appliesTo?.length)) {
-			warnings.push("File-scoped directives are not enforced — included as notes only");
+		if (config.rules.some((d) => d.appliesTo?.length)) {
+			warnings.push("File-scoped rules are not enforced — included as notes only");
 		}
 		if (config.agents.some((a) => a.tools?.length)) {
 			warnings.push("Per-agent tool restrictions are not supported");

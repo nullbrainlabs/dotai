@@ -14,11 +14,11 @@ cd your-project
 dotai init
 ```
 
-This creates an `.ai/` directory with a starter `config.yaml` and example directives.
+This creates an `.ai/` directory with a starter `config.yaml` and example rules.
 
-## Add a Directive
+## Add a Rule
 
-Create a file at `.ai/directives/code-style.md`:
+Create a file at `.ai/rules/code-style.md`:
 
 ```markdown
 ---

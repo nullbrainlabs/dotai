@@ -6,7 +6,7 @@ export type SourceTool = "claude" | "cursor" | "codex";
 
 /** Kind of config entity the file maps to. */
 export type DetectedKind =
-	| "directives"
+	| "rules"
 	| "mcp"
 	| "permissions"
 	| "hooks"
@@ -85,7 +85,7 @@ export async function scanForConfigs(projectDir: string): Promise<DetectedFile[]
 
 	// Claude Code files
 	const claudeMd = join(projectDir, "CLAUDE.md");
-	if (await exists(claudeMd)) add(claudeMd, "claude", "directives", "CLAUDE.md (directives)");
+	if (await exists(claudeMd)) add(claudeMd, "claude", "rules", "CLAUDE.md (rules)");
 
 	const mcpJson = join(projectDir, ".mcp.json");
 	if (await exists(mcpJson)) add(mcpJson, "claude", "mcp", ".mcp.json (MCP servers)");
@@ -97,7 +97,7 @@ export async function scanForConfigs(projectDir: string): Promise<DetectedFile[]
 	const claudeRulesDir = join(projectDir, ".claude", "rules");
 	for (const f of await listMdFiles(claudeRulesDir)) {
 		const p = join(claudeRulesDir, f);
-		add(p, "claude", "directives", `.claude/rules/${f} (directive)`);
+		add(p, "claude", "rules", `.claude/rules/${f} (rule)`);
 	}
 
 	const claudeAgentsDir = join(projectDir, ".claude", "agents");
@@ -116,7 +116,7 @@ export async function scanForConfigs(projectDir: string): Promise<DetectedFile[]
 	const cursorRulesDir = join(projectDir, ".cursor", "rules");
 	for (const f of await listMdcFiles(cursorRulesDir)) {
 		const p = join(cursorRulesDir, f);
-		add(p, "cursor", "directives", `.cursor/rules/${f} (directive)`);
+		add(p, "cursor", "rules", `.cursor/rules/${f} (rule)`);
 	}
 
 	const cursorMcp = join(projectDir, ".cursor", "mcp.json");
@@ -133,7 +133,7 @@ export async function scanForConfigs(projectDir: string): Promise<DetectedFile[]
 	if (await exists(codexToml)) add(codexToml, "codex", "settings", ".codex/config.toml (settings)");
 
 	const agentsMd = join(projectDir, "AGENTS.md");
-	if (await exists(agentsMd)) add(agentsMd, "codex", "directives", "AGENTS.md (directives)");
+	if (await exists(agentsMd)) add(agentsMd, "codex", "rules", "AGENTS.md (rules)");
 
 	return detected;
 }
