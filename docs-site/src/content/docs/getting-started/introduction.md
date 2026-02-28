@@ -1,13 +1,49 @@
 ---
 title: Introduction
-description: What is dotai and why does it exist.
+description: What is .ai and why does it exist.
 ---
 
-dotai is a CLI tool that generates correct configuration files for four AI coding tools from a single `.ai/` directory. Write your rules, skills, and agents once — dotai produces the right files for Claude Code, Cursor, Codex, and GitHub Copilot automatically.
+AI agents are already in your workflow.
 
-## The Problem
+Teams are shipping production code today with Anthropic's Claude Code, Cursor, OpenAI's Codex, and GitHub Copilot.
 
-Every AI coding tool has its own configuration format:
+The problem isn't whether AI coding agents work. It's that every tool speaks a slightly different dialect.
+
+- Different config formats
+- Different file locations
+- Different capabilities
+- No shared contract for how an agent should behave in a repo
+
+As teams adopt multiple tools — or switch between them — configs drift, instructions fragment, and "how the AI is supposed to work here" turns into tribal knowledge.
+
+That does not scale.
+
+## The vision
+
+`.ai` is a **versioned, tool-agnostic spec** for AI coding agents.
+
+It defines how agents should behave in a project — rules, skills, agents, permissions, hooks, servers — in a single directory that lives in your repo and travels with your code.
+
+> `.ai/` is the source of truth.
+> Tools are just targets.
+
+## Why a translation layer, not a universal spec
+
+The first instinct is to define a strict standard that every AI tool vendor adopts — one format to rule them all. That's how protocols like MCP work, and it's the right approach for some problems.
+
+But AI coding agents are moving fast. Tools are experimenting with new capabilities constantly — hooks, agent delegation, sandbox modes, model routing. A rigid spec that every vendor must follow would do one of two things: slow innovation down to the speed of the spec, or fall permanently behind.
+
+`.ai` takes a different approach. Instead of asking tool vendors to change, it acts as a **translation layer** — a middleman that meets every tool where it already is.
+
+- Tool vendors keep shipping whatever formats and features they want
+- `.ai` maps the shared concepts and translates the differences
+- When a tool adds something new, `.ai` adds support for it — no committee, no proposal process, no waiting
+
+This keeps the ecosystem fast. AI companies keep innovating. Developers and teams keep moving. `.ai` just makes sure your intent arrives in the right format, everywhere.
+
+## The problem we solve
+
+Today, the same intent must be expressed in multiple incompatible formats:
 
 | Tool | Config files |
 |------|-------------|
@@ -16,27 +52,17 @@ Every AI coding tool has its own configuration format:
 | Codex | `AGENTS.md`, `.codex/config.toml` |
 | GitHub Copilot | `.github/copilot-instructions.md`, `.github/agents/*.agent.md`, `.vscode/mcp.json` |
 
-When a team uses multiple tools — or different team members prefer different editors — the same rules must be maintained in multiple formats. Config drift is inevitable.
+They share core concepts, but their configuration models differ. Maintaining parity across tools is manual and brittle. Drift is inevitable.
 
-## The Solution
+As the ecosystem evolves, this fragmentation compounds.
 
-dotai introduces a single `.ai/` directory as the source of truth:
+## The solution
 
-```
-.ai/
-├── config.yaml          # Servers, hooks, permissions, settings, ignore patterns
-├── rules/               # Markdown instruction files
-│   ├── code-style.md
-│   └── security.md
-├── skills/              # Reusable knowledge packages
-│   └── deploy/SKILL.md
-└── agents/              # Specialized sub-agents
-    └── reviewer.md
-```
+`.ai` separates **intent from implementation**.
 
-Run `dotai sync` and the CLI reads your `.ai/` directory, applies scope precedence rules, and writes the correct output files for each target tool.
-
-## How It Works
+- You define agent behavior once in `.ai/`
+- The `dotai` CLI generates the correct native configuration for each tool
+- Changes are tracked and protected from accidental overwrite
 
 ```
 .ai/ sources  →  dotai sync  →  Claude Code files
@@ -45,12 +71,26 @@ Run `dotai sync` and the CLI reads your `.ai/` directory, applies scope preceden
                               →  Copilot files
 ```
 
-1. **Define** your configuration in `.ai/` using 8 entity types: rules, skills, agents, tool servers, hooks, permissions, settings, and ignore patterns.
-2. **Sync** with `dotai sync` to generate tool-specific files.
-3. **Track** changes with content hashing — dotai detects when generated files have been manually edited and warns before overwriting.
+The spec supports:
 
-## Next Steps
+- **Shared, cross-tool capabilities** — rules, skills, agents, permissions, hooks, servers, settings, ignore patterns
+- **Tool-specific extensions** when needed
 
-- [Install dotai](/getting-started/installation)
+AI tool vendors can keep innovating. Teams keep a stable contract.
+
+## What this enables
+
+- Switch tools without rewriting configuration
+- Use multiple agents across a team without drift
+- Keep AI behavior versioned and reviewable
+- Treat AI configuration like infrastructure, not folklore
+
+`.ai` standardizes how AI agents integrate into codebases — the same way `package.json` standardized dependencies or `Dockerfile` standardized environments.
+
+**One repo. One contract. Any agent.**
+
+## Next steps
+
+- [Install .ai](/getting-started/installation)
 - [Quick Start](/getting-started/quickstart) — generate your first config sync in under 5 minutes
 - [Import existing configs](/getting-started/importing) — already using an AI tool? Bring your config into `.ai/`
