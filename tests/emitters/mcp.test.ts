@@ -107,16 +107,17 @@ describe("mcpEmitter", () => {
 	});
 
 	describe("Copilot", () => {
-		it("emits .vscode/mcp.json with explicit type field", () => {
+		it("emits .vscode/mcp.json with servers key and explicit type field", () => {
 			const result = mcpEmitter.emit(makeConfig(), "copilot");
 			expect(result.files).toHaveLength(1);
 			expect(result.files[0].path).toBe(".vscode/mcp.json");
 
 			const parsed = JSON.parse(result.files[0].content);
-			expect(parsed.mcpServers.github.command).toBe("npx");
-			expect(parsed.mcpServers.github.type).toBe("stdio");
-			expect(parsed.mcpServers.remote.type).toBe("http");
-			expect(parsed.mcpServers.remote.url).toBe("https://mcp.example.com");
+			expect(parsed.servers.github.command).toBe("npx");
+			expect(parsed.servers.github.type).toBe("stdio");
+			expect(parsed.servers.remote.type).toBe("http");
+			expect(parsed.servers.remote.url).toBe("https://mcp.example.com");
+			expect(parsed.mcpServers).toBeUndefined();
 		});
 
 		it("warns about coding agent MCP", () => {

@@ -330,6 +330,45 @@ describe("directivesEmitter", () => {
 			expect(result.files[0].path).toBe(".github/instructions/style-guide.instructions.md");
 			expect(result.files[0].content).not.toContain("applyTo");
 		});
+
+		it("emits excludeAgent in frontmatter for scoped instructions", () => {
+			const config = emptyConfig();
+			config.directives.push({
+				content: "Skip code review.",
+				scope: "project",
+				alwaysApply: false,
+				appliesTo: ["**/*.test.ts"],
+				description: "No review",
+				excludeAgent: "code-review",
+			});
+
+			const result = directivesEmitter.emit(config, "copilot");
+			expect(result.files).toHaveLength(1);
+			expect(result.files[0].path).toBe(".github/instructions/no-review.instructions.md");
+			expect(result.files[0].content).toContain("excludeAgent: code-review");
+			expect(result.files[0].content).toContain('applyTo: "**/*.test.ts"');
+		});
+
+		it("routes alwaysApply + excludeAgent to instructions path", () => {
+			const config = emptyConfig();
+			config.directives.push({
+				content: "Not for coding agent.",
+				scope: "project",
+				alwaysApply: true,
+				description: "No coding agent",
+				excludeAgent: "coding-agent",
+			});
+
+			const result = directivesEmitter.emit(config, "copilot");
+			// Should NOT go to copilot-instructions.md (no frontmatter support there)
+			const repoWide = result.files.find((f) => f.path === ".github/copilot-instructions.md");
+			expect(repoWide).toBeUndefined();
+			// Should go to .github/instructions/
+			const instruction = result.files.find((f) => f.path.startsWith(".github/instructions/"));
+			expect(instruction).toBeDefined();
+			expect(instruction?.content).toContain("excludeAgent: coding-agent");
+			expect(instruction?.content).toContain("Not for coding agent.");
+		});
 	});
 
 	it("returns empty for no directives", () => {

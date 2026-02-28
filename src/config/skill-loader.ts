@@ -58,6 +58,7 @@ export async function loadSkills(skillsDir: string): Promise<Skill[]> {
 				typeof frontmatter.hooks === "object" && frontmatter.hooks !== null
 					? (frontmatter.hooks as Record<string, unknown>)
 					: undefined,
+			license: typeof frontmatter.license === "string" ? frontmatter.license : undefined,
 		};
 
 		skills.push(skill);

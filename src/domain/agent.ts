@@ -39,4 +39,10 @@ export interface Agent {
 	hooks?: Record<string, unknown>;
 	/** MCP server definitions (opaque nested YAML, passed through). */
 	mcpServers?: Record<string, unknown>;
+	/** When true, disable model invocation for the agent (Copilot). */
+	disableModelInvocation?: boolean;
+	/** Target environment for the agent (Copilot). */
+	target?: "vscode" | "github-copilot";
+	/** Metadata key-value pairs (Copilot). */
+	metadata?: Record<string, string>;
 }

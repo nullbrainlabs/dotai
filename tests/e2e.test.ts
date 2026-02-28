@@ -379,15 +379,17 @@ description: Security rules
 
 		// Copilot MCP (.vscode/mcp.json)
 		const vscodeMcp = JSON.parse(await readFile(join(PROJECT, ".vscode/mcp.json"), "utf-8"));
-		expect(vscodeMcp.mcpServers.github.command).toBe("npx");
-		expect(vscodeMcp.mcpServers.github.type).toBe("stdio");
+		expect(vscodeMcp.servers.github.command).toBe("npx");
+		expect(vscodeMcp.servers.github.type).toBe("stdio");
 
 		// Copilot hooks
 		const copilotHooks = JSON.parse(
-			await readFile(join(PROJECT, ".github/hooks/dotai.hooks.json"), "utf-8"),
+			await readFile(join(PROJECT, ".github/hooks/hooks.json"), "utf-8"),
 		);
+		expect(copilotHooks.version).toBe(1);
 		expect(copilotHooks.hooks.postToolUse).toBeDefined();
-		expect(copilotHooks.hooks.postToolUse[0].command).toBe("eslint --fix");
+		expect(copilotHooks.hooks.postToolUse[0].type).toBe("command");
+		expect(copilotHooks.hooks.postToolUse[0].bash).toBe("eslint --fix");
 
 		// Copilot skill
 		const copilotSkill = await readFile(join(PROJECT, ".github/skills/deploy/SKILL.md"), "utf-8");

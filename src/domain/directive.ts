@@ -21,4 +21,6 @@ export interface Directive {
 	outputDir?: string;
 	/** When true, emit to AGENTS.override.md instead of AGENTS.md (Codex only). */
 	override?: boolean;
+	/** Exclude from a specific Copilot agent (code-review or coding-agent). */
+	excludeAgent?: "code-review" | "coding-agent";
 }

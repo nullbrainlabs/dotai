@@ -11,6 +11,18 @@ const SKILLS_DIRS: Record<TargetTool, string> = {
 	copilot: ".github/skills",
 };
 
+/** Fields not supported by Copilot skills. */
+const COPILOT_UNSUPPORTED_SKILL_FIELDS = [
+	"allowedTools",
+	"model",
+	"context",
+	"agent",
+	"hooks",
+	"userInvocable",
+	"argumentHint",
+	"disableAutoInvocation",
+] as const;
+
 /** Emits skill files for all target tools. All share SKILL.md format with frontmatter. */
 export const skillsEmitter: Emitter = {
 	emit(config: ProjectConfig, target: TargetTool): EmitResult {
@@ -19,15 +31,49 @@ export const skillsEmitter: Emitter = {
 		const baseDir = SKILLS_DIRS[target];
 
 		for (const skill of config.skills) {
-			files.push({
-				path: `${baseDir}/${skill.name}/SKILL.md`,
-				content: buildSkillContent(skill),
-			});
+			if (target === "copilot") {
+				files.push({
+					path: `${baseDir}/${skill.name}/SKILL.md`,
+					content: buildCopilotSkillContent(skill),
+				});
+				// Warn about unsupported fields
+				for (const field of COPILOT_UNSUPPORTED_SKILL_FIELDS) {
+					const value = skill[field];
+					if (value !== undefined && value !== null) {
+						const hasContent = Array.isArray(value)
+							? value.length > 0
+							: typeof value === "object"
+								? Object.keys(value).length > 0
+								: true;
+						if (hasContent) {
+							warnings.push(
+								`Copilot does not support "${field}" on skill "${skill.name}" — ignored.`,
+							);
+						}
+					}
+				}
+			} else {
+				files.push({
+					path: `${baseDir}/${skill.name}/SKILL.md`,
+					content: buildSkillContent(skill),
+				});
+			}
 		}
 
 		return { files, warnings };
 	},
 };
+
+/** Build Copilot SKILL.md with only supported fields: name, description, license. */
+function buildCopilotSkillContent(skill: Skill): string {
+	const frontmatterLines: string[] = [];
+
+	frontmatterLines.push(`name: ${skill.name}`);
+	if (skill.description) frontmatterLines.push(`description: ${skill.description}`);
+	if (skill.license) frontmatterLines.push(`license: ${skill.license}`);
+
+	return `---\n${frontmatterLines.join("\n")}\n---\n\n${skill.content}\n`;
+}
 
 /** Build SKILL.md content with optional YAML frontmatter. */
 function buildSkillContent(skill: Skill): string {

@@ -93,9 +93,16 @@ export function mergeConfigs(base: ProjectConfig, override: ProjectConfig): Proj
 export function validateConfig(config: ProjectConfig): ValidationResult {
 	const errors: ConfigError[] = [];
 
+	const validExcludeAgents = ["code-review", "coding-agent"];
 	for (const d of config.directives) {
 		if (!d.content.trim()) {
 			errors.push({ file: "directives", message: "Directive has empty content" });
+		}
+		if (d.excludeAgent && !validExcludeAgents.includes(d.excludeAgent)) {
+			errors.push({
+				file: "directives",
+				message: `Invalid excludeAgent "${d.excludeAgent}" — must be one of: ${validExcludeAgents.join(", ")}`,
+			});
 		}
 	}
 
@@ -147,6 +154,13 @@ export function validateConfig(config: ProjectConfig): ValidationResult {
 			errors.push({
 				file: `agents/${a.name}`,
 				message: `maxTurns must be a positive integer, got ${a.maxTurns}`,
+			});
+		}
+		const validTargets = ["vscode", "github-copilot"];
+		if (a.target && !validTargets.includes(a.target)) {
+			errors.push({
+				file: `agents/${a.name}`,
+				message: `Invalid target "${a.target}" — must be one of: ${validTargets.join(", ")}`,
 			});
 		}
 	}

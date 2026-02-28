@@ -246,7 +246,8 @@ function emitCodex(directives: Directive[]): EmitResult {
 
 /**
  * Copilot:
- * - alwaysApply + no appliesTo → <outputDir>/.github/copilot-instructions.md (grouped by outputDir)
+ * - alwaysApply + no appliesTo + no excludeAgent → <outputDir>/.github/copilot-instructions.md (grouped)
+ * - alwaysApply + excludeAgent → .github/instructions/<slug>.instructions.md with frontmatter
  * - Has appliesTo → <outputDir>/.github/instructions/<slug>.instructions.md with applyTo frontmatter
  * - Not alwaysApply, no appliesTo → <outputDir>/.github/instructions/<slug>.instructions.md
  */
@@ -254,8 +255,14 @@ function emitCopilot(directives: Directive[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
 
-	const repoWide = directives.filter((d) => d.alwaysApply && !d.appliesTo?.length);
-	const scoped = directives.filter((d) => !d.alwaysApply || (d.appliesTo?.length ?? 0) > 0);
+	// Repo-wide: alwaysApply + no appliesTo + no excludeAgent (copilot-instructions.md has no frontmatter)
+	const repoWide = directives.filter(
+		(d) => d.alwaysApply && !d.appliesTo?.length && !d.excludeAgent,
+	);
+	// Everything else goes to .github/instructions/
+	const scoped = directives.filter(
+		(d) => !d.alwaysApply || (d.appliesTo?.length ?? 0) > 0 || d.excludeAgent,
+	);
 
 	// Group repo-wide directives by outputDir
 	for (const [outputDir, group] of groupByOutputDir(repoWide)) {
@@ -268,12 +275,20 @@ function emitCopilot(directives: Directive[]): EmitResult {
 
 	for (const directive of scoped) {
 		const name = slugify(directive.description || "rule");
-		let content = directive.content;
+		const frontmatterLines: string[] = [];
 
 		if (directive.appliesTo?.length) {
 			const applyTo = directive.appliesTo.join(",");
-			content = `---\napplyTo: "${applyTo}"\n---\n\n${content}`;
+			frontmatterLines.push(`applyTo: "${applyTo}"`);
 		}
+		if (directive.excludeAgent) {
+			frontmatterLines.push(`excludeAgent: ${directive.excludeAgent}`);
+		}
+
+		const content =
+			frontmatterLines.length > 0
+				? `---\n${frontmatterLines.join("\n")}\n---\n\n${directive.content}`
+				: directive.content;
 
 		files.push({
 			path: prefixPath(`.github/instructions/${name}.instructions.md`, directive.outputDir),

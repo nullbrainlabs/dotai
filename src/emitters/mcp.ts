@@ -97,19 +97,19 @@ function emitCopilotMcp(servers: ToolServer[]): EmitResult {
 
 	if (servers.length === 0) return { files, warnings };
 
-	const mcpServers: Record<string, unknown> = {};
+	const servers_: Record<string, unknown> = {};
 	for (const server of servers) {
 		const entry = buildMcpEntry(server);
 		// Copilot requires explicit type field for all transports
 		if (!entry.type) {
 			entry.type = "stdio";
 		}
-		mcpServers[server.name] = entry;
+		servers_[server.name] = entry;
 	}
 
 	files.push({
 		path: ".vscode/mcp.json",
-		content: `${JSON.stringify({ mcpServers }, null, 2)}\n`,
+		content: `${JSON.stringify({ servers: servers_ }, null, 2)}\n`,
 	});
 
 	warnings.push(

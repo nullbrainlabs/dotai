@@ -28,4 +28,6 @@ export interface Skill {
 	agent?: string;
 	/** Hook definitions for skill lifecycle. */
 	hooks?: Record<string, unknown>;
+	/** SPDX license identifier for skill distribution (Copilot). */
+	license?: string;
 }

@@ -237,6 +237,19 @@ const COPILOT_TOOL_MAP: Record<string, string> = {
 	WebFetch: "web",
 };
 
+/** Fields not supported by Copilot agent config. */
+const COPILOT_UNSUPPORTED_AGENT_FIELDS = [
+	"disallowedTools",
+	"permissionMode",
+	"maxTurns",
+	"skills",
+	"memory",
+	"isolation",
+	"hooks",
+	"modelReasoningEffort",
+	"background",
+] as const;
+
 /** Copilot: .github/agents/<name>.agent.md with YAML frontmatter */
 function emitCopilotAgents(agents: Agent[]): EmitResult {
 	const files: EmittedFile[] = [];
@@ -245,6 +258,10 @@ function emitCopilotAgents(agents: Agent[]): EmitResult {
 	for (const agent of agents) {
 		const frontmatter: string[] = [];
 		frontmatter.push(`description: ${agent.description || agent.name}`);
+
+		if (agent.model) {
+			frontmatter.push(`model: ${agent.model}`);
+		}
 
 		if (agent.readonly) {
 			frontmatter.push(`tools: [read, search]`);
@@ -266,10 +283,19 @@ function emitCopilotAgents(agents: Agent[]): EmitResult {
 			frontmatter.push(`tools: [${mapped.join(", ")}]`);
 		}
 
-		if (agent.model) {
-			warnings.push(
-				`Copilot agents do not support model override in file config — model "${agent.model}" on agent "${agent.name}" is ignored.`,
-			);
+		if (agent.disableModelInvocation) {
+			frontmatter.push("disable-model-invocation: true");
+		}
+		if (agent.target) {
+			frontmatter.push(`target: ${agent.target}`);
+		}
+		if (agent.mcpServers && Object.keys(agent.mcpServers).length > 0) {
+			const yamlBlock = stringifyYaml({ "mcp-servers": agent.mcpServers }, { indent: 2 }).trimEnd();
+			frontmatter.push(yamlBlock);
+		}
+		if (agent.metadata && Object.keys(agent.metadata).length > 0) {
+			const yamlBlock = stringifyYaml({ metadata: agent.metadata }, { indent: 2 }).trimEnd();
+			frontmatter.push(yamlBlock);
 		}
 
 		const header = `---\n${frontmatter.join("\n")}\n---\n\n`;
@@ -277,6 +303,21 @@ function emitCopilotAgents(agents: Agent[]): EmitResult {
 			path: `.github/agents/${agent.name}.agent.md`,
 			content: `${header}${agent.instructions}\n`,
 		});
+
+		// Warn about unsupported fields
+		for (const field of COPILOT_UNSUPPORTED_AGENT_FIELDS) {
+			const value = agent[field];
+			if (value !== undefined && value !== null) {
+				const hasContent = Array.isArray(value)
+					? value.length > 0
+					: typeof value === "object"
+						? Object.keys(value).length > 0
+						: true;
+				if (hasContent) {
+					warnings.push(`Copilot does not support "${field}" on agent "${agent.name}" — ignored.`);
+				}
+			}
+		}
 	}
 
 	return { files, warnings };

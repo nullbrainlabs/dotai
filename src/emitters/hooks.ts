@@ -161,27 +161,17 @@ function emitCodex(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult {
 
 /** Events supported by Copilot hooks. */
 const COPILOT_HOOK_EVENTS = new Set([
-	"preToolUse",
-	"postToolUse",
 	"sessionStart",
 	"sessionEnd",
 	"userPromptSubmitted",
+	"preToolUse",
+	"postToolUse",
+	"errorOccurred",
 	"agentStop",
 	"subagentStop",
-	"errorOccurred",
-	"permissionRequest",
-	"postToolUseFailure",
-	"notification",
-	"subagentStart",
-	"teammateIdle",
-	"taskCompleted",
-	"configChange",
-	"worktreeCreate",
-	"worktreeRemove",
-	"preCompact",
 ]);
 
-/** Copilot: .github/hooks/dotai.hooks.json */
+/** Copilot: .github/hooks/hooks.json — version 1 format */
 function emitCopilot(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult {
 	const files: EmittedFile[] = [];
 	const warnings: string[] = [];
@@ -193,16 +183,30 @@ function emitCopilot(hooks: Hook[], ignorePatterns: IgnorePattern[]): EmitResult
 				warnings.push(`Hook event "${hook.event}" is not supported by Copilot — skipped.`);
 				continue;
 			}
+			const hookType = hook.type ?? "command";
+			if (hookType !== "command") {
+				warnings.push(
+					`Hook type "${hookType}" is not supported by Copilot — only "command" hooks are supported. Skipped.`,
+				);
+				continue;
+			}
+
 			if (!hooksObj[hook.event]) hooksObj[hook.event] = [];
-			const entry: Record<string, unknown> = { command: hook.handler };
-			if (hook.matcher) entry.matcher = hook.matcher;
+			const entry: Record<string, unknown> = {
+				type: "command",
+				bash: hook.handler,
+			};
+			if (hook.timeout !== undefined) entry.timeoutSec = Math.round(hook.timeout / 1000);
+			if (hook.statusMessage) entry.comment = hook.statusMessage;
+			if (hook.cwd) entry.cwd = hook.cwd;
+			if (hook.env && Object.keys(hook.env).length > 0) entry.env = hook.env;
 			hooksObj[hook.event].push(entry);
 		}
 
 		if (Object.keys(hooksObj).length > 0) {
 			files.push({
-				path: ".github/hooks/dotai.hooks.json",
-				content: `${JSON.stringify({ hooks: hooksObj }, null, 2)}\n`,
+				path: ".github/hooks/hooks.json",
+				content: `${JSON.stringify({ version: 1, hooks: hooksObj }, null, 2)}\n`,
 			});
 		}
 	}

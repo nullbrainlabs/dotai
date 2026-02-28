@@ -60,4 +60,8 @@ export interface Hook {
 	async?: boolean;
 	/** Model override for prompt/agent hook evaluation. */
 	model?: string;
+	/** Working directory for hook execution. */
+	cwd?: string;
+	/** Environment variables for hook execution. */
+	env?: Record<string, string>;
 }

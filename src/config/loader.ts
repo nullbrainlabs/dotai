@@ -241,6 +241,13 @@ function parseHook(
 		once: obj.once === true ? true : undefined,
 		async: obj.async === true ? true : undefined,
 		model: typeof obj.model === "string" ? obj.model : undefined,
+		cwd: typeof obj.cwd === "string" ? obj.cwd : undefined,
+		env:
+			typeof obj.env === "object" && obj.env !== null
+				? Object.fromEntries(
+						Object.entries(obj.env as Record<string, unknown>).map(([k, v]) => [k, String(v)]),
+					)
+				: undefined,
 	};
 }
 
@@ -261,6 +268,8 @@ async function loadDirectives(
 		const filePath = join(directivesDir, file);
 		try {
 			const { frontmatter, body } = await loadMarkdownFile(filePath);
+			const excludeAgentRaw = frontmatter.excludeAgent ?? frontmatter["exclude-agent"];
+			const validExcludeAgents = ["code-review", "coding-agent"];
 			const directive: Directive = {
 				content: body,
 				scope: (typeof frontmatter.scope === "string" ? frontmatter.scope : scope) as Scope,
@@ -276,6 +285,10 @@ async function loadDirectives(
 						: file.replace(/\.md$/, ""),
 				outputDir: typeof frontmatter.outputDir === "string" ? frontmatter.outputDir : undefined,
 				override: frontmatter.override === true ? true : undefined,
+				excludeAgent:
+					typeof excludeAgentRaw === "string" && validExcludeAgents.includes(excludeAgentRaw)
+						? (excludeAgentRaw as Directive["excludeAgent"])
+						: undefined,
 			};
 			config.directives.push(directive);
 		} catch (e) {
@@ -303,6 +316,9 @@ async function loadAgents(
 		const filePath = join(agentsDir, file);
 		try {
 			const { frontmatter, body } = await loadMarkdownFile(filePath);
+			const targetRaw = frontmatter.target;
+			const validTargets = ["vscode", "github-copilot"];
+			const metadataRaw = frontmatter.metadata;
 			const agent: Agent = {
 				name: file.replace(/\.md$/, ""),
 				description: typeof frontmatter.description === "string" ? frontmatter.description : "",
@@ -337,6 +353,24 @@ async function loadAgents(
 				mcpServers:
 					typeof frontmatter.mcpServers === "object" && frontmatter.mcpServers !== null
 						? (frontmatter.mcpServers as Record<string, unknown>)
+						: undefined,
+				disableModelInvocation:
+					frontmatter.disableModelInvocation === true ||
+					frontmatter["disable-model-invocation"] === true
+						? true
+						: undefined,
+				target:
+					typeof targetRaw === "string" && validTargets.includes(targetRaw)
+						? (targetRaw as Agent["target"])
+						: undefined,
+				metadata:
+					typeof metadataRaw === "object" && metadataRaw !== null && !Array.isArray(metadataRaw)
+						? Object.fromEntries(
+								Object.entries(metadataRaw as Record<string, unknown>).map(([k, v]) => [
+									k,
+									String(v),
+								]),
+							)
 						: undefined,
 			};
 			config.agents.push(agent);
