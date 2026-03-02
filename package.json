@@ -1,6 +1,6 @@
 {
   "name": "@nullbrain/dotai",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Configure once, generate for all AI coding tools",
   "type": "module",
   "bin": {
@@ -27,6 +27,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "tsx src/cli.ts",
+    "local": "pnpm build && pnpm link --global",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "sync-docs": "bash scripts/sync-docs.sh",
@@ -35,7 +36,9 @@
     "docs:preview": "pnpm -C docs-site preview"
   },
   "packageManager": "pnpm@10.12.4",
-  "workspaces": ["docs-site"],
+  "workspaces": [
+    "docs-site"
+  ],
   "keywords": [
     "ai",
     "cli",
@@ -56,6 +59,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
+    "@changesets/cli": "^2.29.8",
     "@types/node": "^25.3.0",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",

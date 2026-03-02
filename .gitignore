@@ -10,6 +10,9 @@ Thumbs.db
 .env
 .env.*
 
+# Worktrees
+.claude/worktrees/
+
 # Editor
 .vscode/
 .idea/
@@ -23,24 +26,6 @@ Thumbs.db
 
 # Lockfiles (using pnpm)
 package-lock.json
-
-# Generated sync outputs (dotai sync)
-.ai/.state.json
-**/CLAUDE.md
-**/AGENTS.md
-.mcp.json
-.cursorignore
-opencode.json
-mcp_config.json
-.agent/
-.codex/
-.opencode/
-.cursor/
-.claude/
-.vscode/
-.github/*
-!.github/workflows/
-!.github/hooks/
 
 # Test coverage
 coverage/

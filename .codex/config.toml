@@ -1,0 +1,1 @@
+protected_paths = ["node_modules/**", "dist/**", ".env", ".env.*"]

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Read(node_modules/**)",
+      "Edit(node_modules/**)",
+      "Read(dist/**)",
+      "Edit(dist/**)",
+      "Read(.env)",
+      "Edit(.env)",
+      "Read(.env.*)",
+      "Edit(.env.*)"
+    ]
+  }
+}
