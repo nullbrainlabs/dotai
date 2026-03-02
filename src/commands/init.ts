@@ -4,14 +4,12 @@ import type { TargetTool } from "../emitters/types.js";
 import { runImport } from "../import/runner.js";
 import { scanForConfigs } from "../import/scanner.js";
 import { writeProjectConfig } from "../import/writer.js";
-import type { TemplateName } from "../templates/index.js";
-import { getTemplate, TEMPLATES } from "../templates/index.js";
-import { cancelGuard, confirm, intro, isTTY, multiselect, outro, select } from "../tui.js";
+import { defaultConfig } from "../templates/index.js";
+import { cancelGuard, confirm, intro, isTTY, multiselect, outro } from "../tui.js";
 import { runSync } from "./sync.js";
 
 /** Options for the init command. */
 export interface InitOptions {
-	template?: TemplateName;
 	targets?: TargetTool[];
 	skipImport?: boolean;
 	autoSync?: boolean;
@@ -19,7 +17,7 @@ export interface InitOptions {
 
 /** Scaffold a new `.ai/` directory with guided setup or flags. */
 export async function runInit(projectDir: string, options?: InitOptions): Promise<void> {
-	if (isTTY() && !options?.template) {
+	if (isTTY()) {
 		await interactiveInit(projectDir, options);
 	} else {
 		await nonInteractiveInit(projectDir, options);
@@ -53,22 +51,10 @@ async function interactiveInit(projectDir: string, options?: InitOptions): Promi
 		}),
 	) as TargetTool[];
 
-	// Select template
-	const templateName = cancelGuard(
-		await select({
-			message: "Start from a template?",
-			options: TEMPLATES.map((t) => ({
-				value: t.name,
-				label: t.label,
-				hint: t.description,
-			})),
-		}),
-	) as TemplateName;
-
-	// Build and write template config
-	const config = getTemplate(templateName);
+	// Build and write default config
+	const config = defaultConfig();
 	const written = await writeProjectConfig(aiDir, config);
-	console.log(`\n  \x1b[32m✓\x1b[0m Created .ai/ from "${templateName}" template`);
+	console.log("\n  \x1b[32m✓\x1b[0m Created .ai/");
 	for (const f of written) {
 		const rel = f.replace(`${projectDir}/`, "");
 		console.log(`    ${rel}`);
@@ -111,11 +97,10 @@ async function interactiveInit(projectDir: string, options?: InitOptions): Promi
 
 async function nonInteractiveInit(projectDir: string, options?: InitOptions): Promise<void> {
 	const aiDir = join(projectDir, ".ai");
-	const templateName = options?.template ?? "blank";
-	const config = getTemplate(templateName);
+	const config = defaultConfig();
 	const written = await writeProjectConfig(aiDir, config);
 
-	console.log(`\x1b[32m✓\x1b[0m Initialized .ai/ from "${templateName}" template`);
+	console.log("\x1b[32m✓\x1b[0m Initialized .ai/");
 	for (const f of written) {
 		const rel = f.replace(`${projectDir}/`, "");
 		console.log(`  ${rel}`);

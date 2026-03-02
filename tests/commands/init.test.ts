@@ -13,11 +13,11 @@ describe("runInit", () => {
 		}
 	});
 
-	it("scaffolds .ai/ directory with blank template", async () => {
+	it("scaffolds .ai/ directory", async () => {
 		const { mkdirSync } = await import("node:fs");
 		mkdirSync(TMP_DIR, { recursive: true });
 
-		await runInit(TMP_DIR, { template: "blank", skipImport: true });
+		await runInit(TMP_DIR, { skipImport: true });
 
 		const aiDir = join(TMP_DIR, ".ai");
 		expect(existsSync(aiDir)).toBe(true);
@@ -31,11 +31,11 @@ describe("runInit", () => {
 		expect(configContent).toContain("permissions");
 	});
 
-	it("scaffolds with minimal template", async () => {
+	it("scaffolds with conventions rule", async () => {
 		const { mkdirSync } = await import("node:fs");
 		mkdirSync(TMP_DIR, { recursive: true });
 
-		await runInit(TMP_DIR, { template: "minimal", skipImport: true });
+		await runInit(TMP_DIR, { skipImport: true });
 
 		const aiDir = join(TMP_DIR, ".ai");
 		expect(existsSync(join(aiDir, "rules", "conventions.md"))).toBe(true);
@@ -44,27 +44,11 @@ describe("runInit", () => {
 		expect(rule).toContain("Project Conventions");
 	});
 
-	it("scaffolds with web template", async () => {
-		const { mkdirSync } = await import("node:fs");
-		mkdirSync(TMP_DIR, { recursive: true });
-
-		await runInit(TMP_DIR, { template: "web", skipImport: true });
-
-		const aiDir = join(TMP_DIR, ".ai");
-		expect(existsSync(join(aiDir, "rules", "typescript-conventions.md"))).toBe(true);
-		expect(existsSync(join(aiDir, "rules", "testing.md"))).toBe(true);
-		expect(existsSync(join(aiDir, "rules", "security.md"))).toBe(true);
-
-		const configContent = await readFile(join(aiDir, "config.yaml"), "utf-8");
-		expect(configContent).toContain("filesystem");
-	});
-
 	it("auto-sync writes tool configs", async () => {
 		const { mkdirSync } = await import("node:fs");
 		mkdirSync(TMP_DIR, { recursive: true });
 
 		await runInit(TMP_DIR, {
-			template: "minimal",
 			targets: ["claude"],
 			autoSync: true,
 			skipImport: true,

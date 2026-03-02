@@ -25,7 +25,7 @@ describe("end-to-end", () => {
 	// ── Step 1: init ──────────────────────────────────────────────────
 
 	it("init scaffolds .ai/ directory", async () => {
-		await runInit(PROJECT, { template: "minimal", skipImport: true });
+		await runInit(PROJECT, { skipImport: true });
 
 		expect(existsSync(join(PROJECT, ".ai/config.yaml"))).toBe(true);
 		expect(existsSync(join(PROJECT, ".ai/rules/conventions.md"))).toBe(true);
@@ -565,50 +565,7 @@ Keep documentation current with code changes.
 		process.exitCode = orig;
 	});
 
-	// ── Step 22: init templates ─────────────────────────────────────
-
-	it.each([
-		"blank",
-		"web",
-		"python",
-		"monorepo",
-	] as const)("init --template %s scaffolds correctly", async (template) => {
-		const templateDir = join(import.meta.dirname, `fixtures/tmp-e2e-${template}`);
-		if (existsSync(templateDir)) rmSync(templateDir, { recursive: true });
-		mkdirSync(templateDir, { recursive: true });
-
-		try {
-			await runInit(templateDir, { template, skipImport: true });
-
-			expect(existsSync(join(templateDir, ".ai/config.yaml"))).toBe(true);
-
-			if (template === "blank") {
-				// Blank has config only, no rule files
-				const rules = join(templateDir, ".ai/rules");
-				if (existsSync(rules)) {
-					const { readdirSync } = await import("node:fs");
-					expect(readdirSync(rules).filter((f) => f.endsWith(".md"))).toHaveLength(0);
-				}
-			}
-			if (template === "web") {
-				expect(existsSync(join(templateDir, ".ai/rules/typescript-conventions.md"))).toBe(true);
-				expect(existsSync(join(templateDir, ".ai/rules/testing.md"))).toBe(true);
-				expect(existsSync(join(templateDir, ".ai/rules/security.md"))).toBe(true);
-			}
-			if (template === "python") {
-				expect(existsSync(join(templateDir, ".ai/rules/python-conventions.md"))).toBe(true);
-				expect(existsSync(join(templateDir, ".ai/rules/docstrings.md"))).toBe(true);
-			}
-			if (template === "monorepo") {
-				expect(existsSync(join(templateDir, ".ai/rules/monorepo-conventions.md"))).toBe(true);
-				expect(existsSync(join(templateDir, ".ai/agents/reviewer.md"))).toBe(true);
-			}
-		} finally {
-			rmSync(templateDir, { recursive: true, force: true });
-		}
-	});
-
-	// ── Step 23: re-init when .ai/ exists ───────────────────────────
+	// ── Step 22: re-init when .ai/ exists ───────────────────────────
 
 	it("re-init overwrites existing .ai/ in non-TTY mode", async () => {
 		const reinitDir = join(import.meta.dirname, "fixtures/tmp-e2e-reinit");
@@ -617,13 +574,13 @@ Keep documentation current with code changes.
 
 		try {
 			// First init
-			await runInit(reinitDir, { template: "minimal", skipImport: true });
+			await runInit(reinitDir, { skipImport: true });
 			expect(existsSync(join(reinitDir, ".ai/rules/conventions.md"))).toBe(true);
 
-			// Re-init with different template — non-TTY should proceed
-			await runInit(reinitDir, { template: "web", skipImport: true });
+			// Re-init — non-TTY should proceed
+			await runInit(reinitDir, { skipImport: true });
 			expect(existsSync(join(reinitDir, ".ai/config.yaml"))).toBe(true);
-			expect(existsSync(join(reinitDir, ".ai/rules/typescript-conventions.md"))).toBe(true);
+			expect(existsSync(join(reinitDir, ".ai/rules/conventions.md"))).toBe(true);
 		} finally {
 			rmSync(reinitDir, { recursive: true, force: true });
 		}

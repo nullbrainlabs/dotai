@@ -11,8 +11,6 @@ import { runSync } from "./commands/sync.js";
 import type { ConfigScope } from "./config/schema.js";
 import type { TargetTool } from "./emitters/types.js";
 import type { SourceTool } from "./import/scanner.js";
-import type { TemplateName } from "./templates/index.js";
-import { TEMPLATE_NAMES } from "./templates/index.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json") as { version: string };
@@ -27,21 +25,17 @@ program
 program
 	.command("init")
 	.description("Scaffold a new .ai/ directory with guided setup")
-	.option("--template <name>", `Template (${TEMPLATE_NAMES.join(", ")})`)
 	.option("-t, --target <tools...>", "Target tools (claude, cursor, codex, copilot)")
 	.option("--skip-import", "Skip auto-detection of existing configs", false)
 	.option("--sync", "Run sync after init", false)
-	.action(
-		async (opts: { template?: string; target?: string[]; skipImport: boolean; sync: boolean }) => {
-			const initOpts: InitOptions = {
-				template: opts.template as TemplateName | undefined,
-				targets: opts.target as TargetTool[] | undefined,
-				skipImport: opts.skipImport,
-				autoSync: opts.sync,
-			};
-			await runInit(process.cwd(), initOpts);
-		},
-	);
+	.action(async (opts: { target?: string[]; skipImport: boolean; sync: boolean }) => {
+		const initOpts: InitOptions = {
+			targets: opts.target as TargetTool[] | undefined,
+			skipImport: opts.skipImport,
+			autoSync: opts.sync,
+		};
+		await runInit(process.cwd(), initOpts);
+	});
 
 program
 	.command("import")

@@ -13,10 +13,11 @@ dotai init [options]
 
 | Option | Description |
 |--------|-------------|
-| `--template <name>` | Use a starter template (blank, minimal, web, python, monorepo) |
-| `--force` | Overwrite existing `.ai/` directory |
+| `-t, --target <tools...>` | Target tools (claude, cursor, codex, copilot) |
+| `--skip-import` | Skip auto-detection of existing configs |
+| `--sync` | Run sync after init |
 
-Creates a starter `config.yaml` and example rules.
+Creates a starter `config.yaml` with a conventions rule and common ignore patterns.
 
 ## dotai sync
 

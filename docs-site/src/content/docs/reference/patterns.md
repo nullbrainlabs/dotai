@@ -62,7 +62,7 @@ Commands define repeatable workflows that compose agents and tools:
 |---------|---------|
 | `/check` | Verify architecture adherence + run checks + suggest commit |
 | `/cleanup` | Spawn cleanup-analyzer + present report + optionally create task doc |
-| `/init` | One-time project initialization from template |
+| `/init` | One-time project initialization |
 
 **Key insight:** Commands are orchestration, not just delegation. `/cleanup` spawns an agent, processes its output, and asks follow-up questions.
 
