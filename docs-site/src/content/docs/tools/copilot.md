@@ -14,7 +14,7 @@ GitHub Copilot supports rules, skills, agents, MCP servers, and most lifecycle h
 | Skills | `.github/skills/<name>/SKILL.md` |
 | Agents | `.github/agents/*.agent.md` |
 | Servers | `.vscode/mcp.json` |
-| Hooks | `.github/hooks/dotai.hooks.json` |
+| Hooks | `.github/hooks/hooks.json` |
 | Permissions | Not generated (warning) |
 | Ignore patterns | Not generated (warning) |
 | Settings | Not generated (warning) |

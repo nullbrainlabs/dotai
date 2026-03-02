@@ -1,6 +1,6 @@
 # Docs Site
 
-This is the documentation site built with VitePress.
+This is the documentation site built with Astro Starlight.
 
 ## Conventions
 

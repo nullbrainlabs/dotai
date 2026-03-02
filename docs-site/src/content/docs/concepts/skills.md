@@ -20,6 +20,7 @@ interface Skill {
   context?: "fork";
   agent?: string;
   hooks?: Record<string, unknown>;
+  license?: string;
 }
 ```
 
@@ -86,6 +87,7 @@ Invoke this skill when the user asks to deploy, release, or publish the applicat
 | `context` | `"fork"` | — | Set to `fork` to run the skill in an isolated context |
 | `agent` | string | — | Name of an agent to delegate to when this skill is invoked |
 | `hooks` | object | — | Inline [hook](/concepts/hooks) definitions for skill lifecycle (nested YAML) |
+| `license` | string | — | SPDX license identifier for skill distribution (Copilot only) |
 
 :::caution
 The `allowedTools` field uses **comma-separated** format (`Read, Grep, Glob`), not bracket/array syntax. This matches the SKILL.md frontmatter format that Claude Code expects.

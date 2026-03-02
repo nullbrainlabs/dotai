@@ -25,6 +25,9 @@ interface Agent {
   isolation?: "worktree";
   hooks?: Record<string, unknown>;
   mcpServers?: Record<string, unknown>;
+  disableModelInvocation?: boolean;
+  target?: "vscode" | "github-copilot";
+  metadata?: Record<string, string>;
 }
 ```
 
@@ -56,6 +59,9 @@ Agents are defined in `.ai/agents/*.md`. Each file is a Markdown document with a
 | `isolation` | `"worktree"` | — | Run the agent in an isolated git worktree |
 | `hooks` | object | — | Inline [hook](/concepts/hooks) definitions (nested YAML, passed through) |
 | `mcpServers` | object | — | Inline [MCP server](/concepts/tool-servers) definitions (nested YAML, passed through) |
+| `disableModelInvocation` | boolean | `false` | Disable model invocation for the agent (Copilot only) |
+| `target` | `"vscode" \| "github-copilot"` | — | Target environment for the agent (Copilot only) |
+| `metadata` | Record\<string, string\> | — | Metadata key-value pairs (Copilot only) |
 
 ### Example agent file
 
@@ -195,7 +201,7 @@ This structure serves both human readers and the agents that will be reading it.
 |--------|-------------|--------|-------|---------|
 | Location | `.claude/agents/*.md` | `.cursor/agents/*.md` | `.codex/config.toml` | `.github/agents/*.agent.md` |
 | Format | MD + frontmatter | MD + frontmatter | TOML config | MD + YAML frontmatter |
-| Model override | `model` frontmatter | `model` frontmatter | `model` TOML key | Not supported (warning) |
+| Model override | `model` frontmatter | `model` frontmatter | `model` TOML key | `model` frontmatter |
 | Read-only | `disallowedTools` | `readonly` frontmatter | `sandbox_mode` | `tools: [read, search]` |
 | Tool restrictions | `tools` / `disallowedTools` | Not supported | Limited | `tools` array (mapped aliases) |
 | Permission mode | `permissionMode` | Not supported | Not supported | Not supported |
@@ -205,7 +211,7 @@ This structure serves both human readers and the agents that will be reading it.
 | Background | `background` | `is_background` | Not supported | Not supported |
 | Isolation | `isolation` | Not supported | Not supported | Not supported |
 | Inline hooks | `hooks` | Not supported | Not supported | Not supported |
-| Inline MCP | `mcpServers` | Not supported | Not supported | Not supported |
+| Inline MCP | `mcpServers` | Not supported | Not supported | `mcp-servers` frontmatter |
 
 **Notes:**
 
@@ -216,5 +222,5 @@ This structure serves both human readers and the agents that will be reading it.
 ## Known limitations
 
 - **Codex**: No `readonly` equivalent. Read-only agents are emitted with `sandbox_mode = "read-only"`. Fields like `tools`, `disallowedTools`, `permissionMode`, `maxTurns`, `skills`, `memory`, `background`, `isolation`, `hooks`, and `mcpServers` are not supported.
-- **Copilot**: No model override support. If a `model` field is set, dotai emits a warning and drops the field from the Copilot output.
+- **Copilot**: Supports `model`, `tools`, `disableModelInvocation`, `target`, `metadata`, and inline `mcpServers`. Does not support `permissionMode`, `maxTurns`, `skills`, `memory`, `isolation`, or `hooks`.
 - **Cursor**: Does not support `tools`, `disallowedTools`, `permissionMode`, `maxTurns`, `skills`, `memory`, `isolation`, `hooks`, `mcpServers`, or `modelReasoningEffort`. These fields are ignored with warnings.

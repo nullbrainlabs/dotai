@@ -25,17 +25,17 @@ interface ToolServer {
 
 ## Configuration
 
-Tool servers are defined in the `servers` section of `.ai/config.yaml`:
+Tool servers are defined in the `mcpServers` section of `.ai/config.yaml` as a map keyed by server name:
 
 ```yaml
-servers:
-  - name: filesystem
+mcpServers:
+  filesystem:
     transport: stdio
     command: npx
     args: ["-y", "@modelcontextprotocol/server-filesystem"]
     scope: project
 
-  - name: github
+  github:
     transport: stdio
     command: npx
     args: ["-y", "@modelcontextprotocol/server-github"]
@@ -43,14 +43,14 @@ servers:
       GITHUB_TOKEN: "${GITHUB_TOKEN}"
     scope: project
 
-  - name: my-api
+  my-api:
     transport: http
     url: "https://api.example.com/mcp"
     headers:
       Authorization: "Bearer ${API_TOKEN}"
     scope: user
 
-  - name: oauth-api
+  oauth-api:
     transport: http
     url: "https://api.example.com/mcp"
     oauth:
@@ -76,8 +76,8 @@ The `sse` transport is deprecated. New server configurations should use `http` (
 The `headers` field allows setting custom HTTP headers for `http` and `sse` transports. This is useful for authentication tokens, API keys, or custom routing headers:
 
 ```yaml
-servers:
-  - name: authenticated-api
+mcpServers:
+  authenticated-api:
     transport: http
     url: "https://api.example.com/mcp"
     headers:
@@ -93,8 +93,8 @@ Headers are not applicable to `stdio` transport.
 The `oauth` field configures OAuth authentication for `http` and `sse` transports:
 
 ```yaml
-servers:
-  - name: oauth-protected
+mcpServers:
+  oauth-protected:
     transport: http
     url: "https://api.example.com/mcp"
     oauth:
@@ -118,8 +118,8 @@ Two mutually exclusive fields control which tools from a server are exposed to t
 Setting both fields on the same server is a validation error. If neither is set, all tools from the server are available.
 
 ```yaml
-servers:
-  - name: filesystem
+mcpServers:
+  filesystem:
     transport: stdio
     command: npx
     args: ["-y", "@modelcontextprotocol/server-filesystem"]

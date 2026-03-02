@@ -3,7 +3,7 @@ title: Importing Existing Configs
 description: How to import existing AI tool configurations into .ai/ format.
 ---
 
-Already using Claude Code, Cursor, Codex, or GitHub Copilot? The `import` command scans your existing configuration and converts it to `.ai/` format.
+Already using Claude Code, Cursor, or Codex? The `import` command scans your existing configuration and converts it to `.ai/` format.
 
 ## Usage
 
@@ -16,9 +16,9 @@ The command auto-detects which tools have configuration in your project and impo
 To import from a specific tool:
 
 ```bash
-dotai import --from claude-code
-dotai import --from cursor
-dotai import --from codex
+dotai import --source claude
+dotai import --source cursor
+dotai import --source codex
 ```
 
 ## What Gets Imported

@@ -1,12 +1,3 @@
-# Project Conventions
-
-- Follow existing code style and patterns
-- Write clear, descriptive commit messages
-- Keep functions focused and small
-- Add comments only where the logic isn't self-evident
-
----
-
 # dotai
 
 Configure once, generate for all AI coding tools.

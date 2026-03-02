@@ -16,6 +16,7 @@ dotai init [options]
 | `-t, --target <tools...>` | Target tools (claude, cursor, codex, copilot) |
 | `--skip-import` | Skip auto-detection of existing configs |
 | `--sync` | Run sync after init |
+| `--with-helpers` | Include dotai helper skills |
 
 Creates a starter `config.yaml` with a conventions rule and common ignore patterns.
 
@@ -29,9 +30,11 @@ dotai sync [options]
 
 | Option | Description |
 |--------|-------------|
-| `--force` | Overwrite files even if manually edited (conflicts detected) |
+| `-t, --target <tool>` | Target tool (claude, cursor, codex, copilot, all). Defaults to `all`. |
 | `--dry-run` | Show what would be generated without writing files |
-| `--target <tool>` | Only generate for a specific tool (claude-code, cursor, codex, copilot) |
+| `-s, --scope <scope>` | Config scope (`user` or `project`). Defaults to `project`. |
+| `--force` | Overwrite files even if manually edited (conflicts detected) |
+| `-y, --yes` | Skip confirmation prompt |
 
 Reads `.ai/` config, applies scope precedence, and writes output files for each target tool. Tracks content hashes in `.ai/.state.json` for conflict detection.
 
@@ -40,8 +43,12 @@ Reads `.ai/` config, applies scope precedence, and writes output files for each 
 Validate your `.ai/` configuration.
 
 ```bash
-dotai check
+dotai check [options]
 ```
+
+| Option | Description |
+|--------|-------------|
+| `-s, --scope <scope>` | Config scope (`user` or `project`). Defaults to `project`. |
 
 Checks for:
 - Valid YAML syntax in `config.yaml`
@@ -74,6 +81,26 @@ dotai import [options]
 
 | Option | Description |
 |--------|-------------|
-| `--from <tool>` | Import from a specific tool (claude-code, cursor, codex, copilot) |
+| `--source <tool>` | Import from a specific tool (claude, cursor, codex) |
 
 Auto-detects existing configurations and converts them to `.ai/` entities. See [Importing Existing Configs](/getting-started/importing) for details.
+
+## dotai add
+
+Scaffold a rule, agent, skill, or MCP server.
+
+```bash
+dotai add [type] [name]
+```
+
+| Argument | Description |
+|----------|-------------|
+| `type` | Entity type: `rule`, `agent`, `skill`, or `mcp` |
+| `name` | Name of the entity to create |
+
+| Option | Description |
+|--------|-------------|
+| `--command <cmd>` | MCP server command (stdio transport) |
+| `--url <url>` | MCP server URL (http/sse transport) |
+
+If `type` and `name` are omitted, the command runs interactively. For MCP servers, use `--command` for stdio-based servers or `--url` for HTTP/SSE servers.

@@ -3,21 +3,18 @@ title: config.yaml Schema
 description: Complete reference for the .ai/config.yaml configuration file.
 ---
 
-The `.ai/config.yaml` file is the main configuration for dotai. It defines targets, servers, hooks, permissions, settings, and ignore patterns.
+The `.ai/config.yaml` file is the main configuration for dotai. It defines MCP servers, hooks, permissions, settings, and ignore patterns.
+
+:::note
+Targets are not set in `config.yaml`. Use the `-t, --target` CLI flag on `dotai init` or `dotai sync` to specify which tools to generate for.
+:::
 
 ## Full schema
 
 ```yaml
-# Which tools to generate config for
-targets:
-  - claude-code
-  - cursor
-  - codex
-  - copilot
-
-# MCP tool servers
-servers:
-  - name: string              # Server identifier
+# MCP tool servers (keyed by name)
+mcpServers:
+  my-server:
     transport: stdio | http | sse
     command: string            # For stdio transport
     url: string                # For http/sse transport
@@ -45,6 +42,9 @@ hooks:
     once: boolean              # Fire only once per session
     async: boolean             # Run asynchronously (command type only)
     model: string              # Model override (prompt/agent type only)
+    cwd: string                # Working directory for hook execution
+    env:                       # Environment variables for hook execution
+      KEY: value
 
 # Access control
 permissions:
@@ -55,32 +55,32 @@ permissions:
 
 # Key-value settings
 settings:
-  - key: string
-    value: any                 # Tool-specific value
-    scope: enterprise | project | user | local
+  model: sonnet
+  temperature: 0.7
 
 # File exclusions
 ignore:
-  - pattern: string            # Gitignore-style glob
-    scope: project | user      # Only project and user scope allowed
+  - node_modules/**
+  - dist/**
+  - .env
 ```
 
-## Targets
-
-Valid target values:
-
-| Target | Tool |
-|--------|------|
-| `claude-code` | Claude Code |
-| `cursor` | Cursor |
-| `codex` | Codex |
-| `copilot` | GitHub Copilot |
-
-If `targets` is omitted, dotai generates for all four tools.
-
-## Servers
+## MCP Servers
 
 See [Tool Servers](/concepts/tool-servers) for the full reference.
+
+MCP servers are defined as a map keyed by server name:
+
+```yaml
+mcpServers:
+  my-server:
+    transport: stdio
+    command: npx
+    args: ["-y", "my-server"]
+  remote-search:
+    transport: http
+    url: https://search.example.com/mcp
+```
 
 Server transport types:
 
@@ -128,6 +128,8 @@ Hook-specific fields:
 | `once` | boolean | `false` | Fire only once per session |
 | `async` | boolean | `false` | Run asynchronously without blocking (command type only) |
 | `model` | string | — | Model override for prompt/agent types |
+| `cwd` | string | — | Working directory for hook execution |
+| `env` | Record | — | Environment variables for hook execution |
 
 ## Scope rules
 

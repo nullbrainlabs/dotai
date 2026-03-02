@@ -19,6 +19,8 @@ interface Hook {
   once?: boolean;
   async?: boolean;
   model?: string;
+  cwd?: string;
+  env?: Record<string, string>;
 }
 ```
 
@@ -128,6 +130,8 @@ Delegates the handler to a full agent invocation. The handler text becomes the a
 | `once` | boolean | No | `false` | When true, the hook fires only once per session |
 | `async` | boolean | No | `false` | When true, the hook runs asynchronously without blocking (command type only) |
 | `model` | string | No | — | Model override for prompt/agent hook evaluation (ignored for command type) |
+| `cwd` | string | No | — | Working directory for hook execution |
+| `env` | Record\<string, string\> | No | — | Environment variables for hook execution |
 
 ## Common patterns
 
@@ -215,11 +219,11 @@ Hook support varies across tools. Claude Code and Copilot have the broadest supp
 
 - **Claude Code** supports 17 of 20 events. `preFileEdit`, `postFileEdit`, and `errorOccurred` are not supported. Event names are translated to PascalCase (e.g. `userPromptSubmitted` → `UserPromptSubmit`, `agentStop` → `Stop`). Claude Code also supports the `type`, `timeout`, `statusMessage`, `once`, `async`, and `model` fields.
 - **Cursor** translates file-edit hooks into rule-triggered actions in `.cursor/rules/`. Only `preFileEdit` and `postFileEdit` map; all other events are dropped.
-- **Copilot** outputs hooks to `.github/hooks/dotai.hooks.json`. It supports 18 of 20 events — only `preFileEdit` and `postFileEdit` are not supported.
+- **Copilot** outputs hooks to `.github/hooks/hooks.json`. It supports 18 of 20 events — only `preFileEdit` and `postFileEdit` are not supported.
 
 ## Known limitations
 
 - **Codex**: No hook support. All hooks are silently dropped when emitting to Codex. If your workflow depends on hooks, Codex will not fire them.
 - **Cursor**: Only file-edit events (`preFileEdit`, `postFileEdit`) are emitted. Tool events, session events, and agent lifecycle events are dropped.
-- **Copilot**: File-edit hooks (`preFileEdit`, `postFileEdit`) are not supported. The remaining 18 events are emitted to `.github/hooks/dotai.hooks.json`. Advanced fields (`type`, `timeout`, `statusMessage`, `once`, `async`, `model`) are not supported by Copilot — only `command` and `matcher` are emitted.
+- **Copilot**: File-edit hooks (`preFileEdit`, `postFileEdit`) are not supported. The remaining 18 events are emitted to `.github/hooks/hooks.json`. Advanced fields (`type`, `timeout`, `statusMessage`, `once`, `async`, `model`) are not supported by Copilot — only `command` and `matcher` are emitted.
 - **Hook types**: Only Claude Code supports the `prompt` and `agent` hook types. Other tools treat all hooks as shell commands.

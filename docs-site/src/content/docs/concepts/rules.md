@@ -27,6 +27,7 @@ Create rules by adding Markdown files to `.ai/rules/`. Each file becomes one rul
 | `description` | `string` | `undefined` | Human-readable summary, used in some tool formats |
 | `outputDir` | `string` | `undefined` | Subdirectory for the emitted file (e.g. `docs-site` → `docs-site/CLAUDE.md`) |
 | `override` | `boolean` | `false` | Emit to `AGENTS.override.md` instead of `AGENTS.md` (Codex only) |
+| `excludeAgent` | `"code-review" \| "coding-agent"` | `undefined` | Exclude from a specific Copilot agent (Copilot only) |
 
 ### TypeScript interface
 
@@ -39,6 +40,7 @@ interface Rule {
   description?: string;
   outputDir?: string;
   override?: boolean;
+  excludeAgent?: "code-review" | "coding-agent";
 }
 ```
 
