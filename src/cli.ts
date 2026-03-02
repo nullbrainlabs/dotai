@@ -28,14 +28,23 @@ program
 	.option("-t, --target <tools...>", "Target tools (claude, cursor, codex, copilot)")
 	.option("--skip-import", "Skip auto-detection of existing configs", false)
 	.option("--sync", "Run sync after init", false)
-	.action(async (opts: { target?: string[]; skipImport: boolean; sync: boolean }) => {
-		const initOpts: InitOptions = {
-			targets: opts.target as TargetTool[] | undefined,
-			skipImport: opts.skipImport,
-			autoSync: opts.sync,
-		};
-		await runInit(process.cwd(), initOpts);
-	});
+	.option("--with-helpers", "Include dotai helper skills", false)
+	.action(
+		async (opts: {
+			target?: string[];
+			skipImport: boolean;
+			sync: boolean;
+			withHelpers: boolean;
+		}) => {
+			const initOpts: InitOptions = {
+				targets: opts.target as TargetTool[] | undefined,
+				skipImport: opts.skipImport,
+				autoSync: opts.sync,
+				includeHelpers: opts.withHelpers,
+			};
+			await runInit(process.cwd(), initOpts);
+		},
+	);
 
 program
 	.command("import")

@@ -1,5 +1,7 @@
 import type { ProjectConfig } from "../config/schema.js";
 
+export { helperSkills } from "./helper-skills.js";
+
 /** Default starter config — conventions rule + common ignore patterns. */
 export function defaultConfig(): ProjectConfig {
 	return {

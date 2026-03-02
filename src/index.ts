@@ -107,4 +107,4 @@ export type { FileStatus, FileStatusEntry, SyncState } from "./state.js";
 export { contentHash, diffFiles, loadState, saveState } from "./state.js";
 
 // Templates
-export { defaultConfig } from "./templates/index.js";
+export { defaultConfig, helperSkills } from "./templates/index.js";

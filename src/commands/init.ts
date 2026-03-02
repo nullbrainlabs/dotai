@@ -4,7 +4,7 @@ import type { TargetTool } from "../emitters/types.js";
 import { runImport } from "../import/runner.js";
 import { scanForConfigs } from "../import/scanner.js";
 import { writeProjectConfig } from "../import/writer.js";
-import { defaultConfig } from "../templates/index.js";
+import { defaultConfig, helperSkills } from "../templates/index.js";
 import { cancelGuard, confirm, intro, isTTY, multiselect, outro } from "../tui.js";
 import { runSync } from "./sync.js";
 
@@ -13,6 +13,7 @@ export interface InitOptions {
 	targets?: TargetTool[];
 	skipImport?: boolean;
 	autoSync?: boolean;
+	includeHelpers?: boolean;
 }
 
 /** Scaffold a new `.ai/` directory with guided setup or flags. */
@@ -51,8 +52,19 @@ async function interactiveInit(projectDir: string, options?: InitOptions): Promi
 		}),
 	) as TargetTool[];
 
+	// Include helper skills?
+	const includeHelpers = cancelGuard(
+		await confirm({
+			message: "Include dotai helper skills? (add-skill, add-rule, add-agent, add-mcp)",
+			initialValue: true,
+		}),
+	);
+
 	// Build and write default config
 	const config = defaultConfig();
+	if (includeHelpers) {
+		config.skills.push(...helperSkills());
+	}
 	const written = await writeProjectConfig(aiDir, config);
 	console.log("\n  \x1b[32m✓\x1b[0m Created .ai/");
 	for (const f of written) {
@@ -98,6 +110,9 @@ async function interactiveInit(projectDir: string, options?: InitOptions): Promi
 async function nonInteractiveInit(projectDir: string, options?: InitOptions): Promise<void> {
 	const aiDir = join(projectDir, ".ai");
 	const config = defaultConfig();
+	if (options?.includeHelpers) {
+		config.skills.push(...helperSkills());
+	}
 	const written = await writeProjectConfig(aiDir, config);
 
 	console.log("\x1b[32m✓\x1b[0m Initialized .ai/");

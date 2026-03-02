@@ -56,4 +56,34 @@ describe("runInit", () => {
 
 		expect(existsSync(join(TMP_DIR, "CLAUDE.md"))).toBe(true);
 	});
+
+	it("creates helper skill directories with includeHelpers", async () => {
+		const { mkdirSync } = await import("node:fs");
+		mkdirSync(TMP_DIR, { recursive: true });
+
+		await runInit(TMP_DIR, { skipImport: true, includeHelpers: true });
+
+		const skillsDir = join(TMP_DIR, ".ai", "skills");
+		expect(existsSync(join(skillsDir, "add-skill", "SKILL.md"))).toBe(true);
+		expect(existsSync(join(skillsDir, "add-rule", "SKILL.md"))).toBe(true);
+		expect(existsSync(join(skillsDir, "add-agent", "SKILL.md"))).toBe(true);
+		expect(existsSync(join(skillsDir, "add-mcp", "SKILL.md"))).toBe(true);
+
+		const content = await readFile(join(skillsDir, "add-skill", "SKILL.md"), "utf-8");
+		expect(content).toContain("Skill Creator");
+		expect(content).toContain("disableAutoInvocation");
+	});
+
+	it("does not create helper skills by default", async () => {
+		const { mkdirSync } = await import("node:fs");
+		mkdirSync(TMP_DIR, { recursive: true });
+
+		await runInit(TMP_DIR, { skipImport: true });
+
+		const skillsDir = join(TMP_DIR, ".ai", "skills");
+		expect(existsSync(join(skillsDir, "add-skill"))).toBe(false);
+		expect(existsSync(join(skillsDir, "add-rule"))).toBe(false);
+		expect(existsSync(join(skillsDir, "add-agent"))).toBe(false);
+		expect(existsSync(join(skillsDir, "add-mcp"))).toBe(false);
+	});
 });
