@@ -396,24 +396,7 @@ description: Security rules
 		expect(copilotSkill).toContain("# Deploy");
 	});
 
-	// ── Step 13: gitignore auto-update ──────────────────────────────
-
-	it("gitignore contains dotai output patterns", async () => {
-		const gitignore = await readFile(join(PROJECT, ".gitignore"), "utf-8");
-		expect(gitignore).toContain("# dotai outputs");
-		expect(gitignore).toContain(".ai/.state.json");
-		expect(gitignore).toContain(".claude/");
-		expect(gitignore).toContain(".cursor/");
-		expect(gitignore).toContain(".codex/");
-		expect(gitignore).toContain(".github/");
-		expect(gitignore).toContain(".vscode/");
-		expect(gitignore).toContain("CLAUDE.md");
-		expect(gitignore).toContain("AGENTS.md");
-		expect(gitignore).toContain(".mcp.json");
-		expect(gitignore).toContain(".cursorignore");
-	});
-
-	// ── Step 14: outputDir nesting ──────────────────────────────────
+	// ── Step 13: outputDir nesting ──────────────────────────────────
 
 	it("outputDir nests generated files in subdirectory", async () => {
 		await writeFile(
@@ -453,11 +436,6 @@ Keep documentation current with code changes.
 			"utf-8",
 		);
 		expect(docsCopilot).toContain("Keep documentation current");
-
-		// Gitignore should include nested patterns
-		const gitignore = await readFile(join(PROJECT, ".gitignore"), "utf-8");
-		expect(gitignore).toContain("docs-site/CLAUDE.md");
-		expect(gitignore).toContain("docs-site/AGENTS.md");
 	});
 
 	// ── Step 15: orphaned file detection ────────────────────────────

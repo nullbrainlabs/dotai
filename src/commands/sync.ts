@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { loadMergedConfig, loadProjectConfig } from "../config/loader.js";
@@ -174,10 +174,6 @@ export async function runSync(projectDir: string, options: SyncOptions): Promise
 		// Save state for conflict detection (track all files, not just written ones)
 		if (!isUserScope) {
 			await saveState(projectDir, mergedFiles);
-			const added = await updateGitignore(projectDir, mergedFiles);
-			if (added > 0) {
-				console.log(`  Updated .gitignore (+${added} entr${added === 1 ? "y" : "ies"})`);
-			}
 		}
 
 		printSyncSummary(config, targets, perTarget, filesToWrite.length);
@@ -330,80 +326,4 @@ function printStatusTable(
 		console.log(`  ${color}${outputPath.padEnd(40)}${entry.status}${suffix}${reset}`);
 	}
 	console.log("");
-}
-
-const GITIGNORE_HEADER = "# dotai outputs";
-
-/**
- * Derive gitignore patterns from emitted file paths.
- * - Dot-directories at root → dir pattern (`.claude/`)
- * - Dot-directories under outputDir → prefixed dir pattern (`docs-site/.claude/`)
- * - Root-level files → exact match (`CLAUDE.md`)
- * - Always includes `.ai/.state.json`
- */
-export function deriveGitignorePatterns(files: EmittedFile[]): string[] {
-	const patterns = new Set<string>();
-	patterns.add(".ai/.state.json");
-
-	for (const file of files) {
-		const parts = file.path.split("/");
-
-		// Find the first dot-directory segment
-		const dotDirIdx = parts.findIndex((p) => p.startsWith("."));
-
-		if (dotDirIdx >= 0 && parts.length > dotDirIdx + 1) {
-			// It's a file inside a dot-directory — use the dir pattern
-			const prefix = parts.slice(0, dotDirIdx + 1).join("/");
-			patterns.add(`${prefix}/`);
-		} else {
-			// Root-level file (possibly under an outputDir prefix)
-			patterns.add(file.path);
-		}
-	}
-
-	return [...patterns].sort();
-}
-
-/**
- * Update .gitignore with patterns for emitted files.
- * Returns the number of new entries added.
- */
-export async function updateGitignore(projectDir: string, files: EmittedFile[]): Promise<number> {
-	const patterns = deriveGitignorePatterns(files);
-	if (patterns.length === 0) return 0;
-
-	const gitignorePath = join(projectDir, ".gitignore");
-	let existing = "";
-	try {
-		existing = await readFile(gitignorePath, "utf-8");
-	} catch {
-		// File doesn't exist yet — that's fine
-	}
-
-	// Determine which patterns are already present
-	const existingLines = existing.split("\n");
-	const newPatterns = patterns.filter((p) => !existingLines.includes(p));
-
-	if (newPatterns.length === 0) return 0;
-
-	// Check if our header block already exists
-	const headerIdx = existingLines.indexOf(GITIGNORE_HEADER);
-	if (headerIdx >= 0) {
-		// Append new patterns after the existing block
-		// Find the end of our block (next blank line or EOF)
-		let insertIdx = headerIdx + 1;
-		while (insertIdx < existingLines.length && existingLines[insertIdx].trim() !== "") {
-			insertIdx++;
-		}
-		existingLines.splice(insertIdx, 0, ...newPatterns);
-		await writeFile(gitignorePath, existingLines.join("\n"), "utf-8");
-	} else {
-		// Append a new block
-		const trailingNewline = existing.endsWith("\n") || existing === "";
-		const separator = existing === "" ? "" : trailingNewline ? "\n" : "\n\n";
-		const block = `${GITIGNORE_HEADER}\n${newPatterns.join("\n")}\n`;
-		await writeFile(gitignorePath, `${existing}${separator}${block}`, "utf-8");
-	}
-
-	return newPatterns.length;
 }
