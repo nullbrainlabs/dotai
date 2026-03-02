@@ -47,6 +47,7 @@ async function interactiveInit(projectDir: string, options?: InitOptions): Promi
 				{ value: "claude", label: "Claude Code" },
 				{ value: "cursor", label: "Cursor" },
 				{ value: "codex", label: "Codex" },
+				{ value: "copilot", label: "GitHub Copilot" },
 			],
 			required: true,
 		}),
