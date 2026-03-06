@@ -1,0 +1,61 @@
+name: Spec Monitor
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Weekly, Monday 9am UTC
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  check-specs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_tools: "Read,Glob,Grep,WebSearch,WebFetch,Bash(gh issue create:*),Bash(gh issue list:*)"
+          prompt: |
+            You are the spec monitor. Your job is to check each target tool's spec for drift against official documentation.
+
+            ## Process
+
+            1. Read each research config: `specs/claude-code.research.json`, `specs/cursor.research.json`, `specs/codex.research.json`, `specs/copilot.research.json`
+            2. For each tool:
+               a. Read the current spec file listed in the research config
+               b. Fetch each URL listed in the `docs` array
+               c. Compare the fetched docs against the current spec
+               d. Note any meaningful differences: new config fields, changed formats, deprecated features, new capabilities
+            3. Skip cosmetic or documentation-only changes (rewording, typo fixes)
+
+            ## Reporting
+
+            - If NO meaningful changes are detected for any tool, exit silently. Do not create an issue.
+            - If changes ARE detected, first check for an existing open issue:
+              `gh issue list --label spec-drift --state open --limit 10`
+              If one exists, skip creating a duplicate.
+            - Otherwise, create a single GitHub issue:
+
+            ```
+            gh issue create \
+              --label "spec-drift" \
+              --title "Spec drift detected: <tool1>, <tool2>" \
+              --body "<body>"
+            ```
+
+            The body should contain:
+            - A summary of what changed per tool (### heading per tool)
+            - Links to the relevant doc pages
+            - A resolution checklist:
+              - [ ] Review spec changes for each affected tool
+              - [ ] Identify affected emitters
+              - [ ] Update specs with `@claude /sync-spec-from-docs <tool>`
+              - [ ] Update emitter output with `@claude /update-emitter`
+              - [ ] Run `pnpm test -- --update` then `pnpm test`
+              - [ ] Verify no regressions

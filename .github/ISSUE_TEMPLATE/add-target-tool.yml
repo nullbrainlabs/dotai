@@ -1,0 +1,56 @@
+name: Add Target Tool
+description: Add support for a new AI coding tool target
+labels: ["enhancement"]
+body:
+  - type: input
+    id: tool-name
+    attributes:
+      label: Tool Name
+      description: Name of the AI coding tool to add (e.g. "windsurf", "aider")
+      placeholder: tool-name
+    validations:
+      required: true
+
+  - type: textarea
+    id: doc-urls
+    attributes:
+      label: Documentation URLs
+      description: Links to the tool's official configuration documentation
+      placeholder: |
+        https://docs.example.com/config
+        https://docs.example.com/rules
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Implementation Checklist
+      description: Phased checklist — each item can be completed independently with @claude
+      value: |
+        ### Phase 1: Research & Spec
+        - [ ] Create `specs/<tool>.md` with config format documentation
+        - [ ] Create `specs/<tool>.research.json` with doc URLs and emitter mappings
+
+        ### Phase 2: Core Plumbing
+        - [ ] Add to `TargetTool` enum in `src/emitters/types.ts`
+        - [ ] Add output directory to `USER_OUTPUT_DIRS` in `src/commands/sync.ts`
+        - [ ] Add display label to `TARGET_LABELS` in `src/commands/sync.ts`
+        - [ ] Add as selectable target in `src/commands/init.ts`
+
+        ### Phase 3: Emitters
+        - [ ] `src/emitters/rules/<tool>.ts` — rules emitter
+        - [ ] `src/emitters/skills/<tool>.ts` — skills emitter
+        - [ ] `src/emitters/agents/<tool>.ts` — agents emitter
+        - [ ] `src/emitters/mcp/<tool>.ts` — MCP server emitter
+        - [ ] `src/emitters/permissions/<tool>.ts` — permissions emitter
+        - [ ] `src/emitters/hooks/<tool>.ts` — hooks emitter
+        - [ ] Register switch cases in each emitter's `index.ts`
+
+        ### Phase 4: Tests
+        - [ ] Add test files for each emitter submodule
+        - [ ] Run `pnpm test -- --update` to generate snapshots
+        - [ ] Run `pnpm test` to verify all pass
+        - [ ] Run `pnpm typecheck` to verify no type errors
+
+        ### Phase 5: Docs
+        - [ ] Update README with the new target
+        - [ ] Run `pnpm dev sync` to regenerate tool configs

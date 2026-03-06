@@ -1,0 +1,43 @@
+name: Handle Spec Drift
+description: Resolve spec drift detected by the spec monitor or manual review
+labels: ["spec-drift"]
+body:
+  - type: textarea
+    id: tools-affected
+    attributes:
+      label: Affected Tools
+      description: Which target tools have spec drift
+      placeholder: |
+        - claude-code
+        - cursor
+
+  - type: textarea
+    id: changes-summary
+    attributes:
+      label: Changes Summary
+      description: What changed in the official docs
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Resolution Checklist
+      description: Each item can be completed independently with @claude
+      value: |
+        ### Review
+        - [ ] Review spec changes against official documentation
+        - [ ] Identify affected emitters for each tool
+
+        ### Update Specs
+        - [ ] Update `specs/<tool>.md` with new config format details
+        - [ ] Update `specs/<tool>.research.json` version and notes
+
+        ### Update Emitters
+        - [ ] Assess impact on each affected emitter
+        - [ ] Apply emitter changes following the update-emitter skill pattern
+        - [ ] Check cross-target impact (same entity, different tools)
+
+        ### Verify
+        - [ ] Run `pnpm test -- --update` and review snapshot diffs
+        - [ ] Run `pnpm test` to confirm all pass
+        - [ ] Run `pnpm typecheck` for type safety
+        - [ ] Run `pnpm dev sync` to regenerate tool configs

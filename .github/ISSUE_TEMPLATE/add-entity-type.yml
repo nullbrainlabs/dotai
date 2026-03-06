@@ -1,0 +1,43 @@
+name: Add Entity Type
+description: Add a new domain entity type to dotai
+labels: ["enhancement"]
+body:
+  - type: input
+    id: entity-name
+    attributes:
+      label: Entity Name
+      description: Singular name for the entity (e.g. "template", "workflow")
+      placeholder: entity-name
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What this entity represents and how it will be used
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Implementation Checklist
+      description: Phased checklist — each item can be completed independently with @claude
+      value: |
+        ### Phase 1: Domain
+        - [ ] Create `src/domain/<entity>.ts` — interface with JSDoc
+        - [ ] Add `create<Entity>()` factory in `src/domain/factories.ts`
+        - [ ] Add `is<Entity>()` type guard in `src/domain/type-guards.ts`
+        - [ ] Re-export from `src/domain/index.ts`
+
+        ### Phase 2: Config
+        - [ ] Add field to `ProjectConfig` in `src/config/schema.ts`
+        - [ ] Update `emptyConfig()` in `src/config/schema.ts`
+        - [ ] Update `mergeConfigs()` in `src/config/schema.ts`
+        - [ ] Update `validateConfig()` in `src/config/schema.ts`
+        - [ ] Add loading logic in `src/config/loader.ts`
+
+        ### Phase 3: Tests
+        - [ ] Add factory + type guard tests in `tests/domain.test.ts`
+        - [ ] Add loader tests in `tests/config/loader.test.ts`
+        - [ ] Run `pnpm typecheck` — TypeScript catches missing touchpoints
+        - [ ] Run `pnpm test` to verify all pass
