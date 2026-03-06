@@ -46,11 +46,15 @@ jobs:
 
             ## Process
 
-            1. Read `specs/${{ matrix.tool }}.research.json` for doc URLs and current spec path
+            1. Read `specs/${{ matrix.tool }}.research.json` for doc URLs, `llmsTxt` URL, and current spec path
             2. Read the current spec file
-            3. Fetch each URL in the `docs` array and compare against the spec
-            4. Note meaningful differences: new config fields, changed formats, deprecated features, new capabilities
-            5. Skip cosmetic or documentation-only changes (rewording, typo fixes)
+            3. For each URL in the `docs` array, try to fetch it with WebFetch
+               - If a URL returns 403/blocked, fetch the `llmsTxt` URL from the research config to discover current doc URLs
+               - Use the llms.txt index to find replacement URLs for any blocked docs
+               - As a last resort, fall back to WebSearch for the tool name + "configuration"
+            4. Compare fetched content against the current spec
+            5. Note meaningful differences: new config fields, changed formats, deprecated features, new capabilities
+            6. Skip cosmetic or documentation-only changes (rewording, typo fixes)
 
             ## Reporting
 

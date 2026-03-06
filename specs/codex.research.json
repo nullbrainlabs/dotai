@@ -2,9 +2,16 @@
 	"tool": "codex",
 	"lastResearchedVersion": "Codex CLI 0.1",
 	"spec": "specs/codex.md",
+	"llmsTxt": "https://developers.openai.com/codex/llms.txt",
 	"docs": [
-		"https://openai.com/index/introducing-codex/",
-		"https://platform.openai.com/docs/guides/codex"
+		"https://developers.openai.com/codex/config-reference.md",
+		"https://developers.openai.com/codex/config-advanced.md",
+		"https://developers.openai.com/codex/rules.md",
+		"https://developers.openai.com/codex/skills.md",
+		"https://developers.openai.com/codex/mcp.md",
+		"https://developers.openai.com/codex/security.md",
+		"https://developers.openai.com/codex/multi-agent.md",
+		"https://developers.openai.com/codex/guides/agents-md.md"
 	],
 	"emitters": [
 		"src/emitters/rules.ts",

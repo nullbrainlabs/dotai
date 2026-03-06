@@ -2,6 +2,7 @@
 	"tool": "copilot",
 	"lastResearchedVersion": "GitHub Copilot (Coding Agent, Feb 2026)",
 	"spec": "specs/copilot.md",
+	"llmsTxt": "https://docs.github.com/llms.txt",
 	"docs": [
 		"https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions",
 		"https://docs.github.com/en/copilot/customizing-copilot/using-copilot-coding-agent",

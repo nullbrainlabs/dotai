@@ -25,7 +25,8 @@ Each tool has a `specs/<tool>.research.json` with:
   "tool": "cursor",
   "lastResearchedVersion": "Cursor 0.48",
   "spec": "specs/cursor.md",
-  "docs": ["https://docs.cursor.com/..."],
+  "llmsTxt": "https://cursor.com/llms.txt",
+  "docs": ["https://cursor.com/docs/rules.md", "..."],
   "emitters": ["src/emitters/rules.ts", "src/emitters/agents.ts"],
   "outputPaths": {
     "rules": ".cursor/rules/<slug>.mdc",
@@ -40,6 +41,8 @@ Each tool has a `specs/<tool>.research.json` with:
 1. Read `specs/<tool>.research.json` for the tool you're researching
 2. Read the existing spec file listed in the config
 3. For each URL in `docs`, fetch and review for changes
+   - If a doc URL is blocked (403/404), fetch the `llmsTxt` URL to discover current doc URLs
+   - Use the llms.txt index to find replacement URLs, then update the `docs` array in the research config
 4. Read each emitter file in `emitters` to understand current dotai output
 5. Compare documented capabilities against the spec
 6. For each difference found:

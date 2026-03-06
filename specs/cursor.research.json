@@ -2,11 +2,16 @@
 	"tool": "cursor",
 	"lastResearchedVersion": "Cursor 0.48",
 	"spec": "specs/cursor.md",
+	"llmsTxt": "https://cursor.com/llms.txt",
 	"docs": [
-		"https://docs.cursor.com/context/rules",
-		"https://docs.cursor.com/context/agents",
-		"https://docs.cursor.com/context/mcp",
-		"https://docs.cursor.com/context/ignore"
+		"https://cursor.com/docs/rules.md",
+		"https://cursor.com/docs/subagents.md",
+		"https://cursor.com/docs/skills.md",
+		"https://cursor.com/docs/hooks.md",
+		"https://cursor.com/docs/mcp.md",
+		"https://cursor.com/help/customization/ignore-files.md",
+		"https://cursor.com/docs/cli/reference/configuration.md",
+		"https://cursor.com/docs/cli/reference/permissions.md"
 	],
 	"emitters": [
 		"src/emitters/rules.ts",
