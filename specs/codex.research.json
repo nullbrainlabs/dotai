@@ -1,0 +1,38 @@
+{
+	"tool": "codex",
+	"lastResearchedVersion": "Codex CLI 0.1",
+	"spec": "specs/codex.md",
+	"docs": [
+		"https://openai.com/index/introducing-codex/",
+		"https://platform.openai.com/docs/guides/codex"
+	],
+	"emitters": [
+		"src/emitters/rules.ts",
+		"src/emitters/agents.ts",
+		"src/emitters/skills.ts",
+		"src/emitters/hooks.ts",
+		"src/emitters/mcp.ts",
+		"src/emitters/permissions.ts"
+	],
+	"outputPaths": {
+		"rules": "AGENTS.md, AGENTS.override.md",
+		"agents": ".codex/config.toml + .codex/agents/<name>.toml",
+		"skills": ".codex/skills/<name>/SKILL.md",
+		"mcp": ".codex/config.toml (mcp_servers sections)",
+		"permissions": ".codex/config.toml (approval_policy)",
+		"ignore": ".codex/config.toml (protected_paths)"
+	},
+	"notes": [
+		"All config is TOML-based (.codex/config.toml), not JSON",
+		"AGENTS.md has 32 KiB size limit (project_doc_max_bytes default)",
+		"AGENTS.md is plain Markdown with no frontmatter — appliesTo is informational only",
+		"AGENTS.override.md for higher-priority instructions (override flag)",
+		"Agent config is split: registry in config.toml, details in per-agent .toml files",
+		"Multi-line strings use TOML triple-quote syntax",
+		"Permissions are lossy — per-tool granularity reduced to single approval_policy",
+		"No hooks support — hooks produce warnings and are skipped",
+		"MCP shares config.toml with other settings — dotai merges outputs",
+		"enabledTools/disabledTools not supported for MCP servers",
+		"OpenAI frequently updates Codex — format may change significantly"
+	]
+}

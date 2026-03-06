@@ -1,0 +1,48 @@
+{
+	"tool": "copilot",
+	"lastResearchedVersion": "GitHub Copilot (Coding Agent, Feb 2026)",
+	"spec": "specs/copilot.md",
+	"docs": [
+		"https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions",
+		"https://docs.github.com/en/copilot/customizing-copilot/using-copilot-coding-agent",
+		"https://docs.github.com/en/copilot/customizing-copilot/extending-copilot-coding-agent-with-mcp",
+		"https://docs.github.com/en/copilot/customizing-copilot/creating-custom-agents",
+		"https://docs.github.com/en/copilot/customizing-copilot/adding-copilot-skills",
+		"https://docs.github.com/en/copilot/customizing-copilot/configuring-copilot-hooks"
+	],
+	"emitters": [
+		"src/emitters/rules.ts",
+		"src/emitters/agents.ts",
+		"src/emitters/skills.ts",
+		"src/emitters/hooks.ts",
+		"src/emitters/mcp.ts",
+		"src/emitters/permissions.ts"
+	],
+	"outputPaths": {
+		"rules": ".github/copilot-instructions.md, .github/instructions/<slug>.instructions.md",
+		"agents": ".github/agents/<name>.agent.md",
+		"skills": ".github/skills/<name>/SKILL.md",
+		"hooks": ".github/hooks/hooks.json",
+		"mcp": ".vscode/mcp.json",
+		"permissions": null,
+		"ignore": null
+	},
+	"notes": [
+		"VS Code MCP uses 'servers' key (NOT 'mcpServers') — different from Claude/Cursor",
+		"VS Code MCP requires explicit 'type' field on all entries",
+		"VS Code MCP supports 'inputs' array for user-prompted values",
+		"Coding Agent MCP is configured in GitHub repo settings (web UI), not a file",
+		"hooks.json requires 'version: 1' at top level",
+		"Hook entries use 'bash' field (not 'command'), 'timeoutSec' (not 'timeout' in ms)",
+		"Only 'command' hook type supported (no 'prompt' or 'agent')",
+		"Hook events are camelCase (preToolUse, not PreToolUse)",
+		"Agent files use .agent.md extension",
+		"Agent tools use aliases (read, edit, execute, search, agent, web)",
+		"Skills only support name, description, license — all other fields are over-emitting",
+		"Rules: excludeAgent frontmatter ('code-review' | 'coding-agent')",
+		"No file-based permissions — CLI flags only",
+		"No file-based ignore — web UI content exclusion only",
+		"Copilot evolves rapidly — check docs monthly",
+		"Detailed gap analysis in .ai/research/copilot-capabilities.md"
+	]
+}

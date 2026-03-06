@@ -1,0 +1,38 @@
+{
+	"tool": "cursor",
+	"lastResearchedVersion": "Cursor 0.48",
+	"spec": "specs/cursor.md",
+	"docs": [
+		"https://docs.cursor.com/context/rules",
+		"https://docs.cursor.com/context/agents",
+		"https://docs.cursor.com/context/mcp",
+		"https://docs.cursor.com/context/ignore"
+	],
+	"emitters": [
+		"src/emitters/rules.ts",
+		"src/emitters/agents.ts",
+		"src/emitters/skills.ts",
+		"src/emitters/hooks.ts",
+		"src/emitters/mcp.ts",
+		"src/emitters/permissions.ts"
+	],
+	"outputPaths": {
+		"rules": ".cursor/rules/<slug>.mdc",
+		"agents": ".cursor/agents/<name>.md",
+		"skills": ".cursor/skills/<name>/SKILL.md",
+		"mcp": ".cursor/mcp.json",
+		"permissions": ".cursor/cli.json",
+		"ignore": ".cursorignore"
+	},
+	"notes": [
+		"Rules use .mdc extension (Markdown Cursor), not .md",
+		"Rules frontmatter uses 'globs' (comma-separated string), not 'paths' (YAML array)",
+		"Agent support is limited — no tools, hooks, mcpServers, permissionMode fields",
+		"Cursor uses 'is_background' for background agents (not 'background')",
+		"MCP format matches Claude Code (.mcp.json style with mcpServers key)",
+		"Permissions only support allow/deny — no 'ask' decision",
+		"No hooks support at all — hooks produce warnings and are skipped",
+		"Cursor updates frequently — doc URLs may change",
+		"Skills may use same format as Claude Code but verify support level"
+	]
+}

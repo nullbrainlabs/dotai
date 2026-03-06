@@ -11,6 +11,9 @@ export default defineConfig({
 				PageTitle: "./src/components/PageTitle.astro",
 				SiteTitle: "./src/components/SiteTitle.astro",
 			},
+			editLink: {
+				baseUrl: "https://github.com/nullbrainlabs/dotai/edit/main/docs-site/",
+			},
 			description:
 				"One config, every AI coding tool. Unified configuration for Claude Code, Cursor, Codex, and GitHub Copilot.",
 			sidebar: [

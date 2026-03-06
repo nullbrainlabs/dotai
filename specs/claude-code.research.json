@@ -1,0 +1,41 @@
+{
+	"tool": "claude-code",
+	"lastResearchedVersion": "Claude Code 1.0 (CLI)",
+	"spec": "specs/claude-code.md",
+	"docs": [
+		"https://docs.anthropic.com/en/docs/claude-code",
+		"https://docs.anthropic.com/en/docs/claude-code/settings",
+		"https://docs.anthropic.com/en/docs/claude-code/mcp",
+		"https://docs.anthropic.com/en/docs/claude-code/hooks",
+		"https://docs.anthropic.com/en/docs/claude-code/agents",
+		"https://docs.anthropic.com/en/docs/claude-code/skills"
+	],
+	"emitters": [
+		"src/emitters/rules.ts",
+		"src/emitters/agents.ts",
+		"src/emitters/skills.ts",
+		"src/emitters/hooks.ts",
+		"src/emitters/mcp.ts",
+		"src/emitters/permissions.ts"
+	],
+	"outputPaths": {
+		"rules": "CLAUDE.md, CLAUDE.local.md, .claude/rules/<slug>.md",
+		"agents": ".claude/agents/<name>.md",
+		"skills": ".claude/skills/<name>/SKILL.md",
+		"hooks": ".claude/settings.json (hooks key)",
+		"mcp": ".mcp.json",
+		"permissions": ".claude/settings.json (permissions key)",
+		"ignore": ".claude/settings.json (deny rules on Read/Edit)"
+	},
+	"notes": [
+		"Claude Code is the primary/reference target — most dotai fields map 1:1",
+		"Model names use aliases (sonnet, opus, haiku) not full model IDs",
+		"Hook events use PascalCase (PreToolUse) unlike other tools (camelCase)",
+		"SSE transport is deprecated — warn users to migrate to HTTP",
+		"CLAUDE.md files concatenate when multiple rules share the same outputDir",
+		"Scoped rules use YAML paths: frontmatter in .claude/rules/",
+		"Ignore patterns are lossy — mapped to deny rules on Read/Edit tools",
+		"Hook handler supports 3 types: command, prompt, agent",
+		"settings.json has $schema reference for validation"
+	]
+}
