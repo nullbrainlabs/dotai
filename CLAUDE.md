@@ -1,3 +1,28 @@
+# Architecture Decision Records
+
+When you make a design decision that affects project conventions, architecture, or tool choices — and the rationale isn't obvious from the code alone — record it as an ADR using the `/add-decision` skill.
+
+Signs you should record a decision:
+
+- Choosing between two or more reasonable alternatives
+- Establishing a new pattern or convention
+- Changing or reversing an existing convention
+- Adding or removing a dependency
+- Changing the build, test, or deployment pipeline
+
+Do not record routine implementation choices (variable names, minor refactors, straightforward bug fixes).
+
+---
+
+# Project Conventions
+
+- Follow existing code style and patterns
+- Write clear, descriptive commit messages
+- Keep functions focused and small
+- Add comments only where the logic isn't self-evident
+
+---
+
 # dotai
 
 Configure once, generate for all AI coding tools.
@@ -30,7 +55,6 @@ pnpm lint         # biome check src tests
 pnpm lint:fix     # biome check --write src tests
 pnpm typecheck    # tsc --noEmit
 pnpm dev          # tsx src/cli.ts
-pnpm test -- --update  # regenerate contract snapshots after intentional emitter changes
 ```
 
 ## Conventions
@@ -79,10 +103,6 @@ pnpm test -- --update  # regenerate contract snapshots after intentional emitter
 1. Create `src/emitters/<entity-plural>.ts` implementing `Emitter`
 2. Export from `src/emitters/index.ts`
 3. Register in `EMITTERS` array in `src/commands/sync.ts`
-
-### Modify an emitter
-
-After modifying an emitter, contract tests (`tests/contracts/`) will fail if output changed. Run `pnpm test -- --update` and review the snapshot diff.
 
 ### Add a new target tool
 
