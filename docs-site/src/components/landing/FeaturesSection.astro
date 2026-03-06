@@ -1,17 +1,8 @@
 ---
 const features = [
 	{
-		title: "Source of Truth",
-		desc: "Define rules, skills, agents, MCP servers, hooks, and permissions in one .ai/ directory.",
-		frames: [
-			"┌────────┐\n│ ◉ .ai/ │\n│ ◉ yaml │\n└────────┘",
-			"┌────────┐\n│ ◎ .ai/ │\n│ ◎ yaml │\n└────────┘",
-			"┌────────┐\n│ ○ .ai/ │\n│ ○ yaml │\n└────────┘",
-		],
-	},
-	{
-		title: "Multi-Tool Sync",
-		desc: "One command generates correct files for Claude Code, Cursor, Codex, and Copilot simultaneously.",
+		title: "Sync everywhere",
+		desc: "dotai sync generates the right files for every tool. One command, all targets.",
 		frames: [
 			"  .ai/  \n   │    \n ┌─┼─┐  \n ▼ ▼ ▼  ",
 			"  .ai/  \n   │    \n ┌─┼─┐  \n → → →  ",
@@ -19,17 +10,8 @@ const features = [
 		],
 	},
 	{
-		title: "Conflict Detection",
-		desc: "Content hashing detects manually edited files. Never accidentally overwrite your changes.",
-		frames: [
-			"┌──┐ ┌──┐\n│░░│≠│▓▓│\n└──┘ └──┘\n  ⚠ diff ",
-			"┌──┐ ┌──┐\n│▒▒│≠│▓▓│\n└──┘ └──┘\n  ⚠ diff ",
-			"┌──┐ ┌──┐\n│▓▓│=│▓▓│\n└──┘ └──┘\n  ✓ sync ",
-		],
-	},
-	{
-		title: "Import Existing",
-		desc: "Already have configs? dotai import scans and converts Claude, Cursor, Codex, or Copilot configs into .ai/ format.",
+		title: "Import what you have",
+		desc: "Already configured Claude Code or Cursor? dotai import converts it to .ai/ format. No starting over.",
 		frames: [
 			"CLAUDE.md\n   ↓    \n scanner \n   ↓    ",
 			" .cursor \n   ↓    \n scanner \n   ↓    ",
@@ -37,8 +19,26 @@ const features = [
 		],
 	},
 	{
-		title: "Validation",
-		desc: "dotai check validates your config against the schema before syncing, catching errors early.",
+		title: "Your edits are safe",
+		desc: "Manually tweaked a generated file? dotai detects it and won't overwrite without asking.",
+		frames: [
+			"┌──┐ ┌──┐\n│░░│≠│▓▓│\n└──┘ └──┘\n  ⚠ diff ",
+			"┌──┐ ┌──┐\n│▒▒│≠│▓▓│\n└──┘ └──┘\n  ⚠ diff ",
+			"┌──┐ ┌──┐\n│▓▓│=│▓▓│\n└──┘ └──┘\n  ✓ sync ",
+		],
+	},
+	{
+		title: "Single source of truth",
+		desc: "Rules, skills, agents, MCP servers, permissions — one .ai/ directory for everything.",
+		frames: [
+			"┌────────┐\n│ ◉ .ai/ │\n│ ◉ yaml │\n└────────┘",
+			"┌────────┐\n│ ◎ .ai/ │\n│ ◎ yaml │\n└────────┘",
+			"┌────────┐\n│ ○ .ai/ │\n│ ○ yaml │\n└────────┘",
+		],
+	},
+	{
+		title: "Catch mistakes early",
+		desc: "dotai check validates your config before syncing. Typos don't make it to your tools.",
 		frames: [
 			"[✓] yaml  \n[✓] refs  \n[✓] paths \n[✓] valid ",
 			"[~] yaml  \n[✓] refs  \n[~] paths \n[~] check ",
@@ -46,8 +46,8 @@ const features = [
 		],
 	},
 	{
-		title: "Extensible",
-		desc: "Markdown rules, skill folders, agent configs — add what you need, skip what you don't.",
+		title: "Add what you need",
+		desc: "Markdown rules, skill folders, agent configs, hooks. Use what's relevant, skip what's not.",
 		frames: [
 			"+ skill/ \n+ agent  \n+ hook   \n= config ",
 			"+ dir/   \n+ mcp    \n+ perm   \n= config ",
@@ -60,7 +60,7 @@ const features = [
 	<div class="ld-container">
 		<div class="ld-reveal" style="text-align:center;margin-bottom:3rem;">
 			<p class="ld-section-label">// Features</p>
-			<h2 class="ld-section-title">Everything you need to manage AI configs</h2>
+			<h2 class="ld-section-title ld-features-title">Built to stay out of your way</h2>
 		</div>
 		<div class="ld-features-grid">
 			{features.map((f, i) => (

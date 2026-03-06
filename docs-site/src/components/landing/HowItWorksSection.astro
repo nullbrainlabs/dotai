@@ -3,7 +3,7 @@ const steps = [
 	{
 		num: "01",
 		title: "Define",
-		desc: "Write your AI config once in .ai/config.yaml with rules, skills, and agents.",
+		desc: "Write your config once in .ai/. YAML + markdown.",
 		file: "config.yaml",
 		code: `<span class="kw">version</span>: <span class="num">1</span>
 <span class="kw">tools</span>:
@@ -25,7 +25,7 @@ const steps = [
 	{
 		num: "02",
 		title: "Sync",
-		desc: "Run dotai sync to generate tool-specific config files from your single source.",
+		desc: "One command. Every tool gets its native files.",
 		file: "terminal",
 		code: `<span class="cmt">$ dotai sync</span>
 
@@ -43,7 +43,7 @@ const steps = [
 	{
 		num: "03",
 		title: "Ship",
-		desc: "Commit the generated files. Your whole team gets consistent AI tool configs.",
+		desc: "Commit the output. Your whole team stays in sync.",
 		file: "terminal",
 		code: `<span class="cmt">$ git add -A</span>
 <span class="cmt">$ git commit -m "chore: sync ai configs"</span>

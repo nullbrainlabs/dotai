@@ -94,3 +94,9 @@ AI tool vendors can keep innovating. Teams keep a stable contract.
 - [Install .ai](/getting-started/installation)
 - [Quick Start](/getting-started/quickstart) — generate your first config sync in under 5 minutes
 - [Import existing configs](/getting-started/importing) — already using an AI tool? Bring your config into `.ai/`
+
+---
+
+:::tip[We love internet points!]
+If `.ai` is useful to you, consider [starring the project on GitHub](https://github.com/nullbrainlabs/dotai). It helps others discover the project and keeps development going.
+:::

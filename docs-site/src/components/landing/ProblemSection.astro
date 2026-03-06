@@ -18,22 +18,24 @@ const tools = [
 	},
 ];
 ---
-<section class="ld-section" id="tools">
+<section class="ld-section ld-problem" id="problem">
 	<div class="ld-container">
 		<div class="ld-reveal" style="text-align:center;margin-bottom:3rem;">
-			<p class="ld-section-label">// Supported Tools</p>
-			<h2 class="ld-section-title">Works with what you're already using</h2>
-			<p class="ld-section-desc" style="margin-inline:auto;">Each tool gets exactly the files it expects. Generated from one .ai/ directory.</p>
+			<p class="ld-section-label">// The reality</p>
+			<h2 class="ld-section-title">Same intent. Different files. Everywhere.</h2>
 		</div>
-		<div class="ld-tools-grid">
-			{tools.map((t, i) => (
-				<div class={`ld-card ld-tool-card ld-reveal ld-delay-${i + 1}`}>
+		<div class="ld-problem-grid ld-reveal ld-delay-1">
+			{tools.map(t => (
+				<div class="ld-problem-col">
 					<h3>{t.name}</h3>
-					<ul class="ld-tool-files">
+					<ul>
 						{t.files.map(f => <li>{f}</li>)}
 					</ul>
 				</div>
 			))}
 		</div>
+		<p class="ld-problem-punchline ld-reveal ld-delay-2">
+			They all want the same thing — how to behave in your repo.<br>They just can't agree on where to put it.
+		</p>
 	</div>
 </section>
