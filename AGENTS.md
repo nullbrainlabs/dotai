@@ -131,3 +131,61 @@ pnpm dev          # tsx src/cli.ts
 - Input: `.ai/` directory with `config.yaml`, `rules/*.md`, `skills/*/SKILL.md`, `agents/*.md`
 - User scope: `~/.ai/` as base, project `.ai/` overrides
 - Outputs: Claude Code, Cursor, Codex, GitHub Copilot
+
+---
+
+## Check target tool spec before modifying emitter output format
+
+> Applies to: src/emitters/**/*.ts
+
+# Emitter Spec Check
+
+Before modifying any emitter file, read the corresponding spec to verify your changes are valid.
+
+## Spec Mapping
+
+- `*/claude.ts` → `specs/claude-code.md`
+- `*/cursor.ts` → `specs/cursor.md`
+- `*/codex.ts` → `specs/codex.md`
+- `*/copilot.ts` → `specs/copilot.md`
+
+## Requirements
+
+- The spec defines exact file paths, frontmatter schemas, JSON structures, and TOML sections
+- When adding a new field, verify the tool supports it via the spec's field reference tables
+- When the spec shows a "Known Gap", don't silently "fix" it without discussion
+- After modifying output, run `pnpm test -- --update` then review snapshot diffs
+
+---
+
+## Enforce layered architecture — domain has zero imports from other layers
+
+> Applies to: src/domain/**/*.ts, src/config/**/*.ts, src/emitters/**/*.ts, src/commands/**/*.ts
+
+# Layer Boundaries
+
+Strict layer order: `domain/` → `config/` → `emitters/` → `commands/` → `cli.ts`
+
+## Import Rules
+
+- **`domain/`** — NEVER imports from config, emitters, commands, or external packages
+- **`config/`** — imports from domain only
+- **`emitters/`** — imports from domain and config only
+- **`commands/`** — may import from all layers above
+- **`src/index.ts`** — exception: cherry-picks exports from all layers
+
+## When You Need a Type in a Lower Layer
+
+Move the type definition up to `domain/`. Do not create upward dependencies.
+
+---
+
+## Run tests after code changes and update snapshots when emitter output changes
+
+# Test After Change
+
+- After modifying `src/`, run `pnpm test` before considering the task complete
+- After modifying `src/emitters/**`, run `pnpm test -- --update` first, then `pnpm test`
+- After modifying domain types or config schema, also run `pnpm typecheck`
+- Never skip or delete failing tests — fix root causes
+- Test files mirror source: `tests/emitters/rules/claude.test.ts` ↔ `src/emitters/rules/claude.ts`

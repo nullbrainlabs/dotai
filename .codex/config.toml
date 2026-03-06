@@ -1,3 +1,7 @@
+[agents.emitter-reviewer]
+description = "Review emitter changes for spec compliance, cross-target consistency, and test coverage. Delegate after modifying src/emitters/."
+config_file = "agents/emitter-reviewer.toml"
+
 [agents.spec-researcher]
 description = "Research and update a target tool's spec. Delegate when a tool (Claude Code, Cursor, Codex, Copilot) releases new features, changes config formats, or when a spec needs updating. Tell this agent which tool to research."
 config_file = "agents/spec-researcher.toml"

@@ -9,7 +9,8 @@ Record an architecture decision in the `decisions/` directory.
 
 ## Process
 
-1. Determine the decision to record. If invoked automatically (from the architecture-decisions rule), summarize the decision you just made. If invoked explicitly by the user, ask what decision to record.
+1. Determine the decision to record. If invoked automatically (from the architecture-decisions rule), summarize the decision you just made. If invoked explicitly by the user, ask what decision to record. If you're
+in a conversation, review previous messages to find a decision that was made but not yet recorded and include that in your ask.
 2. Read `decisions/README.md` to find the current highest ADR number.
 3. Compute the next number (zero-padded to 3 digits).
 4. Write the ADR file at `decisions/<number>-<slug>.md` using the format below.
