@@ -6,12 +6,31 @@ on:
   workflow_dispatch: # Manual trigger
 
 jobs:
-  check-specs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      tools: ${{ steps.find.outputs.tools }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - id: find
+        run: |
+          tools=$(ls specs/*.research.json | sed 's|specs/||;s|\.research\.json||' | jq -Rsc 'split("\n") | map(select(. != ""))')
+          echo "tools=$tools" >> "$GITHUB_OUTPUT"
+
+  check-spec:
+    needs: discover
     runs-on: ubuntu-latest
     permissions:
       contents: read
       issues: write
       id-token: write
+    strategy:
+      matrix:
+        tool: ${{ fromJson(needs.discover.outputs.tools) }}
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,42 +39,40 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          allowed_tools: "Read,Glob,Grep,WebSearch,WebFetch,Bash(gh issue create:*),Bash(gh issue list:*)"
+          claude_args: '--allowed-tools "Read,Glob,Grep,WebSearch,WebFetch,Bash(gh issue create:*),Bash(gh issue list:*)"'
           prompt: |
-            You are the spec monitor. Your job is to check each target tool's spec for drift against official documentation.
+            You are the spec monitor. Check the **${{ matrix.tool }}** tool spec for drift against official documentation.
 
             ## Process
 
-            1. Read each research config: `specs/claude-code.research.json`, `specs/cursor.research.json`, `specs/codex.research.json`, `specs/copilot.research.json`
-            2. For each tool:
-               a. Read the current spec file listed in the research config
-               b. Fetch each URL listed in the `docs` array
-               c. Compare the fetched docs against the current spec
-               d. Note any meaningful differences: new config fields, changed formats, deprecated features, new capabilities
-            3. Skip cosmetic or documentation-only changes (rewording, typo fixes)
+            1. Read `specs/${{ matrix.tool }}.research.json` for doc URLs and current spec path
+            2. Read the current spec file
+            3. Fetch each URL in the `docs` array and compare against the spec
+            4. Note meaningful differences: new config fields, changed formats, deprecated features, new capabilities
+            5. Skip cosmetic or documentation-only changes (rewording, typo fixes)
 
             ## Reporting
 
-            - If NO meaningful changes are detected for any tool, exit silently. Do not create an issue.
+            - If NO meaningful changes detected, exit silently. Do not create an issue.
             - If changes ARE detected, first check for an existing open issue:
-              `gh issue list --label spec-drift --state open --limit 10`
-              If one exists, skip creating a duplicate.
-            - Otherwise, create a single GitHub issue:
+              `gh issue list --label spec-drift --state open --search "${{ matrix.tool }}" --limit 5`
+              If one already covers this tool, skip creating a duplicate.
+            - Otherwise, create a GitHub issue:
 
             ```
             gh issue create \
               --label "spec-drift" \
-              --title "Spec drift detected: <tool1>, <tool2>" \
+              --title "Spec drift detected: ${{ matrix.tool }}" \
               --body "<body>"
             ```
 
             The body should contain:
-            - A summary of what changed per tool (### heading per tool)
+            - A summary of what changed (### sections per change area)
             - Links to the relevant doc pages
             - A resolution checklist:
-              - [ ] Review spec changes for each affected tool
+              - [ ] Review spec changes
               - [ ] Identify affected emitters
-              - [ ] Update specs with `@claude /sync-spec-from-docs <tool>`
+              - [ ] Update spec with `@claude /sync-spec-from-docs ${{ matrix.tool }}`
               - [ ] Update emitter output with `@claude /update-emitter`
               - [ ] Run `pnpm test -- --update` then `pnpm test`
               - [ ] Verify no regressions
