@@ -1,0 +1,15 @@
+[mcp_servers.db-server]
+type = "stdio"
+command = "npx @db/mcp-server"
+args = ["--port", "3000"]
+
+[mcp_servers.db-server.env]
+DB_URL = "postgres://localhost/dev"
+
+[agents.reviewer]
+description = "Code review agent"
+config_file = "agents/reviewer.toml"
+
+approval_policy = "unless-allowed"
+
+protected_paths = ["node_modules/"]

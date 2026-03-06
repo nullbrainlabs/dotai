@@ -1,0 +1,5 @@
+---
+excludeAgent: code-review
+---
+
+Skip this rule for code review.

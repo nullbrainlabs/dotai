@@ -1,0 +1,3 @@
+sandbox_mode = "read-only"
+developer_instructions = """
+Design and review system architecture."""

@@ -1,0 +1,19 @@
+# Project Instructions
+
+## Rule
+
+Use consistent naming conventions.
+
+---
+
+## SQL optimization
+
+> Applies to: **/*.sql, src/db/**
+
+Optimize database queries.
+
+---
+
+## Rule
+
+Skip this rule for code review.

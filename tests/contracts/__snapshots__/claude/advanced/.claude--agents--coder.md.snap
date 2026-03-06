@@ -1,0 +1,8 @@
+---
+name: coder
+description: Implementation agent
+permissionMode: acceptEdits
+maxTurns: 25
+---
+
+Write clean, tested code.

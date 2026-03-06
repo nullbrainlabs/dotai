@@ -1,0 +1,6 @@
+---
+name: refactor
+description: Refactor code for clarity
+---
+
+Analyze the code and suggest refactoring improvements.

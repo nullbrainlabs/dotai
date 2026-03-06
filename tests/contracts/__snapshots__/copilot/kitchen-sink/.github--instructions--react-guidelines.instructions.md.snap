@@ -1,0 +1,5 @@
+---
+applyTo: "**/*.tsx,**/*.jsx"
+---
+
+Follow React best practices.

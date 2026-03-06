@@ -1,0 +1,7 @@
+---
+description: SQL optimization
+globs: **/*.sql, src/db/**
+alwaysApply: false
+---
+
+Optimize database queries.

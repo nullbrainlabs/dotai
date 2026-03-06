@@ -35,7 +35,7 @@ const USER_OUTPUT_DIRS: Record<TargetTool, string> = {
 	copilot: join(homedir(), ".copilot"),
 };
 
-const EMITTERS: Emitter[] = [
+export const EMITTERS: Emitter[] = [
 	skillsEmitter,
 	rulesEmitter,
 	mcpEmitter,

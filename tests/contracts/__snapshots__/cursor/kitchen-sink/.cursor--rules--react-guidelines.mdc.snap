@@ -1,0 +1,7 @@
+---
+description: React guidelines
+globs: **/*.tsx, **/*.jsx
+alwaysApply: false
+---
+
+Follow React best practices.

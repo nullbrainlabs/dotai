@@ -1,0 +1,13 @@
+# Project Instructions
+
+## Rule
+
+Always use TypeScript strict mode.
+
+---
+
+## React guidelines
+
+> Applies to: **/*.tsx, **/*.jsx
+
+Follow React best practices.

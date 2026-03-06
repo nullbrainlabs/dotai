@@ -1,0 +1,20 @@
+[mcp_servers.filesystem]
+type = "stdio"
+command = "npx @modelcontextprotocol/server-filesystem"
+args = ["/workspace"]
+
+[mcp_servers.remote-api]
+type = "http"
+url = "https://api.example.com/mcp"
+
+[agents.architect]
+description = "System architecture agent"
+config_file = "agents/architect.toml"
+
+[agents.coder]
+description = "Implementation agent"
+config_file = "agents/coder.toml"
+
+approval_policy = "unless-allowed"
+
+protected_paths = ["dist/", ".env*"]

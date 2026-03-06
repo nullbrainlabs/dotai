@@ -1,0 +1,7 @@
+---
+name: architect
+description: System architecture agent
+readonly: true
+---
+
+Design and review system architecture.

@@ -1,0 +1,8 @@
+---
+name: architect
+description: System architecture agent
+tools: Read, Grep, Glob, WebSearch
+disallowedTools: Write, Edit, NotebookEdit
+---
+
+Design and review system architecture.

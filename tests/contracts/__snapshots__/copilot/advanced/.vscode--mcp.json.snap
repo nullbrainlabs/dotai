@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "filesystem": {
+      "command": "npx @modelcontextprotocol/server-filesystem",
+      "args": [
+        "/workspace"
+      ],
+      "type": "stdio"
+    },
+    "remote-api": {
+      "type": "http",
+      "url": "https://api.example.com/mcp"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+---
+paths:
+  - "**/*.sql"
+  - "src/db/**"
+---
+
+Optimize database queries.

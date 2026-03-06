@@ -30,6 +30,7 @@ pnpm lint         # biome check src tests
 pnpm lint:fix     # biome check --write src tests
 pnpm typecheck    # tsc --noEmit
 pnpm dev          # tsx src/cli.ts
+pnpm test -- --update  # regenerate contract snapshots after intentional emitter changes
 ```
 
 ## Conventions
@@ -78,6 +79,10 @@ pnpm dev          # tsx src/cli.ts
 1. Create `src/emitters/<entity-plural>.ts` implementing `Emitter`
 2. Export from `src/emitters/index.ts`
 3. Register in `EMITTERS` array in `src/commands/sync.ts`
+
+### Modify an emitter
+
+After modifying an emitter, contract tests (`tests/contracts/`) will fail if output changed. Run `pnpm test -- --update` and review the snapshot diff.
 
 ### Add a new target tool
 

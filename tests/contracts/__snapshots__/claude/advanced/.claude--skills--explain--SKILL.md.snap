@@ -1,0 +1,7 @@
+---
+name: explain
+description: Explain code to users
+context: fork
+---
+
+Break down complex code into simple explanations.
