@@ -1,6 +1,6 @@
 {
 	"tool": "claude-code",
-	"lastResearchedVersion": "Claude Code 1.0 (CLI)",
+	"lastResearchedVersion": "Claude Code 2.1.63+",
 	"spec": "specs/claude-code.md",
 	"llmsTxt": "https://code.claude.com/docs/llms.txt",
 	"docs": [
@@ -38,7 +38,28 @@
 		"CLAUDE.md files concatenate when multiple rules share the same outputDir",
 		"Scoped rules use YAML paths: frontmatter in .claude/rules/",
 		"Ignore patterns are lossy — mapped to deny rules on Read/Edit tools",
-		"Hook handler supports 3 types: command, prompt, agent",
-		"settings.json has $schema reference for validation"
+		"Hook handler supports 4 types: command, prompt, agent, http",
+		"settings.json has $schema reference for validation",
+		"Hook timeout unit is SECONDS (not ms): defaults 600 command, 30 prompt, 60 agent",
+		"Hook matchers are regex strings — Edit|Write, mcp__.*, etc.",
+		"hookSpecificOutput.permissionDecision JSON output format for command/http hooks",
+		"SessionStart/SessionEnd/Notification/PreCompact/ConfigChange all support matchers",
+		"Hook scopes expanded: plugin hooks/hooks.json, skill frontmatter, agent frontmatter",
+		"MCP scope names changed: local (was project), project (shared .mcp.json), user (was global)",
+		"Task tool renamed to Agent in v2.1.63; Task(...) still works as alias",
+		"Bundled skills: /simplify /batch /debug /loop /claude-api",
+		"Auto memory at ~/.claude/projects/<project>/memory/ — MEMORY.md loaded (first 200 lines)",
+		"@path/to/import syntax in CLAUDE.md files",
+		".claude/CLAUDE.md is a valid alternate location for project instructions",
+		"claudeMdExcludes setting to skip specific CLAUDE.md files",
+		"User-level rules at ~/.claude/rules/",
+		"Plugins are a new feature: skills, agents, MCP servers, hooks bundled together",
+		"5-tier settings precedence: managed > command-line args > local project > shared project > user",
+		"Sandbox expanded with filesystem object (allowWrite/denyWrite/denyRead) and network object",
+		"New settings: autoMemoryEnabled, attribution, apiKeyHelper, availableModels, enabledPlugins, allowedHttpHookUrls, disableAllHooks",
+		"MAX_MCP_OUTPUT_TOKENS default is 25000 tokens",
+		"ENABLE_TOOL_SEARCH env var for MCP Tool Search (auto mode by default)",
+		"Managed MCP via managed-mcp.json in system directories",
+		"OAuth 2.0 support for MCP servers with authServerMetadataUrl"
 	]
 }

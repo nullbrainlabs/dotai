@@ -1,7 +1,7 @@
 # Claude Code Configuration Capabilities — Complete Reference
 
 > Source: Claude Code CLI (firsthand knowledge + emitter code)
-> Last Researched Version: Claude Code 1.0 (CLI)
+> Last Researched Version: Claude Code 2.1.63+
 > Date: 2026-03-07
 
 ## Table of Contents
@@ -13,24 +13,38 @@
 5. [MCP Servers](#5-mcp-servers)
 6. [Permissions & Settings](#6-permissions--settings)
 7. [Ignore Patterns](#7-ignore-patterns)
-8. [dotai Entity Coverage](#8-dotai-entity-coverage)
+8. [Plugins](#8-plugins)
+9. [dotai Entity Coverage](#9-dotai-entity-coverage)
 
 ---
 
 ## 1. Rules (Instructions)
 
-### 1a. Project-Wide — `CLAUDE.md`
+### 1a. Project-Wide — `CLAUDE.md` / `.claude/CLAUDE.md`
 
 | Property | Value |
 |----------|-------|
-| **File** | `CLAUDE.md` (project root or any subdirectory) |
+| **File** | `CLAUDE.md` or `.claude/CLAUDE.md` (project root or any subdirectory) |
 | **Format** | Plain Markdown (no frontmatter) |
 | **Scope** | Loaded for all conversations in the project |
 | **Subdirectory** | `subdir/CLAUDE.md` — loaded when working in or below `subdir/` |
 
-Multiple `CLAUDE.md` files are concatenated (root first, then deeper directories).
+Multiple `CLAUDE.md` files are concatenated (root first, then deeper directories). Both `CLAUDE.md` and `.claude/CLAUDE.md` at the root are valid equivalents.
 
-### 1b. Local-Only — `CLAUDE.local.md`
+### 1b. Import Syntax — `@path/to/file`
+
+CLAUDE.md files can import additional files using `@path/to/import` syntax anywhere in the file body:
+
+```text
+See @README for project overview and @package.json for available npm commands.
+
+# Additional Instructions
+- git workflow @docs/git-instructions.md
+```
+
+Imported files are expanded and loaded into context at launch. Both relative and absolute paths are supported. Relative paths resolve relative to the importing file. Imports can recurse up to five hops deep.
+
+### 1c. Local-Only — `CLAUDE.local.md`
 
 | Property | Value |
 |----------|-------|
@@ -38,13 +52,15 @@ Multiple `CLAUDE.md` files are concatenated (root first, then deeper directories
 | **Format** | Plain Markdown |
 | **Scope** | Same as `CLAUDE.md` but gitignored — personal local instructions |
 
-### 1c. Scoped Rules — `.claude/rules/<name>.md`
+### 1d. Scoped Rules — `.claude/rules/<name>.md`
 
 | Property | Value |
 |----------|-------|
 | **Directory** | `.claude/rules/` |
 | **Naming** | `<slug>.md` |
 | **Format** | Markdown with YAML frontmatter |
+| **Discovery** | Recursive — files in subdirectories of `.claude/rules/` are discovered |
+| **Symlinks** | Supported; circular symlinks are detected and handled |
 
 #### Frontmatter Schema
 
@@ -58,19 +74,66 @@ paths:
 
 Rules with `paths:` frontmatter are only loaded when the conversation involves matching files. Rules without frontmatter load unconditionally (same as being in `CLAUDE.md`).
 
-### 1d. User-Level — `~/.claude/CLAUDE.md`
+### 1e. User-Level — `~/.claude/CLAUDE.md` and `~/.claude/rules/`
 
 | Property | Value |
 |----------|-------|
 | **File** | `~/.claude/CLAUDE.md` |
+| **Rules** | `~/.claude/rules/<name>.md` |
 | **Scope** | Applied to all projects for the current user |
 
-### 1e. Scope Hierarchy (highest to lowest)
+User-level rules in `~/.claude/rules/` apply to every project on the machine. They are loaded before project rules, giving project rules higher priority.
 
-1. Enterprise (managed policy — not file-based)
-2. User (`~/.claude/CLAUDE.md`)
-3. Project (`CLAUDE.md`, `.claude/rules/`)
+### 1f. Managed Policy — System-Wide `CLAUDE.md`
+
+| OS | Path |
+|----|------|
+| macOS | `/Library/Application Support/ClaudeCode/CLAUDE.md` |
+| Linux/WSL | `/etc/claude-code/CLAUDE.md` |
+| Windows | `C:\Program Files\ClaudeCode\CLAUDE.md` |
+
+Managed policy CLAUDE.md files cannot be excluded by individual settings.
+
+### 1g. Scope Hierarchy (highest to lowest)
+
+1. Managed policy (`/Library/Application Support/ClaudeCode/CLAUDE.md` or equivalent)
+2. User (`~/.claude/CLAUDE.md`, `~/.claude/rules/`)
+3. Project (`CLAUDE.md`, `.claude/CLAUDE.md`, `.claude/rules/`)
 4. Local (`CLAUDE.local.md`)
+
+### 1h. Auto Memory — `~/.claude/projects/<project>/memory/`
+
+Claude Code includes an auto memory system where Claude saves notes to itself across sessions.
+
+| Property | Value |
+|----------|-------|
+| **Location** | `~/.claude/projects/<project>/memory/` |
+| **Entrypoint** | `MEMORY.md` (first 200 lines loaded every session) |
+| **Toggle** | `autoMemoryEnabled` in settings, or `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` |
+
+```text
+~/.claude/projects/<project>/memory/
+├── MEMORY.md          # Concise index, loaded into every session
+├── debugging.md       # Detailed notes on debugging patterns
+└── api-conventions.md # API design decisions
+```
+
+The `<project>` path is derived from the git repository. All worktrees and subdirectories within the same repo share one auto memory directory.
+
+### 1i. claudeMdExcludes Setting
+
+In large monorepos, the `claudeMdExcludes` setting skips specific CLAUDE.md files by path or glob pattern:
+
+```json
+{
+  "claudeMdExcludes": [
+    "**/monorepo/CLAUDE.md",
+    "/home/user/monorepo/other-team/.claude/rules/**"
+  ]
+}
+```
+
+Patterns are matched against absolute file paths. Arrays merge across settings scopes.
 
 ---
 
@@ -79,9 +142,38 @@ Rules with `paths:` frontmatter are only loaded when the conversation involves m
 | Property | Value |
 |----------|-------|
 | **Directory** | `.claude/agents/` |
+| **User-level** | `~/.claude/agents/` |
+| **Plugin** | `<plugin>/agents/<name>.md` |
 | **Naming** | `<name>.md` |
 | **Format** | Markdown with YAML frontmatter |
 | **Invocation** | `/agent:<name>` in conversation, or via Agent tool with `subagent_type` |
+
+### Built-in Agents
+
+Claude Code includes built-in agents that are used automatically:
+
+| Agent | Model | Tools | Purpose |
+|-------|-------|-------|---------|
+| `Explore` | Haiku | Read-only | File discovery, codebase exploration |
+| `Plan` | Inherits | Read-only | Research during plan mode |
+| `general-purpose` | Inherits | All | Complex multi-step tasks |
+| `Bash` | Inherits | Bash | Terminal commands in separate context |
+| `Claude Code Guide` | Haiku | — | Answers questions about Claude Code |
+
+### CLI Definition — `--agents` Flag
+
+Agents can be passed as JSON when launching Claude Code (session-scoped only):
+
+```bash
+claude --agents '{
+  "code-reviewer": {
+    "description": "Expert code reviewer. Use proactively after code changes.",
+    "prompt": "You are a senior code reviewer.",
+    "tools": ["Read", "Grep", "Glob", "Bash"],
+    "model": "sonnet"
+  }
+}'
+```
 
 ### Frontmatter Schema
 
@@ -96,7 +188,7 @@ disallowedTools: [Write, Edit]
 permissionMode: default          # default | acceptEdits | dontAsk | bypassPermissions | plan
 maxTurns: 20
 skills: [test-runner, lint-fixer]
-memory: project
+memory: project                  # user | project | local
 background: true
 isolation: worktree
 hooks:
@@ -122,16 +214,33 @@ Agent behavioral instructions go here.
 | `description` | string | Yes | When/why to delegate to this agent |
 | `model` | string | No | `sonnet`, `opus`, `haiku`, `inherit`, or full model ID |
 | `modelReasoningEffort` | string | No | `low`, `medium`, `high` |
-| `tools` | string[] | No | Allowed tools (omit = all) |
+| `tools` | string[] | No | Allowed tools; use `Agent(name1,name2)` syntax to restrict spawnable subagents |
 | `disallowedTools` | string[] | No | Explicitly blocked tools |
 | `permissionMode` | string | No | Permission level override |
 | `maxTurns` | number | No | Maximum agentic turns |
-| `skills` | string[] | No | Available skill names |
+| `skills` | string[] | No | Skills preloaded into this agent's context at startup |
 | `memory` | string | No | Memory scope: `user`, `project`, or `local` |
-| `background` | boolean | No | Run as background agent |
+| `background` | boolean | No | Always run as a background task |
 | `isolation` | string | No | `worktree` for isolated git worktree |
 | `hooks` | object | No | Agent-specific hook overrides |
 | `mcpServers` | object | No | Agent-specific MCP servers |
+
+### Tool Restriction: Agent(subagent-type)
+
+To restrict which subagents an agent (running as main thread via `claude --agent`) can spawn:
+
+```yaml
+tools: Agent(worker, researcher), Read, Bash
+```
+
+This is an allowlist — only `worker` and `researcher` can be spawned. `Task(...)` is an alias for `Agent(...)` (renamed in v2.1.63).
+
+### Agent Scope Priority (highest to lowest)
+
+1. `--agents` CLI flag (session-scoped)
+2. `.claude/agents/` (project)
+3. `~/.claude/agents/` (user)
+4. Plugin `agents/` directory
 
 ### Available Tool Names
 
@@ -145,9 +254,27 @@ Agent behavioral instructions go here.
 |----------|-------|
 | **Directory** | `.claude/skills/<name>/SKILL.md` |
 | **User-level** | `~/.claude/skills/<name>/SKILL.md` |
+| **Plugin** | `<plugin>/skills/<name>/SKILL.md` (namespaced as `plugin-name:skill-name`) |
 | **Naming** | Directory = skill name (kebab-case), file = `SKILL.md` |
 | **Format** | Markdown with YAML frontmatter |
 | **Invocation** | `/<skill-name>` in conversation |
+| **Legacy** | `.claude/commands/<name>.md` still works (skills take precedence on name conflict) |
+
+### Monorepo Auto-Discovery
+
+When working in a subdirectory (e.g. `packages/frontend/`), Claude Code also discovers skills from nested `.claude/skills/` directories under that path. This enables per-package skills in monorepos.
+
+### Bundled Skills
+
+Claude Code ships several built-in skills available in every session:
+
+| Skill | Description |
+|-------|-------------|
+| `/simplify` | Reviews recently changed files for code reuse, quality, and efficiency, then fixes them. Spawns three parallel review agents. |
+| `/batch <instruction>` | Orchestrates large-scale codebase changes in parallel using git worktrees. Requires a git repo. |
+| `/debug [description]` | Troubleshoots the current session by reading the session debug log. |
+| `/loop [interval] <prompt>` | Runs a prompt repeatedly on a schedule while the session is open. |
+| `/claude-api` | Loads Claude API reference material. Also activates when code imports `anthropic`, `@anthropic-ai/sdk`, or `claude_agent_sdk`. |
 
 ### Frontmatter Schema
 
@@ -177,20 +304,18 @@ Skill instructions, examples, and guidelines in markdown.
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `name` | string | Yes | Skill identifier |
-| `description` | string | Yes | Trigger description for auto-invocation |
+| `name` | string | No | Skill identifier (defaults to directory name) |
+| `description` | string | Recommended | Trigger description for auto-invocation |
 | `disable-model-invocation` | boolean | No | Prevent auto-selection, require `/<name>` |
 | `argument-hint` | string | No | Hint shown in `/` menu |
 | `user-invocable` | boolean | No | `false` = only model can invoke |
 | `allowed-tools` | string (CSV) | No | Comma-separated tool names |
 | `model` | string | No | Model override for skill execution |
 | `context` | string | No | `fork` — run skill in an isolated forked execution context |
-| `agent` | string | No | Agent to delegate to |
-| `hooks` | object | No | Skill-specific hooks |
+| `agent` | string | No | Agent to delegate to when `context: fork` |
+| `hooks` | object | No | Skill-specific hooks (scoped to skill's lifecycle) |
 
 ### Skill Substitution Variables
-
-Claude Code substitutes these variables in skill content at invocation time:
 
 | Variable | Value |
 |----------|-------|
@@ -199,6 +324,45 @@ Claude Code substitutes these variables in skill content at invocation time:
 | `$N` | Shorthand for `$ARGUMENTS[N]` (e.g. `$0`, `$1`) |
 | `$CLAUDE_SESSION_ID` | Unique identifier for the current session |
 | `$CLAUDE_SKILL_DIR` | Absolute path to the skill's directory |
+
+### Dynamic Context Injection
+
+The `` !`command` `` syntax in skill content runs shell commands before the skill is sent to Claude. The command output replaces the placeholder:
+
+```yaml
+---
+name: pr-summary
+context: fork
+agent: Explore
+allowed-tools: Bash(gh *)
+---
+
+## Pull request context
+- PR diff: !`gh pr diff`
+- PR comments: !`gh pr view --comments`
+- Changed files: !`gh pr diff --name-only`
+
+## Your task
+Summarize this pull request...
+```
+
+### Restricting Claude's Skill Access
+
+Use permission rules to control which skills Claude can invoke:
+
+```text
+# Deny all skills
+Skill
+
+# Allow only specific skills
+Skill(commit)
+Skill(review-pr *)
+
+# Deny specific skills
+Skill(deploy *)
+```
+
+Syntax: `Skill(name)` for exact match, `Skill(name *)` for prefix match.
 
 ### Skill Directories
 
@@ -210,7 +374,16 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 
 ### Configuration Location
 
-`.claude/settings.json` under the `hooks` key.
+Hooks can be defined in several locations:
+
+| Location | Scope | Shareable |
+|----------|-------|-----------|
+| `~/.claude/settings.json` | All your projects | No |
+| `.claude/settings.json` | Single project | Yes |
+| `.claude/settings.local.json` | Single project | No (gitignored) |
+| Managed policy settings | Organization-wide | Yes (admin-controlled) |
+| Plugin `hooks/hooks.json` | When plugin is enabled | Yes (bundled with plugin) |
+| Skill or agent frontmatter | While component is active | Yes (defined in component file) |
 
 ### Hook Format
 
@@ -224,7 +397,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
           {
             "type": "command",
             "command": "./scripts/check.sh",
-            "timeout": 30000,
+            "timeout": 30,
             "statusMessage": "Running safety check...",
             "async": true,
             "once": true
@@ -242,7 +415,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 |-------|---------|
 | `PreToolUse` | Before a tool executes (can approve/deny) |
 | `PostToolUse` | After a tool executes |
-| `SessionStart` | Conversation begins |
+| `SessionStart` | Conversation begins or resumes |
 | `SessionEnd` | Conversation ends |
 | `UserPromptSubmit` | User sends a message |
 | `Stop` | Agent stops |
@@ -259,6 +432,25 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `PreCompact` | Before context compaction |
 | `InstructionsLoaded` | After instructions/rules are loaded |
 
+### Matcher Patterns
+
+The `matcher` field is a **regex string** that filters when hooks fire. Use `"*"`, `""`, or omit `matcher` entirely to match all occurrences.
+
+Each event type matches on a different field:
+
+| Event | What matcher filters | Example matcher values |
+|-------|---------------------|----------------------|
+| `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest` | tool name | `Bash`, `Edit\|Write`, `mcp__.*` |
+| `SessionStart` | how the session started | `startup`, `resume`, `clear`, `compact` |
+| `SessionEnd` | why the session ended | `clear`, `logout`, `prompt_input_exit`, `bypass_permissions_disabled`, `other` |
+| `Notification` | notification type | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog` |
+| `SubagentStart`, `SubagentStop` | agent type name | `Bash`, `Explore`, `Plan`, or custom agent names |
+| `PreCompact` | what triggered compaction | `manual`, `auto` |
+| `ConfigChange` | configuration source | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
+| `UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `InstructionsLoaded` | no matcher support | always fires |
+
+Since the matcher is a regex: `Edit|Write` matches either tool, `Notebook.*` matches any tool starting with Notebook, `mcp__memory__.*` matches all tools from the memory MCP server.
+
 ### Hook Handler Types
 
 | Type | Fields | Notes |
@@ -268,28 +460,60 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `agent` | `prompt`, `model`, `timeout`, `statusMessage`, `once` | Agent delegation |
 | `http` | `url`, `headers`, `allowedEnvVars`, `timeout`, `statusMessage`, `once` | HTTP webhook call |
 
-### Hook Entry Fields
+### Common Handler Fields
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `matcher` | string | Tool name filter (only for PreToolUse/PostToolUse) |
-| `hooks` | array | Array of hook handlers |
-
-### Handler Fields
-
-| Field | Type | Notes |
-|-------|------|-------|
-| `type` | string | `command`, `prompt`, or `agent` |
-| `command` | string | Shell command (type=command) |
-| `prompt` | string | LLM prompt (type=prompt/agent) |
-| `timeout` | number | Milliseconds |
+| `type` | string | `command`, `prompt`, `agent`, or `http` |
+| `timeout` | number | **Seconds** before canceling. Defaults: 600 (command), 30 (prompt), 60 (agent) |
 | `statusMessage` | string | Display text during execution |
-| `async` | boolean | Non-blocking (type=command) |
-| `once` | boolean | Run only once per session |
-| `model` | string | Model override (type=prompt/agent) |
-| `url` | string | Webhook URL (type=http) |
-| `headers` | object | HTTP request headers (type=http) |
-| `allowedEnvVars` | string[] | Env vars forwarded in request (type=http) |
+| `once` | boolean | Run only once per session (skills only, not agents) |
+
+### Command Hook Fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `command` | string | Shell command |
+| `async` | boolean | Non-blocking background execution |
+
+### HTTP Hook Fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `url` | string | Webhook URL |
+| `headers` | object | HTTP request headers; supports `$VAR_NAME` env var interpolation |
+| `allowedEnvVars` | string[] | Env vars that may be interpolated into header values |
+
+### Prompt/Agent Hook Fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `prompt` | string | LLM prompt |
+| `model` | string | Model override |
+
+### Hook Output — JSON Format
+
+Command and HTTP hooks can return structured JSON decisions on stdout:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Destructive command blocked by hook"
+  }
+}
+```
+
+The `permissionDecision` field accepts: `"allow"`, `"deny"`.
+
+### Exit Codes (command hooks)
+
+| Code | Effect |
+|------|--------|
+| `0` | Allow / no action |
+| `2` | Block the tool call (feeds stderr back to Claude) |
+| other | Non-blocking error (execution continues) |
 
 ---
 
@@ -297,7 +521,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 
 ### Configuration Location
 
-`.mcp.json` (project root)
+`.mcp.json` (project root) — for project-scoped (shared) servers.
 
 ### Format
 
@@ -308,7 +532,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
       "command": "npx",
       "args": ["-y", "@some/mcp-server"],
       "env": {
-        "API_KEY": "value"
+        "API_KEY": "${MY_API_KEY}"
       }
     }
   }
@@ -365,29 +589,94 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 |-------|------|----------|-------|
 | `command` | string | stdio | Startup command |
 | `args` | string[] | No | Command arguments |
-| `env` | object | No | Environment variables |
+| `env` | object | No | Environment variables (supports `${VAR}` and `${VAR:-default}` expansion) |
 | `type` | string | non-stdio | `http`, `sse` |
 | `url` | string | non-stdio | Server endpoint |
 | `headers` | object | No | HTTP headers |
-| `oauth` | object | No | OAuth configuration |
+| `oauth` | object | No | OAuth 2.0 configuration (see below) |
 
-### Environment Variable Expansion
-
-Values in the `env` block of `.mcp.json` support shell variable expansion. References like `${API_KEY}` are expanded from the user's environment at startup:
+### OAuth 2.0 Configuration
 
 ```json
 {
   "mcpServers": {
     "my-server": {
-      "command": "node",
-      "args": ["server.js"],
-      "env": {
-        "API_KEY": "${MY_API_KEY}"
+      "type": "http",
+      "url": "https://mcp.example.com/mcp",
+      "oauth": {
+        "clientId": "your-client-id",
+        "callbackPort": 8080,
+        "authServerMetadataUrl": "https://auth.example.com/.well-known/openid-configuration"
       }
     }
   }
 }
 ```
+
+`authServerMetadataUrl` overrides standard OAuth discovery; requires Claude Code v2.1.64+.
+
+### MCP Installation Scopes
+
+| Scope | Storage | Notes |
+|-------|---------|-------|
+| `local` (default) | `~/.claude.json` (under project path) | Private to you, current project only. Was called `project` in older versions |
+| `project` | `.mcp.json` in project root | Shared with team via version control |
+| `user` | `~/.claude.json` (global) | Available across all projects. Was called `global` in older versions |
+
+```bash
+# Add with explicit scope
+claude mcp add --transport http stripe --scope local https://mcp.stripe.com
+claude mcp add --transport http paypal --scope project https://mcp.paypal.com/mcp
+claude mcp add --transport http hubspot --scope user https://mcp.hubspot.com/anthropic
+```
+
+### CLI Commands
+
+```bash
+# Add from JSON config
+claude mcp add-json <name> '<json>'
+claude mcp add-json my-server '{"type":"http","url":"https://mcp.example.com/mcp"}'
+
+# Import from Claude Desktop (macOS and WSL only)
+claude mcp add-from-claude-desktop
+
+# OAuth flags
+claude mcp add --transport http --client-id YOUR_ID --client-secret --callback-port 8080 my-server https://mcp.example.com/mcp
+
+# Management
+claude mcp list
+claude mcp get <name>
+claude mcp remove <name>
+claude mcp reset-project-choices
+```
+
+### Managed MCP — `managed-mcp.json`
+
+Organizations can deploy a fixed set of MCP servers that users cannot modify:
+
+| OS | Path |
+|----|------|
+| macOS | `/Library/Application Support/ClaudeCode/managed-mcp.json` |
+| Linux/WSL | `/etc/claude-code/managed-mcp.json` |
+| Windows | `C:\Program Files\ClaudeCode\managed-mcp.json` |
+
+When `managed-mcp.json` is present, it takes exclusive control over all MCP servers.
+
+### MCP Tool Search
+
+When many MCP servers are configured, `ENABLE_TOOL_SEARCH` controls dynamic tool loading:
+
+| Value | Behavior |
+|-------|----------|
+| `auto` (default) | Activates when MCP tools exceed 10% of context window |
+| `auto:<N>` | Activates at custom threshold (percentage) |
+| `true` | Always enabled |
+| `false` | Disabled, all MCP tools loaded upfront |
+
+### MCP Output Limits
+
+- Warning threshold: 10,000 tokens
+- Default max: **25,000 tokens** (`MAX_MCP_OUTPUT_TOKENS` env var)
 
 ---
 
@@ -420,8 +709,20 @@ Values in the `env` block of `.mcp.json` support shell variable expansion. Refer
   },
   "sandbox": {
     "enabled": true,
-    "network": "none",
-    "readOnly": ["/etc", "/usr"]
+    "filesystem": {
+      "allowWrite": ["//tmp/build", "~/.kube"],
+      "denyWrite": ["//etc"],
+      "denyRead": ["~/.aws/credentials"]
+    },
+    "network": {
+      "allowedDomains": ["github.com", "*.npmjs.org"],
+      "allowManagedDomainsOnly": false,
+      "allowUnixSockets": ["/var/run/docker.sock"],
+      "allowAllUnixSockets": false,
+      "allowLocalBinding": true,
+      "httpProxyPort": 8080,
+      "socksProxyPort": 8081
+    }
   }
 }
 ```
@@ -430,6 +731,8 @@ Values in the `env` block of `.mcp.json` support shell variable expansion. Refer
 
 - `ToolName` — applies to all invocations of the tool
 - `ToolName(pattern)` — applies only when the tool argument matches the pattern
+- `Agent(name)` — applies to subagent delegation
+- `Skill(name)` — applies to skill invocation
 
 ### Permission Decisions
 
@@ -451,24 +754,63 @@ Values in the `env` block of `.mcp.json` support shell variable expansion. Refer
 
 ### Sandbox Configuration
 
-The `sandbox` key in `settings.json` configures process-level sandboxing:
+The `sandbox` key configures process-level sandboxing:
+
+#### Filesystem Object
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `enabled` | boolean | Enable sandboxing |
-| `network` | string | Network access: `none`, `localhost`, `full` |
-| `readOnly` | string[] | Paths mounted as read-only inside the sandbox |
+| `allowWrite` | string[] | Paths allowed for writing (`//` = absolute, `~/` = home, `/` = relative to settings dir) |
+| `denyWrite` | string[] | Paths blocked from writing |
+| `denyRead` | string[] | Paths blocked from reading |
 
-### Settings
+#### Network Object
 
-Additional key-value pairs in `settings.json` control Claude Code behavior. These are tool-specific and may change between versions.
+| Field | Type | Notes |
+|-------|------|-------|
+| `allowedDomains` | string[] | Allowed domains (supports wildcards like `*.npmjs.org`) |
+| `allowManagedDomainsOnly` | boolean | Only managed domains allowed |
+| `allowUnixSockets` | string[] | Unix socket paths allowed |
+| `allowAllUnixSockets` | boolean | Allow all unix sockets |
+| `allowLocalBinding` | boolean | Allow binding to local ports |
+| `httpProxyPort` | number | HTTP proxy port |
+| `socksProxyPort` | number | SOCKS proxy port |
 
-### Scope Levels
+### Settings Precedence — 5-Tier Hierarchy (highest to lowest)
 
-Settings can exist at:
-- **Project**: `.claude/settings.json`
-- **User**: `~/.claude/settings.json`
-- **Enterprise**: Managed configuration
+1. **Managed settings** (cannot be overridden) — system directory `managed-settings.json`
+2. **Command-line arguments** — temporary session overrides
+3. **Local project** — `.claude/settings.local.json` (gitignored)
+4. **Shared project** — `.claude/settings.json`
+5. **User** — `~/.claude/settings.json`
+
+Array settings merge across scopes; individual values follow standard precedence.
+
+### Additional Settings Keys
+
+| Key | Type | Notes |
+|-----|------|-------|
+| `autoMemoryEnabled` | boolean | Toggle auto memory (default: true) |
+| `claudeMdExcludes` | string[] | Glob patterns for CLAUDE.md files to skip |
+| `attribution` | object | `{ commit: "...", pr: "..." }` — custom attribution text |
+| `apiKeyHelper` | string | Path to script that generates a temporary API key |
+| `availableModels` | string[] | Restrict which models users can select |
+| `enabledPlugins` | object | `{ "plugin@marketplace": true/false }` |
+| `allowedHttpHookUrls` | string[] | Allowed URL patterns for HTTP hooks |
+| `disableAllHooks` | boolean | Disable all hook execution |
+| `allowManagedHooksOnly` | boolean | Block user/project/plugin hooks |
+| `allowedMcpServers` | object[] | Allowlist for MCP servers `[{ serverName }, { serverUrl }, { serverCommand }]` |
+| `deniedMcpServers` | object[] | Denylist for MCP servers (same format) |
+| `env` | object | Environment variables set for the session |
+| `model` | string | Default model |
+
+### Managed Settings Locations
+
+| OS | Path |
+|----|------|
+| macOS | `/Library/Application Support/ClaudeCode/managed-settings.json` |
+| Linux/WSL | `/etc/claude-code/managed-settings.json` |
+| Windows | `C:\Program Files\ClaudeCode\managed-settings.json` |
 
 ---
 
@@ -495,7 +837,73 @@ This is a lossy mapping — it blocks reading/editing but doesn't hide files fro
 
 ---
 
-## 8. dotai Entity Coverage
+## 8. Plugins
+
+Plugins are an entirely new feature that packages skills, agents, MCP servers, and hooks together for distribution.
+
+### Plugin Manifest — `plugin.json`
+
+```json
+{
+  "name": "my-plugin",
+  "version": "1.0.0",
+  "mcpServers": {
+    "plugin-api": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/servers/api-server",
+      "args": ["--port", "8080"]
+    }
+  }
+}
+```
+
+### Plugin Structure
+
+```
+my-plugin/
+├── plugin.json           # Plugin manifest
+├── skills/
+│   └── my-skill/
+│       └── SKILL.md      # Namespaced as plugin-name:skill-name
+├── agents/
+│   └── my-agent.md
+├── hooks/
+│   └── hooks.json        # Plugin-scoped hooks
+└── .mcp.json             # Plugin MCP servers (alternative to plugin.json)
+```
+
+### Plugin Skill Namespacing
+
+Plugin skills use a `plugin-name:skill-name` namespace to avoid conflicts with other skills:
+
+```text
+# Invoke a plugin skill
+/plugin-name:skill-name
+```
+
+### Plugin MCP Environment
+
+- `${CLAUDE_PLUGIN_ROOT}` — available in plugin MCP server configs for plugin-relative paths
+- Plugin MCP servers start automatically when the plugin is enabled
+- Restart Claude Code to apply MCP server changes
+
+### Plugin Settings
+
+| Key | Type | Notes |
+|-----|------|-------|
+| `enabledPlugins` | object | `{ "plugin@marketplace": true/false }` |
+| `extraKnownMarketplaces` | object | Additional plugin marketplaces |
+| `strictKnownMarketplaces` | object[] | Allowlist of trusted marketplaces |
+| `blockedMarketplaces` | object[] | Blocked marketplaces |
+
+### CLI Flag
+
+```bash
+claude --plugin-dir /path/to/plugin
+```
+
+---
+
+## 9. dotai Entity Coverage
 
 ### Current Emitter Status
 
@@ -511,7 +919,13 @@ This is a lossy mapping — it blocks reading/editing but doesn't hide files fro
 
 ### Known Gaps
 
-None critical. Claude Code is the primary/reference target for dotai.
+- **`.claude/CLAUDE.md` alternate location**: The rules emitter outputs to `CLAUDE.md` (root). Claude Code also accepts `.claude/CLAUDE.md`. No emitter change needed — both are valid.
+- **`@path/to/import` syntax**: dotai does not generate import statements in CLAUDE.md files. Users can add these manually.
+- **Auto memory**: dotai does not manage the `~/.claude/projects/*/memory/` directory. This is Claude Code's internal feature.
+- **Plugin output**: dotai does not generate plugin manifests (`plugin.json`). Plugins are authored separately.
+- **Managed settings/MCP**: dotai generates project-level config only; managed files are deployed by IT administrators.
+- **MCP scope: `local` vs `project`**: The MCP emitter generates `.mcp.json` (project-scoped/shared). Users wanting local-only servers should configure with the `claude mcp add --scope local` CLI.
+- **Hook timeout unit**: The timeout field in dotai domain/emitter passes through the user's value. The unit is **seconds** per the Claude Code spec (defaults: 600 command, 30 prompt, 60 agent). Documentation should reflect this.
 
 ### Notes
 
@@ -520,3 +934,6 @@ None critical. Claude Code is the primary/reference target for dotai.
 - Hook events use PascalCase (unlike other tools which use camelCase)
 - SSE transport is deprecated — warn users to migrate to HTTP
 - `CLAUDE.md` concatenation: multiple rules with the same outputDir merge into one file separated by `---`
+- Hook matchers are regex strings — `Edit|Write`, `mcp__.*`, etc.
+- MCP scope names changed: `local` (was `project`), `project` (shared via .mcp.json), `user` (was `global`)
+- Task tool renamed to Agent in v2.1.63; `Task(...)` still works as alias
