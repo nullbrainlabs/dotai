@@ -19,12 +19,6 @@ export function emitCodexMcp(servers: ToolServer[]): EmitResult {
 		content: `${sections.join("\n\n")}\n`,
 	});
 
-	if (servers.some((s) => s.enabledTools?.length || s.disabledTools?.length)) {
-		warnings.push(
-			"Codex config.toml does not support enabledTools/disabledTools filtering for MCP servers.",
-		);
-	}
-
 	return { files, warnings };
 }
 
@@ -40,6 +34,13 @@ function buildTomlSection(server: ToolServer): string {
 	} else {
 		lines.push(`type = ${tomlString(server.transport)}`);
 		if (server.url) lines.push(`url = ${tomlString(server.url)}`);
+	}
+
+	if (server.enabledTools?.length) {
+		lines.push(`enabled_tools = [${server.enabledTools.map(tomlString).join(", ")}]`);
+	}
+	if (server.disabledTools?.length) {
+		lines.push(`disabled_tools = [${server.disabledTools.map(tomlString).join(", ")}]`);
 	}
 
 	if (server.env && Object.keys(server.env).length > 0) {

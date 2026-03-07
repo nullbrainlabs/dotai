@@ -12,8 +12,9 @@
 4. [MCP Servers](#4-mcp-servers)
 5. [Permissions & Settings](#5-permissions--settings)
 6. [Ignore Patterns](#6-ignore-patterns)
-7. [Hooks](#7-hooks)
-8. [dotai Entity Coverage](#8-dotai-entity-coverage)
+7. [Exec Policy Rules (Not Yet Emitted)](#7-exec-policy-rules-not-yet-emitted)
+8. [Hooks](#8-hooks)
+9. [dotai Entity Coverage](#9-dotai-entity-coverage)
 
 ---
 
@@ -38,9 +39,12 @@ Content is structured Markdown with `## Section` headers. Nearest-directory file
 | **Format** | Plain Markdown |
 | **Purpose** | Higher-priority instructions that override `AGENTS.md` |
 
-### 1c. Scope Limitations
+### 1c. Scope
 
-- **No enterprise or user scope** — Codex only supports project-level instructions
+- **Global scope** — `~/.codex/AGENTS.md` is the global fallback; project `.ai/` rules are emitted to project-level `AGENTS.md`
+- **Discovery order** — global (`~/.codex/AGENTS.md`) → git root → intermediate directories → cwd
+- **`project_doc_fallback_filenames`** — config key for alternative filenames (e.g. `README.md`)
+- **No enterprise or user scope** — dotai emits project-level only; user-scope rules are skipped with a warning
 - **No file-scoped rules** — `appliesTo` patterns are included as informational notes but not enforced by Codex
 - **No frontmatter** — `AGENTS.md` is plain Markdown, rules are separated by `---` dividers
 
@@ -128,8 +132,34 @@ The following agent fields are NOT supported by Codex:
 |----------|-------|
 | **Directory** | `.codex/skills/<name>/SKILL.md` |
 | **Format** | Markdown with YAML frontmatter |
+| **Registry** | `.codex/config.toml` under `[[skills.config]]` array of tables |
 
-Codex skills use the same SKILL.md format as Claude Code, including all frontmatter fields.
+Codex skills use the same SKILL.md format as Claude Code, including all frontmatter fields. Skills must also be registered in `config.toml`.
+
+### config.toml Skills Registration
+
+```toml
+[[skills.config]]
+path = ".codex/skills/refactor/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = ".codex/skills/debug/SKILL.md"
+enabled = true
+```
+
+### Optional: `agents/openai.yaml`
+
+An optional `agents/openai.yaml` file alongside `SKILL.md` adds UI/policy settings:
+
+```yaml
+display_name: "Refactor Code"
+brand_color: "#4A90E2"
+allow_implicit_invocation: true
+dependencies: []
+```
+
+> dotai does not currently emit `agents/openai.yaml` — this is documented as a known gap.
 
 ---
 
@@ -177,15 +207,31 @@ url = "https://api.example.com/mcp"
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `type` | string | Yes | `stdio`, `http`, `sse` |
+| `type` | string | Yes | `stdio`, `http` (Streamable HTTP), `sse` |
 | `command` | string | stdio | Startup command |
 | `args` | string[] | No | Command arguments |
 | `url` | string | non-stdio | Server endpoint |
 | `env` | table | No | Nested TOML table for env vars |
+| `enabled_tools` | string[] | No | Only expose these tools from the server |
+| `disabled_tools` | string[] | No | Hide these tools from the server |
 
-### Limitations
+### New Fields (not yet emitted — requires domain type extension)
 
-- `enabledTools` / `disabledTools` filtering is NOT supported
+| Field | Type | Notes |
+|-------|------|-------|
+| `startup_timeout_sec` | int | Max seconds to wait for server startup |
+| `tool_timeout_sec` | int | Max seconds per tool call |
+| `enabled` | bool | Disable server without deleting config |
+| `required` | bool | Fail on init error if true |
+| `cwd` | string | Working directory for stdio servers |
+| `env_vars` | string[] | Forward named env vars from host |
+| `bearer_token_env_var` | string | Env var name for HTTP bearer token |
+| `http_headers` | table | Static HTTP headers |
+| `env_http_headers` | table | HTTP headers sourced from env vars |
+
+### Notes
+
+- HTTP transport is now called **Streamable HTTP** in Codex docs
 - MCP config shares `.codex/config.toml` with other Codex settings — dotai merges these
 
 ---
@@ -199,7 +245,7 @@ url = "https://api.example.com/mcp"
 ### Format
 
 ```toml
-approval_policy = "unless-allowed"
+approval_policy = "untrusted"
 sandbox_mode = "read-only"
 ```
 
@@ -207,8 +253,18 @@ sandbox_mode = "read-only"
 
 | Policy | Behavior |
 |--------|----------|
-| `unless-allowed` | Require approval except for allowed actions |
-| `on-failure` | Only require approval after failures |
+| `untrusted` | Require approval for most actions (most restrictive) |
+| `on-request` | Ask for approval only when the tool requests it |
+| `never` | Never require approval (least restrictive) |
+
+Granular reject objects are also supported by the live API (not currently emitted by dotai).
+
+### dotai Mapping
+
+| dotai permissions | Codex `approval_policy` |
+|-------------------|-------------------------|
+| has `deny` rules | `untrusted` |
+| allow-only rules | `on-request` |
 
 ### Notes
 
@@ -234,13 +290,48 @@ Protected paths prevent Codex from modifying matching files.
 
 ---
 
-## 7. Hooks
+## 7. Exec Policy Rules (Not Yet Emitted)
+
+Codex supports fine-grained shell command approval via Starlark `.rules` files in `.codex/rules/`.
+
+### Format
+
+```starlark
+# .codex/rules/allow-npm.rules
+prefix_rule(
+    pattern = "npm *",
+    decision = "allow",
+    justification = "npm commands are safe for development",
+)
+
+prefix_rule(
+    pattern = "rm -rf *",
+    decision = "forbidden",
+    justification = "destructive deletions require manual approval",
+)
+```
+
+### Field Reference
+
+| Field | Values | Notes |
+|-------|--------|-------|
+| `pattern` | string | Shell command prefix to match |
+| `decision` | `allow`, `prompt`, `forbidden` | Approval decision |
+| `justification` | string | Human-readable reason |
+| `match` | string[] | Additional positive matchers |
+| `not_match` | string[] | Negative matchers |
+
+> dotai does not currently emit exec policy rules — this would require a new emitter and domain type.
+
+---
+
+## 8. Hooks
 
 Codex does **not** support hooks. Hook configuration in dotai will produce a warning and be skipped for the Codex target.
 
 ---
 
-## 8. dotai Entity Coverage
+## 9. dotai Entity Coverage
 
 ### Current Emitter Status
 
@@ -248,9 +339,9 @@ Codex does **not** support hooks. Hook configuration in dotai will produce a war
 |--------|---------|----------------|--------|
 | Rules | rulesEmitter | `AGENTS.md`, `AGENTS.override.md` | Complete |
 | Agents | agentsEmitter | `.codex/config.toml` + `.codex/agents/<name>.toml` | Complete (limited fields) |
-| Skills | skillsEmitter | `.codex/skills/<name>/SKILL.md` | Complete |
+| Skills | skillsEmitter | `.codex/skills/<name>/SKILL.md` + `config.toml [[skills.config]]` | Complete |
 | Hooks | hooksEmitter | `.codex/config.toml` (ignore only) | Hooks unsupported |
-| MCP Servers | mcpEmitter | `.codex/config.toml` (mcp_servers) | Complete |
+| MCP Servers | mcpEmitter | `.codex/config.toml` (mcp_servers) | Complete (incl. enabled/disabled tools) |
 | Permissions | permissionsEmitter | `.codex/config.toml` (approval_policy) | Complete (lossy) |
 | Ignore | hooksEmitter | `.codex/config.toml` (protected_paths) | Complete |
 
@@ -263,9 +354,13 @@ Codex does **not** support hooks. Hook configuration in dotai will produce a war
 | No hooks | Low | Codex may add hooks in future |
 | Agent fields limited | Low | Many Claude Code agent features unavailable |
 | 32 KiB size limit | Medium | Large projects may exceed AGENTS.md limit — emitter warns |
+| MCP new fields not emitted | Low | `startup_timeout_sec`, `tool_timeout_sec`, `enabled`, `required`, `cwd`, `env_vars`, `bearer_token_env_var`, `http_headers`, `env_http_headers` require domain type extension |
+| Exec policy rules not emitted | Medium | Starlark `.rules` files in `.codex/rules/` — requires new emitter and domain type |
+| `agents/openai.yaml` not emitted | Low | Optional UI/policy settings alongside `SKILL.md` |
 
 ### Areas to Monitor
 
 - OpenAI frequently updates Codex — config format may change significantly
 - TOML config schema may gain new fields (agent tools, hooks, etc.)
 - `AGENTS.md` format may gain frontmatter or file-scoping support
+- New config capabilities: `features.*`, `profiles`, `model_providers`, `shell_environment_policy`, `tui.*`, `history.*`, `agents.job_max_runtime_seconds`, built-in roles

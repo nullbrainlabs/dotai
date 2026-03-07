@@ -13,15 +13,12 @@ export function emitCodex(permissions: Permission[], settings: Setting[]): EmitR
 
 	// Map permissions to Codex approval_policy
 	if (permissions.length > 0) {
-		const hasAllow = permissions.some((p) => p.decision === "allow");
 		const hasDeny = permissions.some((p) => p.decision === "deny");
 
-		if (hasAllow && !hasDeny) {
-			lines.push(`approval_policy = "unless-allowed"`);
-		} else if (hasDeny) {
-			lines.push(`approval_policy = "unless-allowed"`);
+		if (hasDeny) {
+			lines.push(`approval_policy = "untrusted"`);
 		} else {
-			lines.push(`approval_policy = "on-failure"`);
+			lines.push(`approval_policy = "on-request"`);
 		}
 
 		warnings.push(

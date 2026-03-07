@@ -1,3 +1,11 @@
+[[skills.config]]
+path = ".codex/skills/debug/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = ".codex/skills/explain/SKILL.md"
+enabled = true
+
 [mcp_servers.filesystem]
 type = "stdio"
 command = "npx @modelcontextprotocol/server-filesystem"
@@ -15,6 +23,6 @@ config_file = "agents/architect.toml"
 description = "Implementation agent"
 config_file = "agents/coder.toml"
 
-approval_policy = "unless-allowed"
+approval_policy = "untrusted"
 
 protected_paths = ["dist/", ".env*"]

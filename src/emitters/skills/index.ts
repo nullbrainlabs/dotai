@@ -41,6 +41,17 @@ export const skillsEmitter: Emitter = {
 			}
 		}
 
+		// Codex requires skills to be registered in config.toml via [[skills.config]]
+		if (target === "codex" && config.skills.length > 0) {
+			const entries = config.skills
+				.map((skill) => `[[skills.config]]\npath = "${baseDir}/${skill.name}/SKILL.md"\nenabled = true`)
+				.join("\n\n");
+			files.push({
+				path: ".codex/config.toml",
+				content: `${entries}\n`,
+			});
+		}
+
 		return { files, warnings };
 	},
 };
