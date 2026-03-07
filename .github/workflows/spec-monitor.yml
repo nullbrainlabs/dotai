@@ -11,7 +11,7 @@ jobs:
     outputs:
       tools: ${{ steps.find.outputs.tools }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -32,7 +32,7 @@ jobs:
         tool: ${{ fromJson(needs.discover.outputs.tools) }}
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
