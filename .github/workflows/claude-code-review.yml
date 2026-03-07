@@ -3,42 +3,90 @@ name: Claude Code Review
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    # Path filters intentionally omitted — specs/, decisions/, .github/, and
+    # docs-site/ changes all affect project correctness and should be reviewed.
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    if: github.event.pull_request.draft == false
 
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: read
+      actions: read
       id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Run Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: 'claude'
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
-          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
+          show_full_output: true
+          prompt: |
+            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
 
+            ## Review Focus (beyond what CI catches)
+
+            ### Architecture — Layer Boundaries
+            - domain/ must NEVER import from config/, emitters/, commands/, or external packages
+            - config/ imports from domain/ only
+            - emitters/ imports from domain/ and config/ only
+            - commands/ may import from all layers
+            - Check every `import` statement in changed files for violations
+            - No classes anywhere — functional style only
+
+            ### Spec Compliance (when src/emitters/ changed)
+            - Read the corresponding spec: src/emitters/**/claude.ts → specs/claude-code.md, cursor.ts → specs/cursor.md, codex.ts → specs/codex.md, copilot.ts → specs/copilot.md
+            - Verify output format matches spec field reference tables and examples
+            - Check cross-target consistency: if a field is added for one target, verify the other 3 targets handle the same field (each in their format). A silently dropped field is a bug.
+
+            ### Test Coverage for Changes
+            - Every src/emitters/<entity>/<target>.ts must have tests/emitters/<entity-plural>/<target>.test.ts — flag if emitter changed but test didn't
+            - New domain types require: type file + factory in factories.ts + type guard in type-guards.ts + re-export from domain/index.ts + field in ProjectConfig + updates to emptyConfig/mergeConfigs/validateConfig
+            - If emitter output format changed, contract snapshots must be updated
+
+            ### Conventions (not caught by Biome)
+            - All relative imports must use .js extensions
+            - File naming: domain entities singular, emitters entity-plural, commands verbs
+            - No `let` without type annotation
+
+            ### Config Merge Semantics
+            - project config appends to user config, except settings (override by key) and toolServers (override by name)
+            - Changes to mergeConfigs() must preserve this contract
+
+            ### Documentation — Flag When Updates Needed
+            When a PR changes user-facing behavior, check if documentation needs updating:
+            - **docs-site pages** (`docs-site/src/content/docs/`): Match changes to relevant pages:
+              - Domain/config changes → `concepts/` pages (rules, skills, ai-agents, hooks, permissions, settings, ignore-patterns, tool-servers, overview)
+              - CLI/command changes → `reference/cli.md`
+              - Config schema changes → `reference/config-yaml.md`
+              - Emitter output changes → `tools/` pages (claude-code, cursor, codex, copilot, compatibility)
+              - Import flow changes → `getting-started/importing.md`
+            - **Internal docs**: Changes to architecture or conventions should be reflected in:
+              - Root `CLAUDE.md` and relevant subdirectory `CLAUDE.md` files
+              - `reference/glossary.md` if new terms are introduced
+              - `reference/patterns.md` if new patterns are established
+              - `decisions/` if the change represents an architectural decision (use `/add-decision`)
+            - Flag the specific pages that need updating and what content is affected — don't just say "docs may need updating"
+
+            ### What NOT to flag (CI handles these)
+            - Formatting, lint violations (Biome)
+            - Type errors (tsc --noEmit)
+            - Test pass/fail (vitest)
+
+            ### When a change contradicts an established pattern, check decisions/ for relevant ADRs before flagging.
