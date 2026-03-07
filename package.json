@@ -76,7 +76,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
-    "@clack/prompts": "^1.0.1",
+    "@clack/prompts": "1.0.1",
     "commander": "^14.0.3",
     "smol-toml": "^1.6.0",
     "yaml": "^2.8.2"
