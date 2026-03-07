@@ -1,8 +1,8 @@
 # Cursor Configuration Capabilities — Complete Reference
 
 > Source: Cursor docs + dotai emitter code
-> Last Researched Version: Cursor 0.48
-> Date: 2026-03-05
+> Last Researched Version: Cursor 0.48 (updated 2026-03-07)
+> Date: 2026-03-07
 
 ## Table of Contents
 
@@ -59,6 +59,16 @@ alwaysApply: true
 ### Subdirectory Support
 
 Rules can be placed in `<outputDir>/.cursor/rules/` to scope them to subdirectories.
+
+### Remote Rule Imports
+
+Cursor supports pulling rules directly from GitHub repositories (public or private) using an `@import` directive in `.mdc` files:
+
+```
+@import https://github.com/org/repo/path/to/rule.mdc
+```
+
+Private repo access requires a GitHub token configured in Cursor settings. dotai does not currently emit remote rule imports (tracked as a known gap).
 
 ### AGENTS.md Alternative
 
@@ -152,7 +162,16 @@ Uses the same `mcpServers` key and format as Claude Code's `.mcp.json`.
 
 ### Transport Types
 
-Same as Claude Code — stdio (default), HTTP, SSE.
+Supported transports: `stdio` (default), `http`, `sse`, `streamable-http`.
+
+The `streamable-http` transport uses the same `type` + `url` shape as `http` and `sse`:
+
+```json
+{
+  "type": "streamable-http",
+  "url": "https://api.example.com/mcp"
+}
+```
 
 ---
 
@@ -166,23 +185,47 @@ Same as Claude Code — stdio (default), HTTP, SSE.
 
 ```json
 {
+  "version": 1,
   "permissions": {
     "allow": [
-      "Bash(npm test)",
-      "Read"
+      "Shell(npm test)",
+      "Read(**/*.ts)"
     ],
     "deny": [
-      "Bash(rm -rf *)"
+      "Shell(rm -rf *)",
+      "Write(dist/**)"
     ]
   }
 }
 ```
 
+### Permission Types
+
+| Permission | Format | Notes |
+|------------|--------|-------|
+| `Shell` | `Shell(commandBase)` | Shell command control — **not** `Bash` |
+| `Read` | `Read(pathOrGlob)` | File read access by path/glob |
+| `Write` | `Write(pathOrGlob)` | File write access by path/glob |
+| `WebFetch` | `WebFetch(domainOrPattern)` | Web fetch access by domain/URL pattern |
+| `Mcp` | `Mcp(server:tool)` | MCP server tool access |
+
+> **Important:** Cursor uses `Shell` (not `Bash`) for shell command permissions. dotai maps `Bash` → `Shell` when emitting for Cursor.
+
+### Required and Optional Fields
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `version` | **Yes** | Must be `1`. dotai always emits this. |
+| `permissions` | No | `allow`/`deny` arrays |
+| `network.useHttp1ForAgent` | No | Force HTTP/1 for agent network calls |
+| `attribution.attributeCommitsToAgent` | No | Tag commits made by the agent |
+| `attribution.attributePRsToAgent` | No | Tag PRs opened by the agent |
+
 ### Notes
 
-- Uses same `ToolName(pattern)` format as Claude Code
 - Only `allow` and `deny` decisions — no `ask` decision
-- Additional settings can be added as top-level key-value pairs
+- dotai maps `Bash` permission tool name → `Shell` for Cursor output
+- Additional flat settings can be added as top-level key-value pairs; nested optional fields (`network.*`, `attribution.*`) are not yet configurable via dotai settings
 
 ---
 
@@ -248,6 +291,8 @@ Cursor does **not** have a file-based hooks system. Hooks configured in dotai wi
 | No `ask` permission | Low | Only `allow`/`deny` — lossy but acceptable |
 | No `.cursorindexingignore` output | Low | Requires domain model to distinguish indexing-only vs full ignore patterns |
 | No `AGENTS.md` output | Low | Alternative rule format; `.mdc` is preferred and fully supported |
+| No remote rule imports | Low | `@import` from GitHub not yet supported in dotai rule model |
+| Nested `cli.json` settings | Low | `network.*` and `attribution.*` optional fields not configurable via dotai settings |
 
 ### Areas to Monitor
 

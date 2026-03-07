@@ -5,6 +5,7 @@ export const Transport = {
 	Stdio: "stdio",
 	Http: "http",
 	Sse: "sse",
+	StreamableHttp: "streamable-http",
 } as const;
 
 export type Transport = (typeof Transport)[keyof typeof Transport];

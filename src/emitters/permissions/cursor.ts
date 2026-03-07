@@ -9,14 +9,16 @@ export function emitCursor(permissions: Permission[], settings: Setting[]): Emit
 
 	if (permissions.length === 0 && settings.length === 0) return { files, warnings };
 
-	const cliConfig: Record<string, unknown> = {};
+	const cliConfig: Record<string, unknown> = { version: 1 };
 
 	if (permissions.length > 0) {
 		const allow: string[] = [];
 		const deny: string[] = [];
 
 		for (const perm of permissions) {
-			const rule = perm.pattern ? `${perm.tool}(${perm.pattern})` : perm.tool;
+			// Cursor uses Shell() instead of Bash() for shell command permissions
+			const toolName = perm.tool === "Bash" ? "Shell" : perm.tool;
+			const rule = perm.pattern ? `${toolName}(${perm.pattern})` : toolName;
 			if (perm.decision === "allow") allow.push(rule);
 			else if (perm.decision === "deny") deny.push(rule);
 		}

@@ -1,7 +1,8 @@
 {
+  "version": 1,
   "permissions": {
     "allow": [
-      "Bash"
+      "Shell"
     ]
   }
 }

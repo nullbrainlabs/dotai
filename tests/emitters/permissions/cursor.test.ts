@@ -17,6 +17,7 @@ describe("permissionsEmitter — cursor", () => {
 		expect(result.files[0].path).toBe(".cursor/cli.json");
 
 		const parsed = JSON.parse(result.files[0].content);
-		expect(parsed.permissions.allow).toContain("Bash(npm *)");
+		expect(parsed.version).toBe(1);
+		expect(parsed.permissions.allow).toContain("Shell(npm *)");
 	});
 });
