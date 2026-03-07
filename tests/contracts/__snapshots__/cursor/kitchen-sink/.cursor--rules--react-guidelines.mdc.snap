@@ -1,6 +1,6 @@
 ---
 description: React guidelines
-globs: **/*.tsx, **/*.jsx
+globs: ["**/*.tsx", "**/*.jsx"]
 alwaysApply: false
 ---
 
