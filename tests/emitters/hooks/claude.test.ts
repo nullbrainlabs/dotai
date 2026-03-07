@@ -214,6 +214,51 @@ describe("hooksEmitter — claude", () => {
 		expect(parsed.hooks).toEqual({});
 	});
 
+	it("maps instructionsLoaded to InstructionsLoaded", () => {
+		const config = emptyConfig();
+		config.hooks.push({
+			event: "instructionsLoaded",
+			handler: "echo loaded",
+			scope: "project",
+		});
+		const result = hooksEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		expect(parsed.hooks.InstructionsLoaded).toHaveLength(1);
+	});
+
+	it("emits http type hooks with url, headers, and allowedEnvVars", () => {
+		const config = emptyConfig();
+		config.hooks.push({
+			event: "preToolUse",
+			handler: "https://example.com/hook",
+			type: "http",
+			url: "https://example.com/hook",
+			headers: { Authorization: "Bearer token" },
+			allowedEnvVars: ["MY_SECRET"],
+			scope: "project",
+		});
+		const result = hooksEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		const handler = parsed.hooks.PreToolUse[0].hooks[0];
+		expect(handler.type).toBe("http");
+		expect(handler.url).toBe("https://example.com/hook");
+		expect(handler.headers).toEqual({ Authorization: "Bearer token" });
+		expect(handler.allowedEnvVars).toEqual(["MY_SECRET"]);
+	});
+
+	it("uses handler as url fallback for http type when url not set", () => {
+		const config = emptyConfig();
+		config.hooks.push({
+			event: "sessionStart",
+			handler: "https://example.com/webhook",
+			type: "http",
+			scope: "project",
+		});
+		const result = hooksEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		expect(parsed.hooks.SessionStart[0].hooks[0].url).toBe("https://example.com/webhook");
+	});
+
 	it("returns empty for no hooks or ignore patterns", () => {
 		const config = emptyConfig();
 		const result = hooksEmitter.emit(config, "claude");

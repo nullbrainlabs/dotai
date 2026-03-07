@@ -13,8 +13,15 @@ export function emitClaude(permissions: Permission[], settings: Setting[]): Emit
 		$schema: "https://json.schemastore.org/claude-code-settings.json",
 	};
 
-	// Permissions
-	if (permissions.length > 0) {
+	// Permissions — extract permission-block extensions from settings
+	const defaultMode = settings.find((s) => s.key === "permissions.defaultMode")?.value as
+		| string
+		| undefined;
+	const additionalDirectories = settings.find((s) => s.key === "permissions.additionalDirectories")
+		?.value as string[] | undefined;
+	const permissionSettingKeys = new Set(["permissions.defaultMode", "permissions.additionalDirectories"]);
+
+	if (permissions.length > 0 || defaultMode !== undefined || additionalDirectories !== undefined) {
 		const allow: string[] = [];
 		const deny: string[] = [];
 		const ask: string[] = [];
@@ -26,16 +33,20 @@ export function emitClaude(permissions: Permission[], settings: Setting[]): Emit
 			else if (perm.decision === "ask") ask.push(rule);
 		}
 
-		const permsObj: Record<string, string[]> = {};
+		const permsObj: Record<string, unknown> = {};
 		if (allow.length > 0) permsObj.allow = allow;
 		if (deny.length > 0) permsObj.deny = deny;
 		if (ask.length > 0) permsObj.ask = ask;
+		if (defaultMode !== undefined) permsObj.defaultMode = defaultMode;
+		if (additionalDirectories !== undefined) permsObj.additionalDirectories = additionalDirectories;
 		settingsObj.permissions = permsObj;
 	}
 
-	// Settings
+	// Settings (excluding permission-block extensions handled above)
 	for (const setting of settings) {
-		settingsObj[setting.key] = setting.value;
+		if (!permissionSettingKeys.has(setting.key)) {
+			settingsObj[setting.key] = setting.value;
+		}
 	}
 
 	files.push({

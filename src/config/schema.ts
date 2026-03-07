@@ -183,7 +183,7 @@ export function validateConfig(config: ProjectConfig): ValidationResult {
 		}
 	}
 
-	const validHookTypes = ["command", "prompt", "agent"];
+	const validHookTypes = ["command", "prompt", "agent", "http"];
 	for (const h of config.hooks) {
 		if (h.type && !validHookTypes.includes(h.type)) {
 			errors.push({

@@ -2,7 +2,7 @@
 
 > Source: Claude Code CLI (firsthand knowledge + emitter code)
 > Last Researched Version: Claude Code 1.0 (CLI)
-> Date: 2026-03-05
+> Date: 2026-03-07
 
 ## Table of Contents
 
@@ -96,7 +96,7 @@ disallowedTools: [Write, Edit]
 permissionMode: default          # default | acceptEdits | dontAsk | bypassPermissions | plan
 maxTurns: 20
 skills: [test-runner, lint-fixer]
-memory: true
+memory: project             # user | project | local
 background: true
 isolation: worktree
 hooks:
@@ -127,7 +127,7 @@ Agent behavioral instructions go here.
 | `permissionMode` | string | No | Permission level override |
 | `maxTurns` | number | No | Maximum agentic turns |
 | `skills` | string[] | No | Available skill names |
-| `memory` | boolean | No | Enable persistent memory |
+| `memory` | string | No | Memory scope: `user`, `project`, or `local` |
 | `background` | boolean | No | Run as background agent |
 | `isolation` | string | No | `worktree` for isolated git worktree |
 | `hooks` | object | No | Agent-specific hook overrides |
@@ -160,7 +160,7 @@ argument-hint: <environment> [--dry-run]
 user-invocable: false
 allowed-tools: Bash, Read, Glob
 model: sonnet
-context: src/deploy/
+context: fork               # fork = run skill in an isolated fork context
 agent: deploy-agent
 hooks:
   postToolUse:
@@ -184,13 +184,25 @@ Skill instructions, examples, and guidelines in markdown.
 | `user-invocable` | boolean | No | `false` = only model can invoke |
 | `allowed-tools` | string (CSV) | No | Comma-separated tool names |
 | `model` | string | No | Model override for skill execution |
-| `context` | string | No | File/directory context to load |
+| `context` | string | No | `fork` — run skill in an isolated fork context |
 | `agent` | string | No | Agent to delegate to |
 | `hooks` | object | No | Skill-specific hooks |
 
+### Skill Substitution Variables
+
+The following variables are substituted in SKILL.md content at invocation time:
+
+| Variable | Value |
+|----------|-------|
+| `$ARGUMENTS` | Full argument string passed after the skill name |
+| `$ARGUMENTS[N]` | Nth positional argument (0-indexed) |
+| `$N` | Shorthand for `$ARGUMENTS[N]` |
+| `$CLAUDE_SESSION_ID` | Unique ID for the current session |
+| `$CLAUDE_SKILL_DIR` | Absolute path to the skill directory |
+
 ### Skill Directories
 
-Can contain supplementary files (scripts, templates, examples) referenced from SKILL.md instructions.
+Can contain supplementary files (scripts, templates, examples) referenced from SKILL.md instructions. The directory path is available via `$CLAUDE_SKILL_DIR`.
 
 ---
 
@@ -245,6 +257,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `WorktreeCreate` | Git worktree created |
 | `WorktreeRemove` | Git worktree removed |
 | `PreCompact` | Before context compaction |
+| `InstructionsLoaded` | After system instructions are loaded |
 
 ### Hook Handler Types
 
@@ -253,6 +266,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `command` | `command`, `timeout`, `statusMessage`, `async`, `once` | Shell command execution |
 | `prompt` | `prompt`, `model`, `timeout`, `statusMessage`, `once` | LLM prompt injection |
 | `agent` | `prompt`, `model`, `timeout`, `statusMessage`, `once` | Agent delegation |
+| `http` | `url`, `headers`, `allowedEnvVars`, `timeout`, `statusMessage`, `once` | HTTP webhook call |
 
 ### Hook Entry Fields
 
@@ -265,9 +279,12 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `type` | string | `command`, `prompt`, or `agent` |
+| `type` | string | `command`, `prompt`, `agent`, or `http` |
 | `command` | string | Shell command (type=command) |
 | `prompt` | string | LLM prompt (type=prompt/agent) |
+| `url` | string | HTTP endpoint URL (type=http) |
+| `headers` | object | HTTP headers to send (type=http) |
+| `allowedEnvVars` | string[] | Env var names forwarded to HTTP endpoint (type=http) |
 | `timeout` | number | Milliseconds |
 | `statusMessage` | string | Display text during execution |
 | `async` | boolean | Non-blocking (type=command) |
@@ -348,7 +365,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 |-------|------|----------|-------|
 | `command` | string | stdio | Startup command |
 | `args` | string[] | No | Command arguments |
-| `env` | object | No | Environment variables |
+| `env` | object | No | Environment variables (values support `${VAR}` expansion from shell environment) |
 | `type` | string | non-stdio | `http`, `sse` |
 | `url` | string | non-stdio | Server endpoint |
 | `headers` | object | No | HTTP headers |
@@ -379,7 +396,9 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
     ],
     "ask": [
       "Bash(git push)"
-    ]
+    ],
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": ["/shared/libs"]
   }
 }
 ```
@@ -397,9 +416,36 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `deny` | Block and refuse |
 | `ask` | Prompt user for approval |
 
+### Permissions Object Fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `allow` | string[] | Auto-approved rules |
+| `deny` | string[] | Blocked rules |
+| `ask` | string[] | Rules requiring user approval |
+| `defaultMode` | string | Default permission mode: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions` |
+| `additionalDirectories` | string[] | Extra directories Claude Code is allowed to access |
+
+In dotai, `defaultMode` and `additionalDirectories` are configured via settings entries with keys `permissions.defaultMode` and `permissions.additionalDirectories` respectively.
+
 ### Settings
 
 Additional key-value pairs in `settings.json` control Claude Code behavior. These are tool-specific and may change between versions.
+
+#### Sandbox Configuration
+
+Claude Code supports a `sandbox` block for restricting network and filesystem access:
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "allowedNetworkHosts": ["api.example.com"]
+  }
+}
+```
+
+The `sandbox` key can be set via a dotai `settings` entry with `key: "sandbox"` and an object value.
 
 ### Scope Levels
 

@@ -45,6 +45,46 @@ describe("permissionsEmitter — claude", () => {
 		expect(result.warnings).toHaveLength(0);
 	});
 
+	it("supports defaultMode from settings", () => {
+		const config = emptyConfig();
+		config.permissions.push({ tool: "Bash", decision: "allow", scope: "project" });
+		config.settings.push({ key: "permissions.defaultMode", value: "acceptEdits", scope: "project" });
+		const result = permissionsEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		expect(parsed.permissions.defaultMode).toBe("acceptEdits");
+		expect(parsed.permissions.allow).toContain("Bash");
+		expect(parsed["permissions.defaultMode"]).toBeUndefined();
+	});
+
+	it("supports additionalDirectories from settings", () => {
+		const config = emptyConfig();
+		config.settings.push({
+			key: "permissions.additionalDirectories",
+			value: ["/shared/libs"],
+			scope: "project",
+		});
+		const result = permissionsEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		expect(parsed.permissions.additionalDirectories).toEqual(["/shared/libs"]);
+		expect(parsed["permissions.additionalDirectories"]).toBeUndefined();
+	});
+
+	it("merges permission extensions with allow/deny rules", () => {
+		const config = emptyConfig();
+		config.permissions.push({ tool: "Read", decision: "allow", scope: "project" });
+		config.settings.push({ key: "permissions.defaultMode", value: "dontAsk", scope: "project" });
+		config.settings.push({
+			key: "permissions.additionalDirectories",
+			value: ["/extra"],
+			scope: "project",
+		});
+		const result = permissionsEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		expect(parsed.permissions.allow).toContain("Read");
+		expect(parsed.permissions.defaultMode).toBe("dontAsk");
+		expect(parsed.permissions.additionalDirectories).toEqual(["/extra"]);
+	});
+
 	it("returns empty for no permissions or settings", () => {
 		const config = emptyConfig();
 		const result = permissionsEmitter.emit(config, "claude");
