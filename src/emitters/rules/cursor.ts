@@ -18,7 +18,8 @@ export function emitCursor(rules: Rule[]): EmitResult {
 			frontmatter.push(`description: ${rule.description}`);
 		}
 		if (rule.appliesTo?.length) {
-			frontmatter.push(`globs: ${rule.appliesTo.join(", ")}`);
+			const globList = rule.appliesTo.map((g) => `"${g}"`).join(", ");
+			frontmatter.push(`globs: [${globList}]`);
 		}
 		frontmatter.push(`alwaysApply: ${rule.alwaysApply}`);
 

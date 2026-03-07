@@ -21,20 +21,22 @@
 
 ### Format
 
-Each rule is a separate `.mdc` file in `.cursor/rules/`.
+Each rule is a separate `.mdc` (or `.md`) file in `.cursor/rules/`.
 
 | Property | Value |
 |----------|-------|
 | **Directory** | `.cursor/rules/` (subdirectories supported) |
-| **Naming** | `<slug>.mdc` (Markdown Cursor format) |
+| **Naming** | `<slug>.mdc` (preferred) or `<slug>.md` |
 | **Format** | Markdown with YAML frontmatter |
+
+Supported extensions are `.md` and `.mdc`. dotai emits `.mdc` (preferred format).
 
 ### Frontmatter Schema
 
 ```yaml
 ---
 description: Brief description of when this rule applies
-globs: "**/*.ts, **/*.tsx"
+globs: ["**/*.ts", "**/*.tsx"]
 alwaysApply: true
 ---
 ```
@@ -44,7 +46,7 @@ alwaysApply: true
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
 | `description` | string | No | Describes the rule's purpose |
-| `globs` | string | No | Comma-separated glob patterns for file scoping |
+| `globs` | array | No | Array of glob patterns for file scoping |
 | `alwaysApply` | boolean | No | `true` = always active, `false` = only when matching files |
 
 ### Rule Behavior
@@ -57,6 +59,10 @@ alwaysApply: true
 ### Subdirectory Support
 
 Rules can be placed in `<outputDir>/.cursor/rules/` to scope them to subdirectories.
+
+### AGENTS.md Alternative
+
+Cursor also supports `AGENTS.md` files as a simplified markdown alternative to `.mdc` rules — no frontmatter required. These can be nested in subdirectories for directory-scoped instructions, with more specific files taking precedence over parent-level ones. dotai does not currently emit `AGENTS.md` files (tracked as a known gap).
 
 ---
 
@@ -182,11 +188,19 @@ Same as Claude Code — stdio (default), HTTP, SSE.
 
 ## 6. Ignore Patterns
 
-### Configuration Location
+Cursor supports two ignore files at the project root:
 
-`.cursorignore` (project root)
+### `.cursorignore`
+
+Blocks file access from semantic search, Tab, Agent tools, and `@` mentions entirely.
+
+### `.cursorindexingignore`
+
+Excludes files from codebase indexing only. Files are still accessible by the Agent (useful for large generated/vendored files that shouldn't pollute semantic search but may still be needed at runtime).
 
 ### Format
+
+Both files use `.gitignore` syntax — one pattern per line, comments with `#`:
 
 ```
 # gitignore-style patterns
@@ -196,7 +210,12 @@ dist/**
 .env.*
 ```
 
-Uses `.gitignore` syntax. One pattern per line. Comments with `#`.
+### Additional Options (User Settings)
+
+- **Hierarchical ignore**: Optional setting to traverse parent directories for `.cursorignore` files
+- **Global ignore**: User-level ignore patterns via `Cursor Settings > Features > Editor`
+
+These are user settings, not emitter-generated files.
 
 ---
 
@@ -227,6 +246,8 @@ Cursor does **not** have a file-based hooks system. Hooks configured in dotai wi
 | Agent fields limited | Low | Cursor agents support fewer fields — correct behavior to warn |
 | No hooks support | Medium | Cursor may add hooks in future — monitor docs |
 | No `ask` permission | Low | Only `allow`/`deny` — lossy but acceptable |
+| No `.cursorindexingignore` output | Low | Requires domain model to distinguish indexing-only vs full ignore patterns |
+| No `AGENTS.md` output | Low | Alternative rule format; `.mdc` is preferred and fully supported |
 
 ### Areas to Monitor
 

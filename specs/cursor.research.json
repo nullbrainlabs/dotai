@@ -4,14 +4,12 @@
 	"spec": "specs/cursor.md",
 	"llmsTxt": "https://cursor.com/llms.txt",
 	"docs": [
-		"https://cursor.com/docs/rules.md",
-		"https://cursor.com/docs/subagents.md",
-		"https://cursor.com/docs/skills.md",
-		"https://cursor.com/docs/hooks.md",
-		"https://cursor.com/docs/mcp.md",
-		"https://cursor.com/help/customization/ignore-files.md",
-		"https://cursor.com/docs/cli/reference/configuration.md",
-		"https://cursor.com/docs/cli/reference/permissions.md"
+		"https://cursor.com/docs/rules",
+		"https://cursor.com/docs/agent/overview",
+		"https://cursor.com/docs/mcp",
+		"https://cursor.com/docs/reference/ignore-file",
+		"https://cursor.com/docs/cli/reference/configuration",
+		"https://cursor.com/docs/cli/reference/permissions"
 	],
 	"emitters": [
 		"src/emitters/rules.ts",
@@ -30,14 +28,15 @@
 		"ignore": ".cursorignore"
 	},
 	"notes": [
-		"Rules use .mdc extension (Markdown Cursor), not .md",
-		"Rules frontmatter uses 'globs' (comma-separated string), not 'paths' (YAML array)",
+		"Rules use .mdc extension (preferred) — .md is also supported per docs",
+		"Rules frontmatter uses 'globs' as a YAML array (e.g. [\"**/*.ts\"]), not a comma-separated string",
+		"Cursor also supports AGENTS.md files as a no-frontmatter alternative to .mdc rules — not emitted by dotai",
 		"Agent support is limited — no tools, hooks, mcpServers, permissionMode fields",
 		"Cursor uses 'is_background' for background agents (not 'background')",
 		"MCP format matches Claude Code (.mcp.json style with mcpServers key)",
 		"Permissions only support allow/deny — no 'ask' decision",
 		"No hooks support at all — hooks produce warnings and are skipped",
-		"Cursor updates frequently — doc URLs may change",
-		"Skills may use same format as Claude Code but verify support level"
+		".cursorindexingignore is a second ignore file for indexing-only exclusion (not yet emitted by dotai)",
+		"Cursor updates frequently — doc URLs may change"
 	]
 }
