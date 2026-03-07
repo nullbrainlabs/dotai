@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      minor-patch:
+        update-types:
+          - minor
+          - patch
+    reviewers:
+      - THATBLADEBOY
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    reviewers:
+      - THATBLADEBOY
+    open-pull-requests-limit: 10

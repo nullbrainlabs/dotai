@@ -28,6 +28,8 @@
     "test:watch": "vitest",
     "start": "tsx src/cli.ts",
     "local": "pnpm build && pnpm link --global",
+    "prepare": "husky",
+    "changeset": "changeset",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "sync-docs": "bash scripts/sync-docs.sh",
@@ -54,13 +56,20 @@
     "url": "https://github.com/nullbrainlabs/dotai"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
     "@changesets/cli": "^2.29.8",
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
     "@types/node": "^25.3.0",
+    "husky": "^9.1.7",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
