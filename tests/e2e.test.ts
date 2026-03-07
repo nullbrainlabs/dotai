@@ -211,7 +211,7 @@ Assist with deployment tasks.
 		expect(cursorConventions).toContain("description: Project conventions");
 
 		const cursorTesting = await readFile(join(PROJECT, ".cursor/rules/testing-rules.mdc"), "utf-8");
-		expect(cursorTesting).toContain("globs: **/*.test.ts, **/*.spec.ts");
+		expect(cursorTesting).toContain('globs: ["**/*.test.ts", "**/*.spec.ts"]');
 		expect(cursorTesting).toContain("alwaysApply: false");
 
 		const cursorMcp = JSON.parse(await readFile(join(PROJECT, ".cursor/mcp.json"), "utf-8"));

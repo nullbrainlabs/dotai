@@ -31,7 +31,7 @@ describe("rulesEmitter — cursor", () => {
 
 		const testing = result.files.find((f) => f.path.includes("testing"));
 		expect(testing).toBeDefined();
-		expect(testing?.content).toContain("globs: **/*.test.ts");
+		expect(testing?.content).toContain('globs: ["**/*.test.ts"]');
 		expect(testing?.content).toContain("alwaysApply: false");
 	});
 

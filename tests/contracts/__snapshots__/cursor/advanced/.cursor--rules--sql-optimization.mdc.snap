@@ -1,6 +1,6 @@
 ---
 description: SQL optimization
-globs: **/*.sql, src/db/**
+globs: ["**/*.sql", "src/db/**"]
 alwaysApply: false
 ---
 
