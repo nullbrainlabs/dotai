@@ -1,4 +1,5 @@
 ---
+name: architect
 description: System architecture agent
 tools: [read, search]
 ---

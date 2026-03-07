@@ -93,7 +93,7 @@ describe("hooksEmitter — copilot", () => {
 		expect(result.files.filter((f) => f.path.includes("hooks")).length).toBe(0);
 	});
 
-	it("only supports the 8 Copilot events", () => {
+	it("only supports the 6 Copilot events (agentStop/subagentStop removed Mar 2026)", () => {
 		const supportedEvents = [
 			"sessionStart",
 			"sessionEnd",
@@ -101,8 +101,6 @@ describe("hooksEmitter — copilot", () => {
 			"preToolUse",
 			"postToolUse",
 			"errorOccurred",
-			"agentStop",
-			"subagentStop",
 		] as const;
 
 		for (const event of supportedEvents) {
@@ -114,8 +112,10 @@ describe("hooksEmitter — copilot", () => {
 			expect(parsed.hooks[event]).toHaveLength(1);
 		}
 
-		// Events NOT supported by Copilot
+		// Events NOT supported by Copilot (includes previously-removed agentStop/subagentStop)
 		const unsupportedEvents = [
+			"agentStop",
+			"subagentStop",
 			"permissionRequest",
 			"postToolUseFailure",
 			"notification",

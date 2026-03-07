@@ -20,6 +20,7 @@ describe("agentsEmitter — copilot", () => {
 		const result = agentsEmitter.emit(makeConfig(), "copilot");
 		expect(result.files).toHaveLength(1);
 		expect(result.files[0].path).toBe(".github/agents/reviewer.agent.md");
+		expect(result.files[0].content).toContain("name: reviewer");
 		expect(result.files[0].content).toContain("description: Code review agent");
 		expect(result.files[0].content).toContain("# Reviewer");
 	});
@@ -106,6 +107,41 @@ describe("agentsEmitter — copilot", () => {
 		expect(result.files[0].content).toContain("metadata:");
 		expect(result.files[0].content).toContain("team: platform");
 		expect(result.files[0].content).toContain('version: "1.0"');
+	});
+
+	it("emits user-invocable in frontmatter when set", () => {
+		const config = emptyConfig();
+		config.agents.push({
+			name: "invocable-agent",
+			description: "User-invocable agent",
+			instructions: "Invoke me.",
+			userInvocable: true,
+		});
+		const result = agentsEmitter.emit(config, "copilot");
+		expect(result.files[0].content).toContain("user-invocable: true");
+	});
+
+	it("emits user-invocable: false when explicitly disabled", () => {
+		const config = emptyConfig();
+		config.agents.push({
+			name: "private-agent",
+			description: "Non-invocable agent",
+			instructions: "Stay hidden.",
+			userInvocable: false,
+		});
+		const result = agentsEmitter.emit(config, "copilot");
+		expect(result.files[0].content).toContain("user-invocable: false");
+	});
+
+	it("omits user-invocable when not set", () => {
+		const config = emptyConfig();
+		config.agents.push({
+			name: "default-agent",
+			description: "Default agent",
+			instructions: "Do things.",
+		});
+		const result = agentsEmitter.emit(config, "copilot");
+		expect(result.files[0].content).not.toContain("user-invocable");
 	});
 
 	it("warns about unsupported fields", () => {

@@ -1,4 +1,5 @@
 ---
+name: reviewer
 description: Code review agent
 model: claude-sonnet-4-6
 tools: [read, search]

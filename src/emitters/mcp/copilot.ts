@@ -25,7 +25,7 @@ export function emitCopilotMcp(servers: ToolServer[]): EmitResult {
 	});
 
 	warnings.push(
-		"Copilot coding agent MCP must be configured in GitHub repo settings separately — .vscode/mcp.json is for VS Code Copilot Chat only.",
+		"Copilot coding agent MCP must be configured in GitHub repo settings separately — .vscode/mcp.json is for VS Code Copilot Chat only. The 'tools' field is now required in Coding Agent MCP config. Use COPILOT_MCP_<NAME> variables for secrets.",
 	);
 
 	return { files, warnings };

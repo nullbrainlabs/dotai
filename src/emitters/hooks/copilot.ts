@@ -2,7 +2,7 @@ import type { Hook } from "../../domain/hook.js";
 import type { IgnorePattern } from "../../domain/ignore-pattern.js";
 import type { EmitResult, EmittedFile } from "../types.js";
 
-/** Events supported by Copilot hooks. */
+/** Events supported by Copilot hooks (6 events as of Mar 2026; agentStop/subagentStop removed). */
 const COPILOT_HOOK_EVENTS = new Set([
 	"sessionStart",
 	"sessionEnd",
@@ -10,8 +10,6 @@ const COPILOT_HOOK_EVENTS = new Set([
 	"preToolUse",
 	"postToolUse",
 	"errorOccurred",
-	"agentStop",
-	"subagentStop",
 ]);
 
 /** Copilot: .github/hooks/hooks.json — version 1 format */
