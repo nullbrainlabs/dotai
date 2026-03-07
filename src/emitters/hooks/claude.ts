@@ -21,6 +21,7 @@ const CLAUDE_EVENT_MAP: Partial<Record<HookEvent, string>> = {
 	worktreeCreate: "WorktreeCreate",
 	worktreeRemove: "WorktreeRemove",
 	preCompact: "PreCompact",
+	instructionsLoaded: "InstructionsLoaded",
 };
 
 /** Build a Claude Code hook handler object based on hook type and fields. */
@@ -38,6 +39,11 @@ function buildClaudeHookHandler(hook: Hook): Record<string, unknown> {
 	} else if (hookType === "agent") {
 		handler.type = "agent";
 		handler.prompt = hook.handler;
+	} else if (hookType === "http") {
+		handler.type = "http";
+		handler.url = hook.url ?? hook.handler;
+		if (hook.headers && Object.keys(hook.headers).length > 0) handler.headers = hook.headers;
+		if (hook.allowedEnvVars?.length) handler.allowedEnvVars = hook.allowedEnvVars;
 	}
 
 	if (hook.timeout !== undefined) handler.timeout = hook.timeout;

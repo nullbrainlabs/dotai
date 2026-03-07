@@ -2,7 +2,7 @@
 
 > Source: Claude Code CLI (firsthand knowledge + emitter code)
 > Last Researched Version: Claude Code 1.0 (CLI)
-> Date: 2026-03-05
+> Date: 2026-03-07
 
 ## Table of Contents
 
@@ -96,7 +96,7 @@ disallowedTools: [Write, Edit]
 permissionMode: default          # default | acceptEdits | dontAsk | bypassPermissions | plan
 maxTurns: 20
 skills: [test-runner, lint-fixer]
-memory: true
+memory: project
 background: true
 isolation: worktree
 hooks:
@@ -127,7 +127,7 @@ Agent behavioral instructions go here.
 | `permissionMode` | string | No | Permission level override |
 | `maxTurns` | number | No | Maximum agentic turns |
 | `skills` | string[] | No | Available skill names |
-| `memory` | boolean | No | Enable persistent memory |
+| `memory` | string | No | Memory scope: `user`, `project`, or `local` |
 | `background` | boolean | No | Run as background agent |
 | `isolation` | string | No | `worktree` for isolated git worktree |
 | `hooks` | object | No | Agent-specific hook overrides |
@@ -160,7 +160,7 @@ argument-hint: <environment> [--dry-run]
 user-invocable: false
 allowed-tools: Bash, Read, Glob
 model: sonnet
-context: src/deploy/
+context: fork
 agent: deploy-agent
 hooks:
   postToolUse:
@@ -184,9 +184,21 @@ Skill instructions, examples, and guidelines in markdown.
 | `user-invocable` | boolean | No | `false` = only model can invoke |
 | `allowed-tools` | string (CSV) | No | Comma-separated tool names |
 | `model` | string | No | Model override for skill execution |
-| `context` | string | No | File/directory context to load |
+| `context` | string | No | `fork` — run skill in an isolated forked execution context |
 | `agent` | string | No | Agent to delegate to |
 | `hooks` | object | No | Skill-specific hooks |
+
+### Skill Substitution Variables
+
+Claude Code substitutes these variables in skill content at invocation time:
+
+| Variable | Value |
+|----------|-------|
+| `$ARGUMENTS` | Full argument string passed after the skill name |
+| `$ARGUMENTS[N]` | The Nth argument (zero-indexed) |
+| `$N` | Shorthand for `$ARGUMENTS[N]` (e.g. `$0`, `$1`) |
+| `$CLAUDE_SESSION_ID` | Unique identifier for the current session |
+| `$CLAUDE_SKILL_DIR` | Absolute path to the skill's directory |
 
 ### Skill Directories
 
@@ -245,6 +257,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `WorktreeCreate` | Git worktree created |
 | `WorktreeRemove` | Git worktree removed |
 | `PreCompact` | Before context compaction |
+| `InstructionsLoaded` | After instructions/rules are loaded |
 
 ### Hook Handler Types
 
@@ -253,6 +266,7 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `command` | `command`, `timeout`, `statusMessage`, `async`, `once` | Shell command execution |
 | `prompt` | `prompt`, `model`, `timeout`, `statusMessage`, `once` | LLM prompt injection |
 | `agent` | `prompt`, `model`, `timeout`, `statusMessage`, `once` | Agent delegation |
+| `http` | `url`, `headers`, `allowedEnvVars`, `timeout`, `statusMessage`, `once` | HTTP webhook call |
 
 ### Hook Entry Fields
 
@@ -273,6 +287,9 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `async` | boolean | Non-blocking (type=command) |
 | `once` | boolean | Run only once per session |
 | `model` | string | Model override (type=prompt/agent) |
+| `url` | string | Webhook URL (type=http) |
+| `headers` | object | HTTP request headers (type=http) |
+| `allowedEnvVars` | string[] | Env vars forwarded in request (type=http) |
 
 ---
 
@@ -354,6 +371,24 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `headers` | object | No | HTTP headers |
 | `oauth` | object | No | OAuth configuration |
 
+### Environment Variable Expansion
+
+Values in the `env` block of `.mcp.json` support shell variable expansion. References like `${API_KEY}` are expanded from the user's environment at startup:
+
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "command": "node",
+      "args": ["server.js"],
+      "env": {
+        "API_KEY": "${MY_API_KEY}"
+      }
+    }
+  }
+}
+```
+
 ---
 
 ## 6. Permissions & Settings
@@ -379,7 +414,14 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
     ],
     "ask": [
       "Bash(git push)"
-    ]
+    ],
+    "additionalDirectories": ["/tmp/workspace", "/home/user/shared"],
+    "defaultMode": "acceptEdits"
+  },
+  "sandbox": {
+    "enabled": true,
+    "network": "none",
+    "readOnly": ["/etc", "/usr"]
   }
 }
 ```
@@ -396,6 +438,26 @@ Can contain supplementary files (scripts, templates, examples) referenced from S
 | `allow` | Auto-approve without prompting |
 | `deny` | Block and refuse |
 | `ask` | Prompt user for approval |
+
+### Permissions Object Fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `allow` | string[] | Auto-approved tool rules |
+| `deny` | string[] | Blocked tool rules |
+| `ask` | string[] | Tool rules that require user confirmation |
+| `additionalDirectories` | string[] | Extra directories Claude can access beyond the project root |
+| `defaultMode` | string | Default permission mode: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+
+### Sandbox Configuration
+
+The `sandbox` key in `settings.json` configures process-level sandboxing:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `enabled` | boolean | Enable sandboxing |
+| `network` | string | Network access: `none`, `localhost`, `full` |
+| `readOnly` | string[] | Paths mounted as read-only inside the sandbox |
 
 ### Settings
 

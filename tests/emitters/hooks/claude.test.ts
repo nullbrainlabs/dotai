@@ -85,6 +85,7 @@ describe("hooksEmitter — claude", () => {
 			["worktreeCreate", "WorktreeCreate"],
 			["worktreeRemove", "WorktreeRemove"],
 			["preCompact", "PreCompact"],
+			["instructionsLoaded", "InstructionsLoaded"],
 		] as const;
 
 		for (const [event, claudeEvent] of newEvents) {
@@ -193,6 +194,43 @@ describe("hooksEmitter — claude", () => {
 		const result = hooksEmitter.emit(config, "claude");
 		const parsed = JSON.parse(result.files[0].content);
 		expect(parsed.hooks.PreToolUse[0].hooks[0].model).toBeUndefined();
+	});
+
+	it("emits http type hooks with url, headers, and allowedEnvVars", () => {
+		const config = emptyConfig();
+		config.hooks.push({
+			event: "preToolUse",
+			handler: "https://example.com/webhook",
+			type: "http",
+			url: "https://example.com/webhook",
+			headers: { Authorization: "Bearer token123" },
+			allowedEnvVars: ["API_KEY", "ENV"],
+			scope: "project",
+		});
+		const result = hooksEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		expect(parsed.hooks.PreToolUse[0].hooks[0]).toEqual({
+			type: "http",
+			url: "https://example.com/webhook",
+			headers: { Authorization: "Bearer token123" },
+			allowedEnvVars: ["API_KEY", "ENV"],
+		});
+	});
+
+	it("emits http type hooks using handler as url when url not set", () => {
+		const config = emptyConfig();
+		config.hooks.push({
+			event: "sessionStart",
+			handler: "https://example.com/session",
+			type: "http",
+			scope: "project",
+		});
+		const result = hooksEmitter.emit(config, "claude");
+		const parsed = JSON.parse(result.files[0].content);
+		expect(parsed.hooks.SessionStart[0].hooks[0]).toEqual({
+			type: "http",
+			url: "https://example.com/session",
+		});
 	});
 
 	it("warns and skips unsupported events", () => {
