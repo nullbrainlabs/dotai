@@ -1,8 +1,8 @@
 # GitHub Copilot Configuration Capabilities — Complete Reference
 
 > Source: [GitHub Copilot Official Docs](https://docs.github.com/en/copilot)
-> Last Researched Version: GitHub Copilot (Coding Agent, Feb 2026)
-> Date: 2026-02-24 (last verified)
+> Last Researched Version: GitHub Copilot (Coding Agent, Mar 2026)
+> Date: 2026-03-07 (last verified)
 > See also: `.ai/research/copilot-capabilities.md` (detailed research with gap analysis)
 
 ## Table of Contents
@@ -73,7 +73,9 @@ Also recognizes `CLAUDE.md` and `GEMINI.md` at repo root.
 
 ```yaml
 ---
+name: "agent-name"                         # Optional — display name (filename used for invocation)
 description: "Purpose and capabilities"    # Required
+user-invocable: true                       # Optional — whether users can invoke explicitly
 tools: [read, edit, search]                # Optional — omit = all; [] = none
 model: "gpt-4o"                            # Optional (IDE only)
 target: "vscode"                           # Optional — "vscode" | "github-copilot"
@@ -87,6 +89,8 @@ metadata:                                  # Optional
   team: backend
 ---
 ```
+
+> **Note:** The `infer` field is retired (removed from docs as of Mar 2026).
 
 ### Tool Aliases
 
@@ -110,7 +114,7 @@ metadata:                                  # Optional
 
 | Property | Value |
 |----------|-------|
-| **Directory** | `.github/skills/<name>/SKILL.md` |
+| **Directory** | `.github/skills/<name>/SKILL.md` (also `.claude/skills/<name>/SKILL.md` as of Mar 2026) |
 | **Format** | Markdown with minimal YAML frontmatter |
 
 ### Frontmatter Schema (Copilot-specific)
@@ -157,7 +161,9 @@ license: MIT
 
 ### Supported Events
 
-`sessionStart`, `sessionEnd`, `userPromptSubmitted`, `preToolUse`, `postToolUse`, `errorOccurred`, `agentStop`, `subagentStop`
+`sessionStart`, `sessionEnd`, `userPromptSubmitted`, `preToolUse`, `postToolUse`, `errorOccurred`
+
+> **Note:** `agentStop` and `subagentStop` were removed from docs as of Mar 2026 — only 6 events are now documented.
 
 ### Hook Entry Fields
 
@@ -201,7 +207,7 @@ license: MIT
 
 ### 5b. Coding Agent — GitHub Repo Settings (JSON)
 
-Configured in GitHub web UI, NOT a file. Uses `mcpServers` key with `tools` array.
+Configured in GitHub web UI, NOT a file. Uses `mcpServers` key. The `tools` field is now **mandatory** for each server entry. Variable substitution with `COPILOT_MCP_<NAME>` prefix is supported for secrets.
 
 ### 5c. Agent-Level MCP
 
@@ -213,6 +219,8 @@ Defined in agent frontmatter `mcp-servers:` block.
 - Supports `inputs` array for user-prompted values
 - `type` field required on all entries (defaults to `stdio` if omitted in dotai)
 - Coding agent MCP must be configured in GitHub repo settings separately
+- Coding Agent requires `tools` field (mandatory as of Mar 2026)
+- Coding Agent supports `COPILOT_MCP_<NAME>` variable substitution for secrets
 
 ---
 

@@ -34,6 +34,7 @@ export function emitCopilotAgents(agents: Agent[]): EmitResult {
 
 	for (const agent of agents) {
 		const frontmatter: string[] = [];
+		frontmatter.push(`name: ${agent.name}`);
 		frontmatter.push(`description: ${agent.description || agent.name}`);
 
 		if (agent.model) {
@@ -60,6 +61,9 @@ export function emitCopilotAgents(agents: Agent[]): EmitResult {
 			frontmatter.push(`tools: [${mapped.join(", ")}]`);
 		}
 
+		if (agent.userInvocable !== undefined) {
+			frontmatter.push(`user-invocable: ${agent.userInvocable}`);
+		}
 		if (agent.disableModelInvocation) {
 			frontmatter.push("disable-model-invocation: true");
 		}

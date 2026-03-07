@@ -45,4 +45,6 @@ export interface Agent {
 	target?: "vscode" | "github-copilot";
 	/** Metadata key-value pairs (Copilot). */
 	metadata?: Record<string, string>;
+	/** When true, the agent can be explicitly invoked by users (Copilot). */
+	userInvocable?: boolean;
 }

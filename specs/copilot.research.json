@@ -1,15 +1,13 @@
 {
 	"tool": "copilot",
-	"lastResearchedVersion": "GitHub Copilot (Coding Agent, Feb 2026)",
+	"lastResearchedVersion": "GitHub Copilot (Coding Agent, Mar 2026)",
 	"spec": "specs/copilot.md",
 	"llmsTxt": "https://docs.github.com/llms.txt",
 	"docs": [
 		"https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions",
-		"https://docs.github.com/en/copilot/customizing-copilot/using-copilot-coding-agent",
-		"https://docs.github.com/en/copilot/customizing-copilot/extending-copilot-coding-agent-with-mcp",
-		"https://docs.github.com/en/copilot/customizing-copilot/creating-custom-agents",
-		"https://docs.github.com/en/copilot/customizing-copilot/adding-copilot-skills",
-		"https://docs.github.com/en/copilot/customizing-copilot/configuring-copilot-hooks"
+		"https://docs.github.com/en/copilot/reference/hooks-configuration",
+		"https://docs.github.com/en/copilot/reference/custom-agents-configuration",
+		"https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills"
 	],
 	"emitters": [
 		"src/emitters/rules.ts",
@@ -33,12 +31,18 @@
 		"VS Code MCP requires explicit 'type' field on all entries",
 		"VS Code MCP supports 'inputs' array for user-prompted values",
 		"Coding Agent MCP is configured in GitHub repo settings (web UI), not a file",
+		"Coding Agent MCP requires 'tools' field (mandatory as of Mar 2026)",
+		"Coding Agent MCP supports COPILOT_MCP_<NAME> variable substitution for secrets",
 		"hooks.json requires 'version: 1' at top level",
 		"Hook entries use 'bash' field (not 'command'), 'timeoutSec' (not 'timeout' in ms)",
 		"Only 'command' hook type supported (no 'prompt' or 'agent')",
 		"Hook events are camelCase (preToolUse, not PreToolUse)",
+		"Only 6 hook events supported as of Mar 2026: sessionStart, sessionEnd, userPromptSubmitted, preToolUse, postToolUse, errorOccurred (agentStop and subagentStop removed)",
 		"Agent files use .agent.md extension",
+		"Agent frontmatter now supports 'name' and 'user-invocable' fields (Mar 2026)",
+		"Agent 'infer' field retired (Mar 2026)",
 		"Agent tools use aliases (read, edit, execute, search, agent, web)",
+		"Skills output to .github/skills/<name>/SKILL.md; .claude/skills is also supported by Copilot as of Mar 2026",
 		"Skills only support name, description, license — all other fields are over-emitting",
 		"Rules: excludeAgent frontmatter ('code-review' | 'coding-agent')",
 		"No file-based permissions — CLI flags only",
