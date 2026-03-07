@@ -22,6 +22,7 @@ export const HookEvent = {
 	WorktreeCreate: "worktreeCreate",
 	WorktreeRemove: "worktreeRemove",
 	PreCompact: "preCompact",
+	InstructionsLoaded: "instructionsLoaded",
 } as const;
 
 export type HookEvent = (typeof HookEvent)[keyof typeof HookEvent];
@@ -31,6 +32,7 @@ export const HookType = {
 	Command: "command",
 	Prompt: "prompt",
 	Agent: "agent",
+	Http: "http",
 } as const;
 
 export type HookType = (typeof HookType)[keyof typeof HookType];
@@ -48,7 +50,7 @@ export interface Hook {
 	handler: string;
 	/** Scope at which this hook is defined. */
 	scope: Scope;
-	/** Handler type: command (default), prompt, or agent. */
+	/** Handler type: command (default), prompt, agent, or http. */
 	type?: HookType;
 	/** Timeout in milliseconds for hook execution. */
 	timeout?: number;
@@ -64,4 +66,10 @@ export interface Hook {
 	cwd?: string;
 	/** Environment variables for hook execution. */
 	env?: Record<string, string>;
+	/** Webhook URL (type=http). */
+	url?: string;
+	/** HTTP request headers (type=http). */
+	headers?: Record<string, string>;
+	/** Environment variable names to forward in the HTTP request (type=http). */
+	allowedEnvVars?: string[];
 }
