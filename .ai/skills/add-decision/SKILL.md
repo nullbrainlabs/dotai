@@ -1,7 +1,3 @@
----
-description: Record an architecture decision as an ADR in decisions/
----
-
 # Add Decision
 
 Record an architecture decision in the `decisions/` directory.

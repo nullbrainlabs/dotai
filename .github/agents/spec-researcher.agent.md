@@ -1,4 +1,5 @@
 ---
+name: spec-researcher
 description: Research and update a target tool's spec. Delegate when a tool (Claude Code, Cursor, Codex, Copilot) releases new features, changes config formats, or when a spec needs updating. Tell this agent which tool to research.
 model: claude-opus-4-6
 tools: [read, edit, glob, grep, web]
@@ -24,7 +25,10 @@ Each tool has a `specs/<tool>.research.json` with:
   "tool": "cursor",
   "lastResearchedVersion": "Cursor 0.48",
   "spec": "specs/cursor.md",
-  "docs": ["https://docs.cursor.com/..."],
+  "llmsTxt": "https://cursor.com/llms.txt",
+  "docs": [
+    { "url": "https://cursor.com/docs/rules", "lastHash": "", "lastFetched": "" }
+  ],
   "emitters": ["src/emitters/rules.ts", "src/emitters/agents.ts"],
   "outputPaths": {
     "rules": ".cursor/rules/<slug>.mdc",
@@ -34,20 +38,112 @@ Each tool has a `specs/<tool>.research.json` with:
 }
 ```
 
+Key fields in each doc entry:
+- `url` — the doc page to fetch
+- `lastHash` — SHA-256 of the content from the last research run (empty = never fetched)
+- `lastFetched` — ISO date of the last fetch (empty = never fetched)
+
+## Doc Cache
+
+Raw fetched content is stored in `specs/.cache/<tool>/` (one file per doc URL):
+
+```
+specs/.cache/
+  claude-code/
+    settings.md
+    hooks.md
+    mcp.md
+  cursor/
+    rules.md
+    ...
+```
+
+The cache enables real diff comparison: old cached content vs new fetched content. Read cached files before fetching to establish a baseline. After processing, save fetched content to the cache directory.
+
+If `specs/.cache/<tool>/` doesn't exist, create it on first run. Derive the cache filename from the last path segment of the URL (e.g. `hooks.md` from `.../hooks.md`, `rules` from `.../rules`).
+
 ## Research Process
 
 1. Read `specs/<tool>.research.json` for the tool you're researching
 2. Read the existing spec file listed in the config
-3. For each URL in `docs`, fetch and review for changes
+3. For each doc entry in `docs`:
+   a. Read cached content from `specs/.cache/<tool>/<filename>` if it exists (this is your baseline)
+   b. Fetch the URL with WebFetch
+      - If a doc URL is blocked (403/404), fetch the `llmsTxt` URL to discover current doc URLs
+      - Use the llms.txt index to find replacement URLs, then update the `docs` array in the research config
+   c. Compute a SHA-256 hash of the fetched content
+   d. Compare the hash against `lastHash` in the research config
+      - If hash matches → skip this doc (no changes)
+      - If hash differs (or `lastHash` is empty) → diff cached content vs fetched content
+   e. Classify each difference using the change taxonomy:
+      - **Structural** (new key, removed field, changed type) → report
+      - **Behavioral** (changed default, new enum option) → report
+      - **Format** (new extension, changed path) → report
+      - **Cosmetic** (rewording, typos) → skip
 4. Read each emitter file in `emitters` to understand current dotai output
-5. Compare documented capabilities against the spec
-6. For each difference found:
+5. For each reportable change found:
+   - Check if it's already reflected in the spec (idempotency — see below)
    - New capability: add to the relevant section in the spec
    - Changed format: update examples and field reference tables
    - Deprecated feature: mark with migration notes
-7. Update the spec header date and "Last Researched Version" line
-8. Update `toolVersion` in the research config JSON if the version changed
-9. Update the "dotai Entity Coverage" and "Known Gaps" sections
+6. Update the spec header date and "Last Researched Version" line
+7. Update `lastResearchedVersion` in the research config JSON if the version changed
+8. Update the "dotai Entity Coverage" and "Known Gaps" sections
+
+## Structured Output
+
+After researching, write a structured drift report to `specs/<tool>.drift-report.json`:
+
+```json
+{
+  "tool": "<tool>",
+  "detectedAt": "<today's date>",
+  "changes": [
+    {
+      "section": "<entity: rules/agents/hooks/mcp/etc>",
+      "type": "<structural|behavioral|format>",
+      "description": "<what changed>",
+      "docUrl": "<source URL>",
+      "specLines": "<affected line range in spec>",
+      "emittersAffected": ["<emitter file paths>"]
+    }
+  ],
+  "status": "pending"
+}
+```
+
+If no reportable changes were found, set `changes` to an empty array and `status` to `"no-drift"`.
+
+Also provide a human-readable summary in your output:
+
+### Changes Found
+| Section | Change Type | Description | Spec Line(s) |
+|---------|------------|-------------|---------------|
+
+### Updated Gaps
+| Entity | Gap | Severity | Notes |
+|--------|-----|----------|-------|
+
+### Research Config Updates
+- lastResearchedVersion: <new version>
+- Docs array changes: <added/removed URLs>
+- Hash updates: <list of URLs with new hashes>
+
+## Idempotency
+
+Before making any edit to the spec, check if the change is already reflected in the current spec content. If it is, skip the edit and note "already current" in the output. This ensures running the agent twice against the same docs produces the same result.
+
+Specifically:
+- Before adding a field to a reference table, check if the field is already listed
+- Before updating a format example, check if the example already matches the new format
+- Before adding a Known Gap, check if the gap is already documented
+
+## Research Config Updates
+
+After processing all docs, update the research config:
+- Set `lastHash` to the computed SHA-256 for each doc that was fetched
+- Set `lastFetched` to today's date for each doc that was fetched
+- Save fetched content to `specs/.cache/<tool>/<filename>`
 
 ## Spec File Structure
 

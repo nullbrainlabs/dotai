@@ -1,6 +1,6 @@
 ---
 name: add-agent
-description: Guide the user through creating a new dotai agent
+description: Create a new agent definition in the `.ai/agents/` directory.
 ---
 
 # Add Agent

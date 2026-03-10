@@ -1,7 +1,8 @@
 ---
-description: Enforce layered architecture — domain has zero imports from other layers
-globs: ["src/domain/**/*.ts", "src/config/**/*.ts", "src/emitters/**/*.ts", "src/commands/**/*.ts"]
+scope: project
 alwaysApply: false
+appliesTo: [src/domain/**/*.ts, src/config/**/*.ts, src/emitters/**/*.ts, src/commands/**/*.ts]
+description: Enforce layered architecture — domain has zero imports from other layers
 ---
 
 # Layer Boundaries

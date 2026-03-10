@@ -1,7 +1,3 @@
----
-description: Modify an emitter to change output for a target tool. Guides through spec verification, cross-target assessment, and contract test updates.
----
-
 # Update Emitter
 
 ## Steps

@@ -1,7 +1,8 @@
 ---
-description: Check target tool spec before modifying emitter output format
-globs: ["src/emitters/**/*.ts"]
+scope: project
 alwaysApply: false
+appliesTo: [src/emitters/**/*.ts]
+description: Check target tool spec before modifying emitter output format
 ---
 
 # Emitter Spec Check

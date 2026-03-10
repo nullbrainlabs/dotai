@@ -2,7 +2,6 @@
 description: Research and update a target tool's spec. Delegate when a tool (Claude Code, Cursor, Codex, Copilot) releases new features, changes config formats, or when a spec needs updating. Tell this agent which tool to research.
 model: claude-opus-4-6
 tools: [Read, Write, Edit, Glob, Grep, WebSearch, WebFetch]
-maxTurns: 30
 ---
 
 # Spec Researcher

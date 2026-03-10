@@ -1,6 +1,6 @@
 ---
 name: add-entity-type
-description: Add a new domain entity type. Guides through all 7+ required touchpoints.
+description: Every new entity type requires changes to all of these files:
 ---
 
 # Add Entity Type

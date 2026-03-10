@@ -1,6 +1,6 @@
 ---
 name: add-mcp
-description: Guide the user through configuring an MCP server in dotai
+description: Configure a new MCP (Model Context Protocol) server in `.ai/config.yaml`.
 ---
 
 # Add MCP Server

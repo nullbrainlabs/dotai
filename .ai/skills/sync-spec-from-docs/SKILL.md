@@ -1,8 +1,3 @@
----
-description: Update a target tool's spec from official docs. For inline use during coding sessions.
-disableAutoInvocation: true
----
-
 # Sync Spec From Docs
 
 ## Steps

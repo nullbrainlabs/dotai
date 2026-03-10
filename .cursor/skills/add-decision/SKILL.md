@@ -1,6 +1,6 @@
 ---
 name: add-decision
-description: Record an architecture decision as an ADR in decisions/
+description: Record an architecture decision in the `decisions/` directory.
 ---
 
 # Add Decision

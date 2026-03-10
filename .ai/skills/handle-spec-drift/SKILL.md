@@ -1,7 +1,3 @@
----
-description: Act on spec drift — map doc changes to affected emitters and apply updates.
----
-
 # Handle Spec Drift
 
 ## Steps

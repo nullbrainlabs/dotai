@@ -1,8 +1,3 @@
----
-description: Add a new domain entity type. Guides through all 7+ required touchpoints.
-disableAutoInvocation: true
----
-
 # Add Entity Type
 
 ## Mandatory File Checklist

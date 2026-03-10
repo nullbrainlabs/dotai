@@ -1,8 +1,3 @@
----
-description: Guide the user through creating a new dotai rule
-disableAutoInvocation: true
----
-
 # Add Rule
 
 Create a new rule in the `.ai/rules/` directory.

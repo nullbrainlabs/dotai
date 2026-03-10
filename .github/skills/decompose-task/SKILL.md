@@ -1,6 +1,6 @@
 ---
 name: decompose-task
-description: Break a complex task into a phased GitHub issue with an actionable checklist.
+description: 1. **Analyze scope** — determine which codebase areas the task affects:
 ---
 
 # Decompose Task

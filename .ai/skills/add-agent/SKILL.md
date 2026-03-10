@@ -1,8 +1,3 @@
----
-description: Guide the user through creating a new dotai agent
-disableAutoInvocation: true
----
-
 # Add Agent
 
 Create a new agent definition in the `.ai/agents/` directory.

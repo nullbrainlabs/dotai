@@ -1,6 +1,6 @@
 ---
 name: add-skill
-description: Create new skills, modify and improve existing skills. Use when users want to create a skill from scratch or update an existing skill.
+description: A skill for creating new skills and iteratively improving them.
 ---
 
 # Skill Creator

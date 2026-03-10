@@ -1,6 +1,6 @@
 ---
 name: update-docs
-description: Update documentation pages to reflect code changes
+description: Update the Starlight documentation site to reflect recent code changes.
 ---
 
 # Update Docs

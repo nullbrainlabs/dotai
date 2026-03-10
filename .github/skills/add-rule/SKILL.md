@@ -1,6 +1,6 @@
 ---
 name: add-rule
-description: Guide the user through creating a new dotai rule
+description: Create a new rule in the `.ai/rules/` directory.
 ---
 
 # Add Rule

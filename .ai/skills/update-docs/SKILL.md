@@ -1,8 +1,3 @@
----
-description: Update documentation pages to reflect code changes
-disableAutoInvocation: true
----
-
 # Update Docs
 
 Update the Starlight documentation site to reflect recent code changes.

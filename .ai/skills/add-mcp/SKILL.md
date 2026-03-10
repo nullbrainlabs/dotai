@@ -1,8 +1,3 @@
----
-description: Guide the user through configuring an MCP server in dotai
-disableAutoInvocation: true
----
-
 # Add MCP Server
 
 Configure a new MCP (Model Context Protocol) server in `.ai/config.yaml`.

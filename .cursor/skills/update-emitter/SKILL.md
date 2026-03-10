@@ -1,6 +1,6 @@
 ---
 name: update-emitter
-description: Modify an emitter to change output for a target tool. Guides through spec verification, cross-target assessment, and contract test updates.
+description: 1. **Identify scope** — which entity (rules/skills/agents/mcp/permissions/hooks) and which target...
 ---
 
 # Update Emitter
@@ -9,7 +9,7 @@ description: Modify an emitter to change output for a target tool. Guides throug
 
 1. **Identify scope** — which entity (rules/skills/agents/mcp/permissions/hooks) and which target(s) (claude/cursor/codex/copilot)?
 
-2. **Read the spec** — open `specs/<target>.md`, find the entity section, check the field reference tables. Confirm the change is valid for the target tool.
+2. **Read the spec and drift report** — open `specs/<target>.md`, find the entity section, check the field reference tables. Confirm the change is valid for the target tool. If `specs/<target>.drift-report.json` exists with status `"pending"`, read it to understand exactly what changed and which emitters are affected. Cross-reference the spec's Known Gaps to avoid "fixing" documented gaps without discussion.
 
 3. **Read the current emitter** — open `src/emitters/<entity-plural>/<target>.ts` and understand the existing output format.
 

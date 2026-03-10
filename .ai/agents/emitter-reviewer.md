@@ -1,9 +1,8 @@
 ---
 description: Review emitter changes for spec compliance, cross-target consistency, and test coverage. Delegate after modifying src/emitters/.
-model: claude-sonnet-4-6
+model: claude-opus-4-6
 readonly: true
 tools: [Read, Glob, Grep]
-maxTurns: 15
 ---
 
 # Emitter Reviewer

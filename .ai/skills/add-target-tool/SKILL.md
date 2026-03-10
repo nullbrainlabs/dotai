@@ -1,8 +1,3 @@
----
-description: Add support for a new AI coding tool target. Guides through enum, all emitters, sync command, and tests.
-disableAutoInvocation: true
----
-
 # Add Target Tool
 
 ## Steps

@@ -1,8 +1,3 @@
----
-description: Create new skills, modify and improve existing skills. Use when users want to create a skill from scratch or update an existing skill.
-disableAutoInvocation: true
----
-
 # Skill Creator
 
 A skill for creating new skills and iteratively improving them.

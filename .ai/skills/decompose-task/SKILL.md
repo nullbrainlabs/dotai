@@ -1,8 +1,3 @@
----
-description: Break a complex task into a phased GitHub issue with an actionable checklist.
-disableAutoInvocation: true
----
-
 # Decompose Task
 
 ## Steps

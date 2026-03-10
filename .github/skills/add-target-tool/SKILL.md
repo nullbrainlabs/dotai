@@ -1,6 +1,6 @@
 ---
 name: add-target-tool
-description: Add support for a new AI coding tool target. Guides through enum, all emitters, sync command, and tests.
+description: 1. **Create spec files** — `specs/<tool>.md` (spec document) and `specs/<tool>.research.json` (re...
 ---
 
 # Add Target Tool
