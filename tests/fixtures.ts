@@ -119,9 +119,7 @@ export function fixtureResearchConfig(overrides?: Partial<ResearchConfig>): Rese
 		lastResearchedVersion: "Claude Code 1.0 (CLI)",
 		spec: "specs/claude-code.md",
 		llmsTxt: "https://code.claude.com/docs/llms.txt",
-		docs: [
-			{ url: "https://code.claude.com/docs/en/hooks.md", lastHash: "", lastFetched: "" },
-		],
+		docs: [{ url: "https://code.claude.com/docs/en/hooks.md", lastHash: "", lastFetched: "" }],
 		emitters: ["src/emitters/hooks.ts"],
 		outputPaths: { hooks: ".claude/settings.json (hooks key)" },
 		notes: ["Hook events use PascalCase"],

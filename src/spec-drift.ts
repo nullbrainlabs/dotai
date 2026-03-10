@@ -59,10 +59,7 @@ export async function loadResearchConfig(path: string): Promise<ResearchConfig> 
 }
 
 /** Write a research config back to disk. */
-export async function saveResearchConfig(
-	path: string,
-	config: ResearchConfig,
-): Promise<void> {
+export async function saveResearchConfig(path: string, config: ResearchConfig): Promise<void> {
 	await writeFile(path, `${JSON.stringify(config, null, "\t")}\n`, "utf-8");
 }
 
@@ -91,10 +88,7 @@ export function cacheFilename(url: string): string {
 }
 
 /** Read cached doc content. Returns null if not cached. */
-export async function readCachedDoc(
-	cacheDir: string,
-	url: string,
-): Promise<string | null> {
+export async function readCachedDoc(cacheDir: string, url: string): Promise<string | null> {
 	try {
 		return await readFile(join(cacheDir, cacheFilename(url)), "utf-8");
 	} catch {
