@@ -1,7 +1,7 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { describe, expect, it, beforeEach, afterEach } from "vitest";
+import { join } from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	cacheFilename,
 	docHash,
@@ -12,11 +12,7 @@ import {
 	saveResearchConfig,
 	writeCachedDoc,
 } from "../src/spec-drift.js";
-import type { DriftReport, ResearchConfig } from "../src/spec-drift.js";
-import {
-	fixtureDriftReport,
-	fixtureResearchConfig,
-} from "./fixtures.js";
+import { fixtureDriftReport, fixtureResearchConfig } from "./fixtures.js";
 
 describe("spec-drift", () => {
 	describe("docHash", () => {
