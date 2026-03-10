@@ -14,6 +14,9 @@ const CLAUDE_MODEL_MAP: Record<string, string> = {
 	opus: "opus",
 	haiku: "haiku",
 	inherit: "inherit",
+	opusplan: "opusplan",
+	default: "default",
+	"sonnet[1m]": "sonnet[1m]",
 };
 
 /** Claude Code: .claude/agents/<name>.md */

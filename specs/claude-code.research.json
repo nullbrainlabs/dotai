@@ -14,7 +14,10 @@
 		{ "url": "https://code.claude.com/docs/en/permissions.md", "lastHash": "", "lastFetched": "2026-03-09" },
 		{ "url": "https://code.claude.com/docs/en/plugins.md", "lastHash": "", "lastFetched": "2026-03-09" },
 		{ "url": "https://code.claude.com/docs/en/sandboxing.md", "lastHash": "", "lastFetched": "" },
-		{ "url": "https://code.claude.com/docs/en/plugins-reference.md", "lastHash": "", "lastFetched": "" }
+		{ "url": "https://code.claude.com/docs/en/plugins-reference.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://code.claude.com/docs/en/cli-reference.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://code.claude.com/docs/en/model-config.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://code.claude.com/docs/en/agent-teams.md", "lastHash": "", "lastFetched": "" }
 	],
 	"emitters": [
 		"src/emitters/rules.ts",
@@ -59,6 +62,17 @@
 		"New: Skill context:fork with agent field for isolated execution",
 		"New: !`command` bash injection syntax in skills",
 		"New: Hook timeout unit is seconds (not milliseconds) per official docs",
-		"New: $CLAUDE_PROJECT_DIR env var in hook commands"
+		"New: $CLAUDE_PROJECT_DIR env var in hook commands",
+		"New: Model aliases opusplan (opus plan + sonnet exec), default (tier-dependent), sonnet[1m] (1M context)",
+		"New: Skill(name) permission rules for controlling skill access",
+		"New: Built-in agents: Bash, statusline-setup, claude-code-guide",
+		"New: effortLevel setting (low/medium/high) for adaptive reasoning effort",
+		"New: availableModels setting to restrict model selection",
+		"New: teammateMode setting (auto/in-process/tmux)",
+		"New: MCP resources via @server:protocol://path mentions",
+		"New: MCP prompts as /mcp__server__prompt commands",
+		"New: Nested directory skill discovery in monorepos",
+		"New: Bundled skills: /simplify, /batch, /debug, /loop, /claude-api",
+		"New: Agent teams orchestration feature"
 	]
 }

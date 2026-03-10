@@ -2,7 +2,7 @@
 
 > Source: Claude Code official documentation (code.claude.com/docs)
 > Last Researched Version: Claude Code 2.1.x (CLI)
-> Date: 2026-03-09
+> Date: 2026-03-09 (spec drift update)
 
 ## Table of Contents
 
@@ -169,8 +169,8 @@ Agent behavioral instructions go here.
 |-------|------|----------|-------|
 | `name` | string | Yes | Agent identifier (matches filename) |
 | `description` | string | Yes | When/why to delegate to this agent |
-| `model` | string | No | `sonnet`, `opus`, `haiku`, `inherit`, or full model ID. Default: `inherit` |
-| `modelReasoningEffort` | string | No | `low`, `medium`, `high` |
+| `model` | string | No | `sonnet`, `opus`, `haiku`, `inherit`, `opusplan`, `default`, `sonnet[1m]`, or full model ID. Default: `inherit` |
+| `modelReasoningEffort` | string | No | `low`, `medium`, `high` (may also be controlled via `effortLevel` setting) |
 | `tools` | string[] | No | Allowed tools (omit = all). Supports `Agent(worker, researcher)` syntax |
 | `disallowedTools` | string[] | No | Explicitly blocked tools |
 | `permissionMode` | string | No | Permission level override |
@@ -203,6 +203,18 @@ Agent behavioral instructions go here.
 
 `Read`, `Edit`, `Write`, `MultiEdit`, `Glob`, `Grep`, `Bash`, `Agent`, `WebSearch`, `WebFetch`, `NotebookEdit`, `NotebookRead`, `TodoRead`, `TodoWrite`, `AskUserQuestion`, `LSP`, `MCPSearch`
 
+### Model Aliases
+
+| Alias | Behavior |
+|-------|----------|
+| `sonnet` | Claude Sonnet (latest) |
+| `opus` | Claude Opus (latest) |
+| `haiku` | Claude Haiku (latest) |
+| `inherit` | Use parent agent's model (default) |
+| `opusplan` | Opus for plan mode, Sonnet for execution |
+| `default` | Tier-dependent default model |
+| `sonnet[1m]` | Sonnet with 1M token context window |
+
 ### Built-in Agents
 
 | Agent | Model | Tools | Purpose |
@@ -210,6 +222,9 @@ Agent behavioral instructions go here.
 | Explore | Haiku | Read-only | File discovery, codebase exploration |
 | Plan | Inherit | Read-only | Codebase research for planning |
 | general-purpose | Inherit | All | Complex multi-step tasks |
+| Bash | Inherit | Terminal commands | Runs terminal commands (inherits model) |
+| statusline-setup | Sonnet | Read, Edit | Configures status line settings |
+| claude-code-guide | Haiku | Read-only + web | Answers feature questions about Claude Code |
 
 ---
 
@@ -635,6 +650,7 @@ Array-valued settings (permissions, sandbox paths) **merge** across scopes.
 - `WebFetch(domain:example.com)` — domain-scoped
 - `mcp__server__tool` — MCP tool rules
 - `Agent(Explore)` — subagent rules
+- `Skill(name)` — skill-specific rules (`Skill(name *)` for word boundary matching)
 
 #### Read/Edit Path Prefixes
 
@@ -720,6 +736,20 @@ Evaluation order: **deny > ask > allow** (first match wins).
 | `claudeMdExcludes` | string[] | Glob patterns to exclude CLAUDE.md files |
 | `cleanupPeriodDays` | number | Delete inactive sessions (default: 30) |
 | `autoUpdatesChannel` | string | `"stable"` or `"latest"` |
+| `effortLevel` | string | Adaptive reasoning effort: `"low"`, `"medium"`, `"high"` |
+| `availableModels` | string[] | Restrict model selection to these models |
+| `fileSuggestion` | object | Custom file autocomplete: `{type: "command", command: "..."}` |
+| `respectGitignore` | boolean | Honor `.gitignore` patterns |
+| `showTurnDuration` | boolean | Show turn duration in output |
+| `teammateMode` | string | `"auto"`, `"in-process"`, or `"tmux"` |
+| `fastModePerSessionOptIn` | boolean | Require per-session opt-in for fast mode |
+| `plansDirectory` | string | Custom directory for plan storage |
+| `alwaysThinkingEnabled` | boolean | Enable always-thinking mode |
+| `statusLine` | object | Status line config: `{type: "...", command: "..."}` |
+| `spinnerVerbs` | object | Custom spinner verb configuration |
+| `spinnerTipsEnabled` | boolean | Enable spinner tips |
+| `terminalProgressBarEnabled` | boolean | Enable terminal progress bar |
+| `prefersReducedMotion` | boolean | Reduce UI animations |
 
 ### Plugin Settings
 
@@ -741,6 +771,7 @@ Evaluation order: **deny > ask > allow** (first match wins).
 | `strictKnownMarketplaces` | Marketplace allowlist |
 | `blockedMarketplaces` | Marketplace denylist |
 | `sandbox.network.allowManagedDomainsOnly` | Only managed domains |
+| `allow_remote_sessions` | Allow remote sessions (managed only) |
 
 ---
 
@@ -838,6 +869,11 @@ Plugin skills are namespaced: `/plugin-name:skill-name`.
 | Managed policy paths | dotai doesn't emit to system-wide managed paths | Low |
 | `http` hook type | dotai emits `http` hooks but not `allowedHttpHookUrls` setting | Low |
 | `claudeMdExcludes` setting | dotai doesn't emit this setting | Low |
+| `modelReasoningEffort` in agents | Field emitted but not in official sub-agents frontmatter reference; may be settings-level `effortLevel` only | Low |
+| MCP resources/prompts | MCP resources (`@server:protocol://path`) and prompts (`/mcp__server__prompt`) are runtime features, no config to emit | Low |
+| Claude.ai MCP server sync | Claude.ai MCP servers auto-available; controlled by `ENABLE_CLAUDEAI_MCP_SERVERS` env var | Low |
+| Bundled skills | Built-in skills (`/simplify`, `/batch`, `/debug`, `/loop`, `/claude-api`) cannot be emitted | Low |
+| Agent teams | Agent teams orchestration feature — no config format documented yet | Low |
 
 ### Notes
 
@@ -851,3 +887,11 @@ Plugin skills are namespaced: `/plugin-name:skill-name`.
 - `once` field on hooks only works in skills, not agents
 - `$CLAUDE_PROJECT_DIR` available in hook commands for project-relative paths
 - Read/Edit permission patterns follow gitignore spec with `//`, `~/`, `/` prefix conventions
+- `Skill(name)` permission rules control skill access; `Skill(name *)` enforces word boundary matching
+- New model aliases: `opusplan` (opus for planning, sonnet for execution), `default` (tier-dependent), `sonnet[1m]` (1M context window)
+- MCP: `MCP_TIMEOUT` env var for startup timeout, `MAX_MCP_OUTPUT_TOKENS` for output limits
+- Hooks snapshot at startup; external modifications require `/hooks` review
+- Nested directory skill discovery (e.g., `packages/frontend/.claude/skills/`)
+- Skills from `--add-dir` directories loaded with live change detection
+- `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var overrides skill description budget
+- `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` env var loads CLAUDE.md from `--add-dir` directories

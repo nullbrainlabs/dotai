@@ -115,6 +115,23 @@ describe("agentsEmitter — claude", () => {
 		expect(result.warnings).toHaveLength(0);
 	});
 
+	it.each([
+		"opusplan",
+		"default",
+		"sonnet[1m]",
+	])("passes through %s model alias without warning", (alias) => {
+		const config = emptyConfig();
+		config.agents.push({
+			name: "aliased",
+			description: "Agent with alias",
+			instructions: "Do stuff.",
+			model: alias,
+		});
+		const result = agentsEmitter.emit(config, "claude");
+		expect(result.files[0].content).toContain(`model: ${alias}`);
+		expect(result.warnings).toHaveLength(0);
+	});
+
 	it("serializes hooks and mcpServers into frontmatter", () => {
 		const config = emptyConfig();
 		config.agents.push({
