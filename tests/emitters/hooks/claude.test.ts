@@ -146,7 +146,7 @@ describe("hooksEmitter — claude", () => {
 		const handler = parsed.hooks.PreToolUse[0].hooks[0];
 		expect(handler.type).toBe("command");
 		expect(handler.command).toBe("lint-check");
-		expect(handler.timeout).toBe(5000);
+		expect(handler.timeout).toBe(5);
 		expect(handler.statusMessage).toBe("Running lint...");
 		expect(handler.once).toBe(true);
 		expect(handler.async).toBe(true);

@@ -42,27 +42,44 @@ jobs:
           claude_args: '--allowed-tools "Read,Glob,Grep,WebSearch,WebFetch,Bash(gh issue create:*),Bash(gh issue list:*)"'
           show_full_output: true
           prompt: |
-            You are the spec monitor. Check the **${{ matrix.tool }}** tool spec for drift against official documentation.
+            You are the spec monitor. Check the **${{ matrix.tool }}** tool for config drift using a two-phase process.
 
-            ## Process
+            ## Phase 1: Hash Check (deterministic)
 
-            1. Read `specs/${{ matrix.tool }}.research.json` for doc URLs, `llmsTxt` URL, and current spec path
-            2. Read the current spec file
-            3. For each URL in the `docs` array, try to fetch it with WebFetch
-               - If a URL returns 403/blocked, fetch the `llmsTxt` URL from the research config to discover current doc URLs
-               - Use the llms.txt index to find replacement URLs for any blocked docs
-               - As a last resort, fall back to WebSearch for the tool name + "configuration"
-            4. Compare fetched content against the current spec
-            5. Note meaningful differences: new config fields, changed formats, deprecated features, new capabilities
-            6. Skip cosmetic or documentation-only changes (rewording, typo fixes)
+            1. Read `specs/${{ matrix.tool }}.research.json` — get the `docs` array (each entry has `url`, `lastHash`, `lastFetched`)
+            2. Read the current spec at the path in the `spec` field
+            3. For each doc entry:
+               - Fetch the `url` with WebFetch
+               - If the URL returns 403/404, fetch the `llmsTxt` URL to discover current doc URLs
+               - Compute a simple content fingerprint (first 200 chars + last 200 chars + total length)
+               - Compare against `lastHash` — if `lastHash` is empty, the doc has never been checked (treat as "changed")
+            4. If ALL docs have non-empty `lastHash` AND content appears unchanged → exit silently. No drift detected.
+            5. If ANY doc has changed or has empty `lastHash` → proceed to Phase 2
+
+            NOTE: This workflow has `contents: read` permission — you cannot update hashes in the research config.
+            Hash updates happen when spec-researcher runs locally.
+
+            ## Phase 2: LLM Interpretation (changed docs only)
+
+            For each doc that changed (or was never checked), classify every difference using this taxonomy:
+
+            | Category | Examples | Action |
+            |----------|----------|--------|
+            | **Structural** | New config key, removed field, changed type, new file path | Report |
+            | **Behavioral** | Changed default value, new enum option, changed validation | Report |
+            | **Format** | New file extension, changed path convention, new frontmatter field | Report |
+            | **Cosmetic** | Rewording, reordering, typo fixes, added examples for existing features | Skip |
+
+            Compare fetched content against the current spec to find meaningful differences.
+            Only structural, behavioral, and format changes constitute drift.
 
             ## Reporting
 
-            - If NO meaningful changes detected, exit silently. Do not create an issue.
-            - If changes ARE detected, first check for an existing open issue:
+            - If NO reportable changes detected (only cosmetic or no changes), exit silently. Do not create an issue.
+            - If reportable changes ARE detected, first check for an existing open issue:
               `gh issue list --label spec-drift --state open --search "${{ matrix.tool }}" --limit 5`
               If one already covers this tool, skip creating a duplicate.
-            - Otherwise, create a GitHub issue:
+            - Otherwise, create a GitHub issue with a structured drift report:
 
             ```
             gh issue create \
@@ -71,10 +88,31 @@ jobs:
               --body "<body>"
             ```
 
-            The body should contain:
-            - A summary of what changed (### sections per change area)
-            - Links to the relevant doc pages
-            - A resolution checklist:
+            The issue body MUST contain:
+
+            1. A summary of what changed (### sections per change area)
+            2. Links to the relevant doc pages
+            3. A **drift-report JSON block** (fenced with ```json) in this exact format:
+
+            ```json
+            {
+              "tool": "${{ matrix.tool }}",
+              "detectedAt": "<today's date>",
+              "changes": [
+                {
+                  "section": "<entity: rules/agents/hooks/mcp/etc>",
+                  "type": "<structural|behavioral|format>",
+                  "description": "<what changed>",
+                  "docUrl": "<source URL>",
+                  "specLines": "<affected line range>",
+                  "emittersAffected": ["<emitter file paths>"]
+                }
+              ],
+              "status": "pending"
+            }
+            ```
+
+            4. A resolution checklist:
               - [ ] Review spec changes
               - [ ] Identify affected emitters
               - [ ] Update spec with `@claude /sync-spec-from-docs ${{ matrix.tool }}`

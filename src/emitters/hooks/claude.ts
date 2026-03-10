@@ -46,7 +46,7 @@ function buildClaudeHookHandler(hook: Hook): Record<string, unknown> {
 		if (hook.allowedEnvVars?.length) handler.allowedEnvVars = hook.allowedEnvVars;
 	}
 
-	if (hook.timeout !== undefined) handler.timeout = hook.timeout;
+	if (hook.timeout !== undefined) handler.timeout = Math.round(hook.timeout / 1000);
 	if (hook.statusMessage) handler.statusMessage = hook.statusMessage;
 	if (hook.once) handler.once = true;
 	if (hook.model && (hookType === "prompt" || hookType === "agent")) handler.model = hook.model;

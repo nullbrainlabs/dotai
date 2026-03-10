@@ -14,6 +14,7 @@ import type { Permission } from "../src/domain/permission.js";
 import type { Rule } from "../src/domain/rule.js";
 import type { Skill } from "../src/domain/skill.js";
 import type { ToolServer } from "../src/domain/tool-server.js";
+import type { DriftChange, DriftReport, ResearchConfig } from "../src/spec-drift.js";
 
 /** Create a test Rule with sensible defaults. */
 export function fixtureRule(overrides?: Partial<Rule>): Rule {
@@ -83,6 +84,47 @@ export function fixtureConfig(overrides?: Partial<ProjectConfig>): ProjectConfig
 		toolServers: [fixtureToolServer()],
 		hooks: [fixtureHook()],
 		permissions: [fixturePermission()],
+		...overrides,
+	};
+}
+
+/** Create a test DriftChange with sensible defaults. */
+export function fixtureDriftChange(overrides?: Partial<DriftChange>): DriftChange {
+	return {
+		section: "hooks",
+		type: "structural",
+		description: "Added 'timeout' field to hook handlers",
+		docUrl: "https://code.claude.com/docs/en/hooks.md",
+		specLines: "245-260",
+		emittersAffected: ["src/emitters/hooks.ts"],
+		...overrides,
+	};
+}
+
+/** Create a test DriftReport with sensible defaults. */
+export function fixtureDriftReport(overrides?: Partial<DriftReport>): DriftReport {
+	return {
+		tool: "claude-code",
+		detectedAt: "2026-03-09",
+		changes: [fixtureDriftChange()],
+		status: "pending",
+		...overrides,
+	};
+}
+
+/** Create a test ResearchConfig with sensible defaults. */
+export function fixtureResearchConfig(overrides?: Partial<ResearchConfig>): ResearchConfig {
+	return {
+		tool: "claude-code",
+		lastResearchedVersion: "Claude Code 1.0 (CLI)",
+		spec: "specs/claude-code.md",
+		llmsTxt: "https://code.claude.com/docs/llms.txt",
+		docs: [
+			{ url: "https://code.claude.com/docs/en/hooks.md", lastHash: "", lastFetched: "" },
+		],
+		emitters: ["src/emitters/hooks.ts"],
+		outputPaths: { hooks: ".claude/settings.json (hooks key)" },
+		notes: ["Hook events use PascalCase"],
 		...overrides,
 	};
 }

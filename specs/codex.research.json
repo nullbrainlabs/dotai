@@ -4,14 +4,14 @@
 	"spec": "specs/codex.md",
 	"llmsTxt": "https://developers.openai.com/codex/llms.txt",
 	"docs": [
-		"https://developers.openai.com/codex/config-reference.md",
-		"https://developers.openai.com/codex/config-advanced.md",
-		"https://developers.openai.com/codex/rules.md",
-		"https://developers.openai.com/codex/skills.md",
-		"https://developers.openai.com/codex/mcp.md",
-		"https://developers.openai.com/codex/security.md",
-		"https://developers.openai.com/codex/multi-agent.md",
-		"https://developers.openai.com/codex/guides/agents-md.md"
+		{ "url": "https://developers.openai.com/codex/config-reference.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://developers.openai.com/codex/config-advanced.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://developers.openai.com/codex/rules.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://developers.openai.com/codex/skills.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://developers.openai.com/codex/mcp.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://developers.openai.com/codex/security.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://developers.openai.com/codex/multi-agent.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://developers.openai.com/codex/guides/agents-md.md", "lastHash": "", "lastFetched": "" }
 	],
 	"emitters": [
 		"src/emitters/rules.ts",

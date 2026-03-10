@@ -106,5 +106,18 @@ export {
 export type { FileStatus, FileStatusEntry, SyncState } from "./state.js";
 export { contentHash, diffFiles, loadState, saveState } from "./state.js";
 
+// Spec drift
+export type { DocEntry, DriftChange, DriftReport, ResearchConfig } from "./spec-drift.js";
+export {
+	cacheFilename,
+	docHash,
+	loadDriftReport,
+	loadResearchConfig,
+	readCachedDoc,
+	saveDriftReport,
+	saveResearchConfig,
+	writeCachedDoc,
+} from "./spec-drift.js";
+
 // Templates
 export { defaultConfig, helperSkills } from "./templates/index.js";

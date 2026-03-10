@@ -4,10 +4,10 @@
 	"spec": "specs/copilot.md",
 	"llmsTxt": "https://docs.github.com/llms.txt",
 	"docs": [
-		"https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions",
-		"https://docs.github.com/en/copilot/reference/hooks-configuration",
-		"https://docs.github.com/en/copilot/reference/custom-agents-configuration",
-		"https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills"
+		{ "url": "https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://docs.github.com/en/copilot/reference/hooks-configuration", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://docs.github.com/en/copilot/reference/custom-agents-configuration", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills", "lastHash": "", "lastFetched": "" }
 	],
 	"emitters": [
 		"src/emitters/rules.ts",

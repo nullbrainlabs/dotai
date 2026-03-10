@@ -37,6 +37,10 @@ coverage/
 # Scratch
 scratch-pad/
 
+# Spec drift artifacts
+specs/.cache/
+specs/*.drift-report.json
+
 # Docs
 docs/external
 docs-site/dist

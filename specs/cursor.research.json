@@ -4,12 +4,12 @@
 	"spec": "specs/cursor.md",
 	"llmsTxt": "https://cursor.com/llms.txt",
 	"docs": [
-		"https://cursor.com/docs/rules",
-		"https://cursor.com/docs/agent/overview",
-		"https://cursor.com/docs/mcp",
-		"https://cursor.com/docs/reference/ignore-file",
-		"https://cursor.com/docs/cli/reference/configuration",
-		"https://cursor.com/docs/cli/reference/permissions"
+		{ "url": "https://cursor.com/docs/rules", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://cursor.com/docs/agent/overview", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://cursor.com/docs/mcp", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://cursor.com/docs/reference/ignore-file", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://cursor.com/docs/cli/reference/configuration", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://cursor.com/docs/cli/reference/permissions", "lastHash": "", "lastFetched": "" }
 	],
 	"emitters": [
 		"src/emitters/rules.ts",

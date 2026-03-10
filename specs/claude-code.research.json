@@ -1,17 +1,20 @@
 {
 	"tool": "claude-code",
-	"lastResearchedVersion": "Claude Code 1.0 (CLI)",
+	"lastResearchedVersion": "Claude Code 2.1.x (CLI)",
+	"lastResearchedDate": "2026-03-09",
 	"spec": "specs/claude-code.md",
 	"llmsTxt": "https://code.claude.com/docs/llms.txt",
 	"docs": [
-		"https://code.claude.com/docs/en/settings.md",
-		"https://code.claude.com/docs/en/memory.md",
-		"https://code.claude.com/docs/en/mcp.md",
-		"https://code.claude.com/docs/en/hooks.md",
-		"https://code.claude.com/docs/en/sub-agents.md",
-		"https://code.claude.com/docs/en/skills.md",
-		"https://code.claude.com/docs/en/permissions.md",
-		"https://code.claude.com/docs/en/plugins.md"
+		{ "url": "https://code.claude.com/docs/en/settings.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/memory.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/mcp.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/hooks.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/sub-agents.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/skills.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/permissions.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/plugins.md", "lastHash": "", "lastFetched": "2026-03-09" },
+		{ "url": "https://code.claude.com/docs/en/sandboxing.md", "lastHash": "", "lastFetched": "" },
+		{ "url": "https://code.claude.com/docs/en/plugins-reference.md", "lastHash": "", "lastFetched": "" }
 	],
 	"emitters": [
 		"src/emitters/rules.ts",
@@ -38,7 +41,24 @@
 		"CLAUDE.md files concatenate when multiple rules share the same outputDir",
 		"Scoped rules use YAML paths: frontmatter in .claude/rules/",
 		"Ignore patterns are lossy — mapped to deny rules on Read/Edit tools",
-		"Hook handler supports 3 types: command, prompt, agent",
-		"settings.json has $schema reference for validation"
+		"Hook handler supports 4 types: command, http, prompt, agent",
+		"settings.json has $schema reference for validation",
+		"New: .claude/settings.local.json for local project overrides (gitignored)",
+		"New: Managed policy CLAUDE.md at system-wide paths",
+		"New: @import syntax in CLAUDE.md for pulling in external files",
+		"New: claudeMdExcludes setting to skip CLAUDE.md files in monorepos",
+		"New: Auto memory at ~/.claude/projects/<project>/memory/",
+		"New: Plugin system with .claude-plugin/plugin.json manifests",
+		"New: OAuth config for MCP servers (clientId, callbackPort, authServerMetadataUrl)",
+		"New: MCP Tool Search for dynamic tool loading (ENABLE_TOOL_SEARCH)",
+		"New: Agent memory scopes (user, project, local) with persistent directories",
+		"New: --agents CLI flag for session-scoped JSON agent definitions",
+		"New: Sandbox filesystem/network granular config (allowWrite, denyRead, allowedDomains)",
+		"New: Read/Edit permission patterns follow gitignore spec with //, ~/, / prefixes",
+		"New: Agent(name) permission rules for controlling subagent access",
+		"New: Skill context:fork with agent field for isolated execution",
+		"New: !`command` bash injection syntax in skills",
+		"New: Hook timeout unit is seconds (not milliseconds) per official docs",
+		"New: $CLAUDE_PROJECT_DIR env var in hook commands"
 	]
 }
