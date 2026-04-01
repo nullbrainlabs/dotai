@@ -41,11 +41,11 @@ When the same key appears at multiple scopes, the narrower scope wins for settin
 
 ## Further Reading
 
-- [Rules](./rules) — persistent textual instructions
-- [Skills](./skills) — reusable knowledge packages
-- [Agents](./agents) — specialized sub-agents
-- [Tool Servers](./tool-servers) — MCP providers
-- [Hooks](./hooks) — lifecycle event handlers
-- [Permissions](./permissions) — access control
-- [Settings](./settings) — key-value configuration
-- [Ignore Patterns](./ignore-patterns) — file exclusion rules
+- [Rules](../rules) — persistent textual instructions
+- [Skills](../skills) — reusable knowledge packages
+- [Agents](../ai-agents) — specialized sub-agents
+- [Tool Servers](../tool-servers) — MCP providers
+- [Hooks](../hooks) — lifecycle event handlers
+- [Permissions](../permissions) — access control
+- [Settings](../settings) — key-value configuration
+- [Ignore Patterns](../ignore-patterns) — file exclusion rules
